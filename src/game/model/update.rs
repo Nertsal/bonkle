@@ -67,9 +67,6 @@ impl Model {
                     *lifetime -= delta_time;
                     if *lifetime <= 0.0 {
                         enemy.health = 0.0;
-                        enemy.enemy_type = EnemyType::Corpse {
-                            lifetime: CORPSE_LIFETIME,
-                        };
                     }
                 }
                 _ => (),
@@ -146,7 +143,7 @@ impl Model {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.body) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
-                let hit_strength = collision.normal.dot(relative_velocity);
+                let hit_strength = collision.normal.dot(relative_velocity).abs();
                 enemy.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
                         / enemy.rigidbody.mass;
@@ -170,7 +167,7 @@ impl Model {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
-                let hit_strength = collision.normal.dot(relative_velocity);
+                let hit_strength = collision.normal.dot(relative_velocity).abs();
                 enemy.rigidbody.velocity +=
                     hit_strength * collision.normal * self.player.head.mass / enemy.rigidbody.mass;
                 self.player.head.velocity -=

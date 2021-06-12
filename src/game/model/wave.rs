@@ -51,7 +51,7 @@ impl Model {
         };
         for _ in 0..groups_count {
             let max_enemies = (self.current_stage as f32).sqrt().floor() as usize;
-            let enemies_count = gen_range(max_enemies.max(3) - 2, max_enemies.min(1));
+            let enemies_count = gen_range(max_enemies.max(3) - 2, max_enemies.max(1));
             let mut group = WaveGroup {
                 enemies: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),

@@ -58,7 +58,8 @@ impl Model {
         for enemy in &mut self.enemies {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
-                enemy.rigidbody.velocity += collision.normal.dot(self.player.head.velocity)
+                let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
+                enemy.rigidbody.velocity += collision.normal.dot(relative_velocity)
                     * collision.normal
                     * self.player.head.mass
                     / enemy.rigidbody.mass;

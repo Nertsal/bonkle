@@ -11,6 +11,7 @@ pub use player::*;
 
 const PLAYER_SPEED: f32 = 40.0;
 const HEAD_SPEED: f32 = 70.0;
+const BODY_HIT_SPEED: f32 = 50.0;
 
 pub struct Model {
     pub player: Player,

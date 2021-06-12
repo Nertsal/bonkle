@@ -24,6 +24,7 @@ const CORPSE_LIFETIME: f32 = 2.5;
 const PARTICLE_LIFETIME: f32 = 1.0;
 const BODY_ACCELERATION: f32 = 3.0;
 const HEAD_ACCELERATION: f32 = 10.0;
+const BODY_IMPACT: f32 = 50.0;
 
 pub struct Model {
     pub bounds: Bounds,
@@ -46,7 +47,7 @@ impl Model {
                 min: vec2(-75.0, -50.0),
                 max: vec2(75.0, 50.0),
             },
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 250.0),
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, 250.0),
             enemies: vec![],
             spawners: vec![],
             particles: vec![],

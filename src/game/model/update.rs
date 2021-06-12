@@ -141,6 +141,8 @@ impl Model {
                 enemy.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
                         / enemy.rigidbody.mass;
+                self.player.body.velocity -=
+                    BODY_IMPACT * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.body.position + collision.normal * collision.penetration;
                 self.player.health -= hit_strength;
@@ -162,6 +164,8 @@ impl Model {
                 let hit_strength = collision.normal.dot(relative_velocity);
                 enemy.rigidbody.velocity +=
                     hit_strength * collision.normal * self.player.head.mass / enemy.rigidbody.mass;
+                self.player.head.velocity -=
+                    hit_strength * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.head.position + collision.normal * collision.penetration;
                 enemy.health -= hit_strength;

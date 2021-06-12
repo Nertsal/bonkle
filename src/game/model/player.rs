@@ -11,13 +11,20 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(position: Vec2, mass: f32, chain_length: f32, size: f32, health: f32) -> Self {
+    pub fn new(
+        position: Vec2,
+        mass: f32,
+        chain_length: f32,
+        body_size: f32,
+        head_size: f32,
+        health: f32,
+    ) -> Self {
         Self {
-            body: RigidBody::new(position, mass, Collider::new(size)),
+            body: RigidBody::new(position, mass, Collider::new(body_size)),
             head: RigidBody::new(
                 position + vec2(chain_length, 0.0),
                 mass,
-                Collider::new(size),
+                Collider::new(head_size),
             ),
             chain_length,
             health,

@@ -1,32 +1,53 @@
 use super::*;
+use std::collections::VecDeque;
 
 mod enemy;
 mod physics;
 mod player;
+mod spawner;
 mod update;
+mod wave;
 
 pub use enemy::*;
 pub use physics::*;
 pub use player::*;
+use spawner::*;
+use wave::*;
 
 const PLAYER_SPEED: f32 = 50.0;
 const HEAD_SPEED: f32 = 150.0;
 const BODY_HIT_SPEED: f32 = 50.0;
 
 pub struct Model {
+    pub bounds: Bounds,
     pub player: Player,
     pub enemies: Vec<Enemy>,
-    pub bounds: Bounds,
+    pub spawners: Vec<Spawner>,
+    pub waves: VecDeque<Wave>,
 }
 
 impl Model {
     pub fn new() -> Self {
         Self {
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0),
-            enemies: vec![Enemy::new(vec2(50.0, 10.0), 5.0, 2.0)],
             bounds: Bounds {
                 min: vec2(-100.0, -75.0),
                 max: vec2(100.0, 75.0),
+            },
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0),
+            enemies: vec![],
+            spawners: vec![],
+            waves: {
+                let mut waves = VecDeque::new();
+                waves.push_back(Wave {
+                    groups: vec![WaveGroup {
+                        enemies: vec![EnemyInfo {
+                            mass: 5.0,
+                            movement_speed: 25.0,
+                            size: 2.0,
+                        }],
+                    }],
+                });
+                waves
             },
         }
     }

@@ -1,7 +1,27 @@
 use super::*;
 
 impl Model {
-    pub fn update(&mut self, delta_time: f32) {}
+    pub fn update(&mut self, delta_time: f32) {
+        if self.enemies.len() == 0 && self.spawners.len() == 0 {
+            self.next_wave();
+        }
+        self.update_spawners(delta_time);
+    }
+
+    fn update_spawners(&mut self, delta_time: f32) {
+        let mut remove_spawners = Vec::new();
+        for (index, spawner) in self.spawners.iter_mut().enumerate() {
+            spawner.time_left -= delta_time;
+            if spawner.time_left <= 0.0 {
+                remove_spawners.push(index);
+            }
+        }
+        remove_spawners.reverse();
+        for spawner_index in remove_spawners {
+            let spawner = self.spawners.remove(spawner_index);
+            self.spawn_group(spawner.position, spawner.spawn_group);
+        }
+    }
 
     pub fn fixed_update(&mut self, delta_time: f32) {
         self.move_player(delta_time);

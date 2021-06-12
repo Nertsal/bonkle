@@ -5,6 +5,7 @@ pub struct Renderer {
     current_fps: f32,
     fps_update_time: f32,
     fps_update: f32,
+    debug_mode: bool,
 }
 
 impl Renderer {
@@ -18,10 +19,15 @@ impl Renderer {
             current_fps: 0.0,
             fps_update_time: 0.5,
             fps_update: 0.0,
+            debug_mode: false,
         }
     }
 
     pub fn update(&mut self, delta_time: f32) {
+        if is_key_pressed(KeyCode::F6) {
+            self.debug_mode = !self.debug_mode;
+        }
+
         self.fps_update -= delta_time;
         if self.fps_update <= 0.0 {
             self.fps_update += self.fps_update_time;
@@ -81,13 +87,15 @@ impl Renderer {
     fn draw_ui(&self, model: &Model) {
         set_default_camera();
 
-        draw_text(
-            &format!("FPS: {:.0}", self.current_fps),
-            10.0,
-            20.0,
-            20.0,
-            WHITE,
-        );
+        if self.debug_mode {
+            draw_text(
+                &format!("FPS: {:.0}", self.current_fps),
+                10.0,
+                20.0,
+                20.0,
+                WHITE,
+            );
+        }
 
         if model.player.health <= 0.0 {
             draw_text(

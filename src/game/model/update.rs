@@ -54,9 +54,13 @@ impl Model {
     fn move_enemies(&mut self, delta_time: f32) {
         for enemy in &mut self.enemies {
             enemy.rigidbody.position += enemy.rigidbody.velocity * delta_time;
+
             if enemy.rigidbody.velocity.length() > enemy.movement_speed {
                 enemy.rigidbody.velocity *= 1.0 - DRAG * delta_time;
             }
+            let target_direction = self.player.body.position - enemy.rigidbody.position;
+            let target_velocity = target_direction.normalize() * enemy.movement_speed;
+            enemy.rigidbody.velocity += (target_velocity - enemy.rigidbody.velocity) * delta_time;
         }
     }
 

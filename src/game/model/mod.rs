@@ -41,7 +41,26 @@ impl Model {
                 let mut waves = VecDeque::new();
                 waves.push_back(Wave {
                     groups: vec![WaveGroup {
-                        enemies: vec![EnemyInfo::new(150.0, 5.0, 2.0, 25.0)],
+                        enemies: vec![
+                            // EnemyInfo::new(150.0, 5.0, 2.0, 25.0, EnemyType::Melee),
+                            EnemyInfo::new(
+                                150.0,
+                                5.0,
+                                2.0,
+                                25.0,
+                                EnemyType::Ranged {
+                                    attack_time: 1.0,
+                                    attack_cooldown: 1.0,
+                                    projectile: Box::new(EnemyInfo::new(
+                                        1.0,
+                                        1.0,
+                                        1.5,
+                                        30.0,
+                                        EnemyType::Projectile,
+                                    )),
+                                },
+                            ),
+                        ],
                     }],
                 });
                 waves

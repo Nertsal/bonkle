@@ -24,10 +24,37 @@ impl Model {
     }
 
     pub fn fixed_update(&mut self, delta_time: f32) {
+        self.attack(delta_time);
         self.move_player(delta_time);
         self.move_enemies(delta_time);
         self.collide();
         self.check_dead();
+    }
+
+    fn attack(&mut self, delta_time: f32) {
+        let mut spawn_enemies = Vec::new();
+        for enemy in &mut self.enemies {
+            match &mut enemy.enemy_type {
+                EnemyType::Ranged {
+                    projectile,
+                    attack_cooldown,
+                    attack_time,
+                } => {
+                    *attack_cooldown -= delta_time;
+                    if *attack_cooldown <= 0.0 {
+                        *attack_cooldown = *attack_time;
+                        let mut projectile =
+                            Enemy::new(enemy.rigidbody.position, (**projectile).clone());
+                        projectile.rigidbody.velocity =
+                            (self.player.body.position - projectile.rigidbody.position).normalize()
+                                * projectile.movement_speed;
+                        spawn_enemies.push(projectile);
+                    }
+                }
+                _ => (),
+            }
+        }
+        self.enemies.extend(spawn_enemies);
     }
 
     fn move_player(&mut self, delta_time: f32) {
@@ -58,9 +85,15 @@ impl Model {
             if enemy.rigidbody.velocity.length() > enemy.movement_speed {
                 enemy.rigidbody.velocity *= 1.0 - DRAG * delta_time;
             }
-            let target_direction = self.player.body.position - enemy.rigidbody.position;
-            let target_velocity = target_direction.normalize() * enemy.movement_speed;
-            enemy.rigidbody.velocity += (target_velocity - enemy.rigidbody.velocity) * delta_time;
+            match &enemy.enemy_type {
+                EnemyType::Melee | EnemyType::Ranged { .. } => {
+                    let target_direction = self.player.body.position - enemy.rigidbody.position;
+                    let target_velocity = target_direction.normalize() * enemy.movement_speed;
+                    enemy.rigidbody.velocity +=
+                        (target_velocity - enemy.rigidbody.velocity) * delta_time;
+                }
+                _ => (),
+            }
         }
     }
 

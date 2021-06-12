@@ -79,6 +79,7 @@ impl Model {
                 let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity);
                 self.player.health -= hit_strength;
+                enemy.health -= hit_strength;
                 enemy.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
                         / enemy.rigidbody.mass;

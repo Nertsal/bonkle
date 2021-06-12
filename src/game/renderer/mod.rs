@@ -107,9 +107,9 @@ impl Renderer {
         if model.player.health <= 0.0 {
             draw_text(
                 "YOU DIED",
-                screen_width() / 2.0 - 50.0,
+                screen_width() / 2.0 - 75.0,
                 screen_height() / 2.0,
-                30.0,
+                50.0,
                 WHITE,
             );
         }

@@ -103,6 +103,7 @@ impl Model {
         self.player.head.clamp_bounds(&self.bounds);
         for enemy in &mut self.enemies {
             enemy.rigidbody.bounce_bounds(&self.bounds);
+            enemy.rigidbody.clamp_bounds(&self.bounds);
         }
 
         // Collide player body

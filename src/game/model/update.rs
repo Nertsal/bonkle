@@ -27,7 +27,6 @@ impl Model {
     fn particles(&mut self, delta_time: f32) {
         for particle in &mut self.particles {
             particle.rigidbody.movement(delta_time);
-            particle.rigidbody.clamp_bounds(&self.bounds);
             particle.rigidbody.bounce_bounds(&self.bounds);
             particle.rigidbody.drag(DRAG, delta_time);
             particle.lifetime -= delta_time;
@@ -75,8 +74,8 @@ impl Model {
         self.player.body.movement(delta_time);
         self.player.head.movement(delta_time);
 
-        // Calculate head movement direction
         if self.player.health > 0.0 {
+            // Calculate head target velocity
             let direction = self.player.head.position - self.player.body.position;
             let target = self.player.head_target - self.player.body.position;
             let angle = direction.angle_between(target).abs();
@@ -84,7 +83,14 @@ impl Model {
             let direction = vec2(direction.y, -direction.x).normalize();
             let signum = direction.dot(target).signum();
             let direction = direction * signum * speed;
-            self.player.head.velocity = direction * HEAD_SPEED + self.player.body.velocity;
+            self.player.target_head_velocity = direction * HEAD_SPEED + self.player.body.velocity;
+
+            // Accelerate towards target velocity
+            let target_change = self.player.target_body_velocity - self.player.body.velocity;
+            self.player.body.velocity += target_change * BODY_ACCELERATION * delta_time;
+
+            let target_change = self.player.target_head_velocity - self.player.head.velocity;
+            self.player.head.velocity += target_change * HEAD_ACCELERATION * delta_time;
         }
 
         // Clamp distance between body and head
@@ -114,11 +120,10 @@ impl Model {
 
     fn collide(&mut self) {
         // Collide bounds
-        self.player.body.clamp_bounds(&self.bounds);
-        self.player.head.clamp_bounds(&self.bounds);
+        self.player.body.bounce_bounds(&self.bounds);
+        self.player.head.bounce_bounds(&self.bounds);
         for enemy in &mut self.enemies {
             enemy.rigidbody.bounce_bounds(&self.bounds);
-            enemy.rigidbody.clamp_bounds(&self.bounds);
         }
 
         let mut particles = Vec::new();

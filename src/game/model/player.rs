@@ -6,6 +6,8 @@ pub struct Player {
     pub chain_length: f32,
     pub head_target: Vec2,
     pub health: f32,
+    pub target_body_velocity: Vec2,
+    pub target_head_velocity: Vec2,
 }
 
 impl Player {
@@ -20,6 +22,8 @@ impl Player {
             chain_length,
             health,
             head_target: vec2(1.0, 0.0),
+            target_body_velocity: vec2(0.0, 0.0),
+            target_head_velocity: vec2(0.0, 0.0),
         }
     }
 }

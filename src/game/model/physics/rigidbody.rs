@@ -40,6 +40,7 @@ impl RigidBody {
     }
 
     pub fn bounce_bounds(&mut self, bounds: &Bounds) {
+        self.clamp_bounds(bounds);
         let size = vec2(self.collider.radius, self.collider.radius);
         let min = self.position - size;
         let max = self.position + size;

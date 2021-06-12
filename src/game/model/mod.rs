@@ -22,6 +22,8 @@ const BODY_HIT_SPEED: f32 = 50.0;
 const DRAG: f32 = 1.0;
 const CORPSE_LIFETIME: f32 = 2.5;
 const PARTICLE_LIFETIME: f32 = 1.0;
+const BODY_ACCELERATION: f32 = 3.0;
+const HEAD_ACCELERATION: f32 = 10.0;
 
 pub struct Model {
     pub bounds: Bounds,
@@ -100,10 +102,8 @@ impl Model {
     }
 
     pub fn move_direction(&mut self, direction: Vec2) {
-        if self.player.health > 0.0 {
-            let direction = direction.clamp_length_max(1.0);
-            self.player.body.velocity = direction * PLAYER_SPEED;
-        }
+        let direction = direction.clamp_length_max(1.0);
+        self.player.target_body_velocity = direction * PLAYER_SPEED;
     }
 
     pub fn head_target(&mut self, target: Vec2) {

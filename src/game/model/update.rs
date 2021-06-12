@@ -37,6 +37,13 @@ impl Model {
     }
 
     fn collide(&mut self) {
+        // Collide bounds
+        self.player.body.clamp_bounds(&self.bounds);
+        self.player.head.clamp_bounds(&self.bounds);
+        for enemy in &mut self.enemies {
+            enemy.rigidbody.bounce_bounds(&self.bounds);
+        }
+
         // Collide player body
         for enemy in &mut self.enemies {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.body) {

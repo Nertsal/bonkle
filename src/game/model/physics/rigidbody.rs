@@ -29,4 +29,21 @@ impl RigidBody {
             None
         }
     }
+
+    pub fn clamp_bounds(&mut self, bounds: &Bounds) {
+        let size = vec2(self.collider.radius, self.collider.radius);
+        self.position = self.position.clamp(bounds.min + size, bounds.max - size);
+    }
+
+    pub fn bounce_bounds(&mut self, bounds: &Bounds) {
+        let size = vec2(self.collider.radius, self.collider.radius);
+        let min = self.position - size;
+        let max = self.position + size;
+        if min.x <= bounds.min.x || max.x >= bounds.max.x {
+            self.velocity.x *= -1.0;
+        }
+        if min.y <= bounds.min.y || max.y >= bounds.max.y {
+            self.velocity.y *= -1.0;
+        }
+    }
 }

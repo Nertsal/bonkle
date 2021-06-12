@@ -43,6 +43,16 @@ impl Renderer {
         for enemy in &model.enemies {
             self.draw_rigidbody(&enemy.rigidbody, RED);
         }
+
+        let bounds_size = model.bounds.max - model.bounds.min;
+        draw_rectangle_lines(
+            model.bounds.min.x,
+            model.bounds.min.y,
+            bounds_size.x,
+            bounds_size.y,
+            0.5,
+            LIGHTGRAY,
+        );
     }
 
     fn draw_rigidbody(&self, rigidbody: &RigidBody, color: Color) {

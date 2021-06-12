@@ -16,6 +16,7 @@ const BODY_HIT_SPEED: f32 = 50.0;
 pub struct Model {
     pub player: Player,
     pub enemies: Vec<Enemy>,
+    pub bounds: Bounds,
 }
 
 impl Model {
@@ -23,6 +24,10 @@ impl Model {
         Self {
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0),
             enemies: vec![Enemy::new(vec2(50.0, 10.0), 5.0, 2.0)],
+            bounds: Bounds {
+                min: vec2(-100.0, -75.0),
+                max: vec2(100.0, 75.0),
+            },
         }
     }
 
@@ -34,4 +39,9 @@ impl Model {
     pub fn head_target(&mut self, target: Vec2) {
         self.player.head_target = target;
     }
+}
+
+pub struct Bounds {
+    pub min: Vec2,
+    pub max: Vec2,
 }

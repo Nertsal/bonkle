@@ -152,7 +152,7 @@ impl Model {
 
                 let contact = self.player.body.position + collision.normal * collision.penetration;
                 self.player.health -= hit_strength;
-                particles.push((contact, hit_strength, PLAYER_COLOR));
+                particles.push((contact, hit_strength * 5.0, PLAYER_COLOR));
                 enemy.health -= hit_strength;
                 particles.push((contact, hit_strength, enemy.color));
             }

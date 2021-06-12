@@ -41,7 +41,7 @@ impl Renderer {
         self.draw_rigidbody(&model.player.body, WHITE);
         self.draw_rigidbody(&model.player.head, WHITE);
         for enemy in &model.enemies {
-            self.draw_rigidbody(&enemy.rigidbody, RED);
+            self.draw_rigidbody(&enemy.rigidbody, enemy.color);
         }
 
         for spawner in &model.spawners {

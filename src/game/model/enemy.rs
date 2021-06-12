@@ -5,6 +5,7 @@ pub struct Enemy {
     pub movement_speed: f32,
     pub health: f32,
     pub enemy_type: EnemyType,
+    pub color: Color,
 }
 
 impl Enemy {
@@ -14,6 +15,7 @@ impl Enemy {
             movement_speed: enemy_info.movement_speed,
             health: enemy_info.health,
             enemy_type: enemy_info.enemy_type,
+            color: enemy_info.color,
         }
     }
 }
@@ -25,6 +27,7 @@ pub struct EnemyInfo {
     pub size: f32,
     pub movement_speed: f32,
     pub enemy_type: EnemyType,
+    pub color: Color,
 }
 
 impl EnemyInfo {
@@ -33,6 +36,7 @@ impl EnemyInfo {
         mass: f32,
         size: f32,
         movement_speed: f32,
+        color: Color,
         attack_type: EnemyType,
     ) -> Self {
         Self {
@@ -41,12 +45,16 @@ impl EnemyInfo {
             size,
             movement_speed,
             enemy_type: attack_type,
+            color,
         }
     }
 }
 
 #[derive(Clone)]
 pub enum EnemyType {
+    Corpse {
+        lifetime: f32,
+    },
     Melee,
     Ranged {
         projectile: Box<EnemyInfo>,

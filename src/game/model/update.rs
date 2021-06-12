@@ -28,7 +28,7 @@ impl Model {
         self.move_player(delta_time);
         self.move_enemies(delta_time);
         self.collide();
-        self.check_dead();
+        self.check_dead(delta_time);
     }
 
     fn attack(&mut self, delta_time: f32) {
@@ -107,6 +107,10 @@ impl Model {
 
         // Collide player body
         for enemy in &mut self.enemies {
+            if enemy.health <= 0.0 {
+                continue;
+            }
+
             if let Some(collision) = enemy.rigidbody.collide(&self.player.body) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
@@ -121,6 +125,10 @@ impl Model {
 
         // Collide player head
         for enemy in &mut self.enemies {
+            if enemy.health <= 0.0 {
+                continue;
+            }
+
             if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
@@ -134,7 +142,30 @@ impl Model {
         // Collide enemies
     }
 
-    fn check_dead(&mut self) {
-        self.enemies.retain(|enemy| enemy.health > 0.0);
+    fn check_dead(&mut self, delta_time: f32) {
+        let mut dead_enemies = Vec::new();
+        for (index, enemy) in self.enemies.iter_mut().enumerate() {
+            if enemy.health <= 0.0 {
+                match &mut enemy.enemy_type {
+                    EnemyType::Corpse { lifetime } => {
+                        *lifetime -= delta_time;
+                        let lifetime = *lifetime;
+                        if lifetime <= 0.0 {
+                            dead_enemies.push(index);
+                        }
+                        enemy.color.a = lifetime / CORPSE_LIFETIME * 0.5;
+                    }
+                    _ => {
+                        enemy.enemy_type = EnemyType::Corpse {
+                            lifetime: CORPSE_LIFETIME,
+                        }
+                    }
+                }
+            }
+        }
+        dead_enemies.reverse();
+        for dead_index in dead_enemies {
+            self.enemies.remove(dead_index);
+        }
     }
 }

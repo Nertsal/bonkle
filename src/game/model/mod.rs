@@ -18,6 +18,7 @@ const PLAYER_SPEED: f32 = 50.0;
 const HEAD_SPEED: f32 = 150.0;
 const BODY_HIT_SPEED: f32 = 50.0;
 const DRAG: f32 = 1.0;
+const CORPSE_LIFETIME: f32 = 2.5;
 
 pub struct Model {
     pub bounds: Bounds,
@@ -48,14 +49,16 @@ impl Model {
                                 5.0,
                                 2.0,
                                 25.0,
+                                ORANGE,
                                 EnemyType::Ranged {
                                     attack_time: 1.0,
                                     attack_cooldown: 1.0,
                                     projectile: Box::new(EnemyInfo::new(
                                         1.0,
-                                        1.0,
+                                        5.0,
                                         1.5,
                                         30.0,
+                                        ORANGE,
                                         EnemyType::Projectile,
                                     )),
                                 },

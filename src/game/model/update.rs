@@ -54,6 +54,9 @@ impl Model {
     fn move_enemies(&mut self, delta_time: f32) {
         for enemy in &mut self.enemies {
             enemy.rigidbody.position += enemy.rigidbody.velocity * delta_time;
+            if enemy.rigidbody.velocity.length() > enemy.movement_speed {
+                enemy.rigidbody.velocity *= 1.0 - DRAG * delta_time;
+            }
         }
     }
 

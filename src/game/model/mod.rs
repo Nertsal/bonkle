@@ -17,6 +17,7 @@ use wave::*;
 const PLAYER_SPEED: f32 = 50.0;
 const HEAD_SPEED: f32 = 150.0;
 const BODY_HIT_SPEED: f32 = 50.0;
+const DRAG: f32 = 1.0;
 
 pub struct Model {
     pub bounds: Bounds,

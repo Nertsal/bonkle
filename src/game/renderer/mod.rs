@@ -40,23 +40,18 @@ impl Renderer {
 
         self.draw_rigidbody(&model.player.body, WHITE);
         self.draw_rigidbody(&model.player.head, WHITE);
+        for enemy in &model.enemies {
+            self.draw_rigidbody(&enemy.rigidbody, RED);
+        }
     }
 
     fn draw_rigidbody(&self, rigidbody: &RigidBody, color: Color) {
-        match &rigidbody.collider {
-            Collider::Circle { radius } => {
-                draw_circle(rigidbody.position.x, rigidbody.position.y, *radius, color);
-            }
-            Collider::Square { size } => {
-                draw_rectangle(
-                    rigidbody.position.x,
-                    rigidbody.position.y,
-                    *size,
-                    *size,
-                    color,
-                );
-            }
-        }
+        draw_circle(
+            rigidbody.position.x,
+            rigidbody.position.y,
+            rigidbody.collider.radius,
+            color,
+        );
     }
 
     fn draw_ui(&self) {

@@ -5,6 +5,7 @@ impl Model {
 
     pub fn fixed_update(&mut self, delta_time: f32) {
         self.move_player(delta_time);
+        self.move_enemies(delta_time);
         self.collide();
     }
 
@@ -19,12 +20,33 @@ impl Model {
         let direction = vec2(direction.y, -direction.x).normalize();
         let signum = direction.dot(target).signum();
         let direction = direction * signum * speed;
-        self.player.head.velocity = direction * HEAD_SPEED;
+        self.player.head.velocity = direction * HEAD_SPEED + self.player.body.velocity;
 
         let offset = self.player.head.position - self.player.body.position;
         let distance = offset.length() - self.player.chain_length;
         self.player.head.position -= offset.normalize_or_zero() * distance;
     }
 
-    fn collide(&mut self) {}
+    fn move_enemies(&mut self, delta_time: f32) {
+        for enemy in &mut self.enemies {
+            enemy.rigidbody.position += enemy.rigidbody.velocity * delta_time;
+        }
+    }
+
+    fn collide(&mut self) {
+        // Collide player body
+
+        // Collide player head
+        for enemy in &mut self.enemies {
+            if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
+                enemy.rigidbody.position += collision.normal * collision.penetration;
+                enemy.rigidbody.velocity += collision.normal.dot(self.player.head.velocity)
+                    * collision.normal
+                    * self.player.head.mass
+                    / enemy.rigidbody.mass;
+            }
+        }
+
+        // Collide enemies
+    }
 }

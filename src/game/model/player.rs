@@ -8,16 +8,16 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(position: Vec2, mass: f32, chain_length: f32) -> Self {
+    pub fn new(position: Vec2, mass: f32, chain_length: f32, size: f32) -> Self {
         Self {
-            body: RigidBody::new(position, mass, Collider::circle(3.0)),
+            body: RigidBody::new(position, mass, Collider::new(size)),
             head: RigidBody::new(
                 position + vec2(chain_length, 0.0),
                 mass,
-                Collider::circle(3.0),
+                Collider::new(size),
             ),
             chain_length,
-            head_target: vec2(0.0, 0.0),
+            head_target: vec2(1.0, 0.0),
         }
     }
 }

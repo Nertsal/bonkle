@@ -1,9 +1,11 @@
 use super::*;
 
+mod enemy;
 mod physics;
 mod player;
 mod update;
 
+pub use enemy::*;
 pub use physics::*;
 pub use player::*;
 
@@ -12,12 +14,14 @@ const HEAD_SPEED: f32 = 70.0;
 
 pub struct Model {
     pub player: Player,
+    pub enemies: Vec<Enemy>,
 }
 
 impl Model {
     pub fn new() -> Self {
         Self {
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0),
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0),
+            enemies: vec![Enemy::new(vec2(50.0, 10.0), 5.0, 2.0)],
         }
     }
 

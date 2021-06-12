@@ -1,15 +1,16 @@
 use super::*;
 
-pub enum Collider {
-    Square { size: f32 },
-    Circle { radius: f32 },
+pub struct Collider {
+    pub radius: f32,
 }
 
 impl Collider {
-    pub fn circle(radius: f32) -> Self {
-        Self::Circle { radius }
+    pub fn new(radius: f32) -> Self {
+        Self { radius }
     }
-    pub fn square(size: f32) -> Self {
-        Self::Square { size }
-    }
+}
+
+pub struct Collision {
+    pub normal: Vec2,
+    pub penetration: f32,
 }

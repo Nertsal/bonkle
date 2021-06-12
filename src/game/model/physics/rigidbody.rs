@@ -16,4 +16,17 @@ impl RigidBody {
             collider,
         }
     }
+
+    pub fn collide(&self, other: &Self) -> Option<Collision> {
+        let offset = self.position - other.position;
+        let penetration = self.collider.radius + other.collider.radius - offset.length();
+        if penetration >= 0.0 {
+            Some(Collision {
+                normal: offset.normalize(),
+                penetration,
+            })
+        } else {
+            None
+        }
+    }
 }

@@ -22,3 +22,14 @@ pub struct EnemyInfo {
     pub size: f32,
     pub movement_speed: f32,
 }
+
+impl EnemyInfo {
+    pub fn new(health: f32, mass: f32, size: f32, movement_speed: f32) -> Self {
+        Self {
+            health,
+            mass,
+            size,
+            movement_speed,
+        }
+    }
+}

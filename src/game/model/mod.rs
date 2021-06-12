@@ -22,6 +22,7 @@ const CORPSE_LIFETIME: f32 = 2.5;
 
 pub struct Model {
     pub bounds: Bounds,
+    pub spawn_bounds: Bounds,
     pub player: Player,
     pub enemies: Vec<Enemy>,
     pub spawners: Vec<Spawner>,
@@ -35,35 +36,45 @@ impl Model {
                 min: vec2(-100.0, -75.0),
                 max: vec2(100.0, 75.0),
             },
+            spawn_bounds: Bounds {
+                min: vec2(-80.0, -55.0),
+                max: vec2(80.0, 55.0),
+            },
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 500.0),
             enemies: vec![],
             spawners: vec![],
             waves: {
+                let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, YELLOW, EnemyType::Melee);
+                let ranger = EnemyInfo::new(
+                    150.0,
+                    5.0,
+                    2.0,
+                    25.0,
+                    ORANGE,
+                    EnemyType::Ranged {
+                        attack_time: 1.0,
+                        attack_cooldown: 1.0,
+                        projectile: Box::new(EnemyInfo::new(
+                            1.0,
+                            5.0,
+                            1.5,
+                            30.0,
+                            ORANGE,
+                            EnemyType::Projectile,
+                        )),
+                    },
+                );
                 let mut waves = VecDeque::new();
                 waves.push_back(Wave {
                     groups: vec![WaveGroup {
-                        enemies: vec![
-                            // EnemyInfo::new(150.0, 5.0, 2.0, 25.0, EnemyType::Melee),
-                            EnemyInfo::new(
-                                150.0,
-                                5.0,
-                                2.0,
-                                25.0,
-                                ORANGE,
-                                EnemyType::Ranged {
-                                    attack_time: 1.0,
-                                    attack_cooldown: 1.0,
-                                    projectile: Box::new(EnemyInfo::new(
-                                        1.0,
-                                        5.0,
-                                        1.5,
-                                        30.0,
-                                        ORANGE,
-                                        EnemyType::Projectile,
-                                    )),
-                                },
-                            ),
-                        ],
+                        enemies: vec![melee.clone(), melee.clone()],
+                        radius: 10.0,
+                    }],
+                });
+                waves.push_back(Wave {
+                    groups: vec![WaveGroup {
+                        enemies: vec![melee.clone(), ranger],
+                        radius: 10.0,
                     }],
                 });
                 waves

@@ -45,7 +45,13 @@ impl Renderer {
         }
 
         for spawner in &model.spawners {
-            draw_circle_lines(spawner.position.x, spawner.position.y, 3.0, 0.2, RED);
+            draw_circle_lines(
+                spawner.position.x,
+                spawner.position.y,
+                spawner.spawn_group.radius,
+                0.2,
+                RED,
+            );
         }
 
         let bounds_size = model.bounds.max - model.bounds.min;

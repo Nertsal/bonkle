@@ -35,7 +35,7 @@ impl Model {
         let mut spawn_enemies = Vec::new();
         for enemy in &mut self.enemies {
             match &mut enemy.enemy_type {
-                EnemyType::Ranged {
+                EnemyType::Ranger {
                     projectile,
                     attack_cooldown,
                     attack_time,
@@ -86,7 +86,7 @@ impl Model {
                 enemy.rigidbody.velocity *= 1.0 - DRAG * delta_time;
             }
             match &enemy.enemy_type {
-                EnemyType::Melee | EnemyType::Ranged { .. } => {
+                EnemyType::Melee | EnemyType::Ranger { .. } => {
                     let target_direction = self.player.body.position - enemy.rigidbody.position;
                     let target_velocity = target_direction.normalize() * enemy.movement_speed;
                     enemy.rigidbody.velocity +=

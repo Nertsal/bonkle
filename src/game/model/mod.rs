@@ -51,7 +51,7 @@ impl Model {
                     2.0,
                     25.0,
                     RANGER_COLOR,
-                    EnemyType::Ranged {
+                    EnemyType::Ranger {
                         attack_time: 1.0,
                         attack_cooldown: 1.0,
                         projectile: Box::new(EnemyInfo::new(

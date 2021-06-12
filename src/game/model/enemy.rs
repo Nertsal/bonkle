@@ -56,7 +56,7 @@ pub enum EnemyType {
         lifetime: f32,
     },
     Melee,
-    Ranged {
+    Ranger {
         projectile: Box<EnemyInfo>,
         attack_time: f32,
         attack_cooldown: f32,

@@ -44,7 +44,7 @@ impl Model {
                 min: vec2(-75.0, -50.0),
                 max: vec2(75.0, 50.0),
             },
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 500.0),
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 250.0),
             enemies: vec![],
             spawners: vec![],
             particles: vec![],

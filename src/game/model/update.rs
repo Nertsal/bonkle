@@ -31,7 +31,7 @@ impl Model {
             particle.rigidbody.bounce_bounds(&self.bounds);
             particle.rigidbody.drag(DRAG, delta_time);
             particle.lifetime -= delta_time;
-            particle.color.a = particle.lifetime / PARTICLE_LIFETIME * 0.3;
+            particle.color.a = particle.lifetime / PARTICLE_LIFETIME * 0.5;
         }
         self.particles.retain(|particle| particle.lifetime > 0.0);
     }

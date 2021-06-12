@@ -37,12 +37,12 @@ impl Model {
     pub fn new() -> Self {
         Self {
             bounds: Bounds {
-                min: vec2(-100.0, -75.0),
-                max: vec2(100.0, 75.0),
+                min: vec2(-95.0, -70.0),
+                max: vec2(95.0, 70.0),
             },
             spawn_bounds: Bounds {
-                min: vec2(-80.0, -55.0),
-                max: vec2(80.0, 55.0),
+                min: vec2(-75.0, -50.0),
+                max: vec2(75.0, 50.0),
             },
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 500.0),
             enemies: vec![],
@@ -81,6 +81,18 @@ impl Model {
                         enemies: vec![melee.clone(), ranger.clone()],
                         radius: 10.0,
                     }],
+                });
+                waves.push_back(Wave {
+                    groups: vec![
+                        WaveGroup {
+                            enemies: vec![melee.clone(), ranger.clone()],
+                            radius: 10.0,
+                        },
+                        WaveGroup {
+                            enemies: vec![melee.clone(), ranger.clone()],
+                            radius: 10.0,
+                        },
+                    ],
                 });
                 waves
             },

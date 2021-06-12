@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::VecDeque;
 
 mod enemy;
 mod particle;
@@ -33,7 +32,7 @@ pub struct Model {
     pub enemies: Vec<Enemy>,
     pub particles: Vec<Particle>,
     pub spawners: Vec<Spawner>,
-    pub waves: VecDeque<Wave>,
+    pub current_stage: usize,
 }
 
 impl Model {
@@ -51,54 +50,7 @@ impl Model {
             enemies: vec![],
             spawners: vec![],
             particles: vec![],
-            waves: {
-                let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, MELEE_COLOR, EnemyType::Melee);
-                let ranger = EnemyInfo::new(
-                    150.0,
-                    5.0,
-                    2.0,
-                    25.0,
-                    RANGER_COLOR,
-                    EnemyType::Ranger {
-                        attack_time: 1.0,
-                        attack_cooldown: 1.0,
-                        projectile: Box::new(EnemyInfo::new(
-                            1.0,
-                            5.0,
-                            1.5,
-                            30.0,
-                            PROJECTILE_COLOR,
-                            EnemyType::Projectile { lifetime: 5.0 },
-                        )),
-                    },
-                );
-                let mut waves = VecDeque::new();
-                waves.push_back(Wave {
-                    groups: vec![WaveGroup {
-                        enemies: vec![melee.clone(), melee.clone()],
-                        radius: 10.0,
-                    }],
-                });
-                waves.push_back(Wave {
-                    groups: vec![WaveGroup {
-                        enemies: vec![melee.clone(), ranger.clone()],
-                        radius: 10.0,
-                    }],
-                });
-                waves.push_back(Wave {
-                    groups: vec![
-                        WaveGroup {
-                            enemies: vec![melee.clone(), ranger.clone()],
-                            radius: 10.0,
-                        },
-                        WaveGroup {
-                            enemies: vec![melee.clone(), ranger.clone()],
-                            radius: 10.0,
-                        },
-                    ],
-                });
-                waves
-            },
+            current_stage: 0,
         }
     }
 

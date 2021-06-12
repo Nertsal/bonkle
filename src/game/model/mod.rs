@@ -33,7 +33,7 @@ impl Model {
                 min: vec2(-100.0, -75.0),
                 max: vec2(100.0, 75.0),
             },
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0),
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 500.0),
             enemies: vec![],
             spawners: vec![],
             waves: {
@@ -44,6 +44,7 @@ impl Model {
                             mass: 5.0,
                             movement_speed: 25.0,
                             size: 2.0,
+                            health: 150.0,
                         }],
                     }],
                 });

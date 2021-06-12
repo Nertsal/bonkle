@@ -27,6 +27,7 @@ impl Model {
         self.move_player(delta_time);
         self.move_enemies(delta_time);
         self.collide();
+        self.check_dead();
     }
 
     fn move_player(&mut self, delta_time: f32) {
@@ -68,6 +69,9 @@ impl Model {
         for enemy in &mut self.enemies {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.body) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
+                let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
+                let hit_strength = collision.normal.dot(relative_velocity);
+                self.player.health -= hit_strength;
                 enemy.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
                         / enemy.rigidbody.mass;
@@ -79,13 +83,17 @@ impl Model {
             if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
-                enemy.rigidbody.velocity += collision.normal.dot(relative_velocity)
-                    * collision.normal
-                    * self.player.head.mass
-                    / enemy.rigidbody.mass;
+                let hit_strength = collision.normal.dot(relative_velocity);
+                enemy.health -= hit_strength;
+                enemy.rigidbody.velocity +=
+                    hit_strength * collision.normal * self.player.head.mass / enemy.rigidbody.mass;
             }
         }
 
         // Collide enemies
+    }
+
+    fn check_dead(&mut self) {
+        self.enemies.retain(|enemy| enemy.health > 0.0);
     }
 }

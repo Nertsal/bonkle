@@ -68,7 +68,7 @@ impl Model {
                             1.5,
                             30.0,
                             PROJECTILE_COLOR,
-                            EnemyType::Projectile,
+                            EnemyType::Projectile { lifetime: 5.0 },
                         )),
                     },
                 );

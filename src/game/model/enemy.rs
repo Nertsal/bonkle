@@ -61,5 +61,7 @@ pub enum EnemyType {
         attack_time: f32,
         attack_cooldown: f32,
     },
-    Projectile,
+    Projectile {
+        lifetime: f32,
+    },
 }

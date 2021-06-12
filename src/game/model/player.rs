@@ -4,6 +4,7 @@ pub struct Player {
     pub body: RigidBody,
     pub head: RigidBody,
     pub chain_length: f32,
+    pub head_target: Vec2,
 }
 
 impl Player {
@@ -16,6 +17,7 @@ impl Player {
                 Collider::circle(3.0),
             ),
             chain_length,
+            head_target: vec2(0.0, 0.0),
         }
     }
 }

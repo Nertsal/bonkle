@@ -32,7 +32,7 @@ impl Renderer {
     pub fn draw(&mut self, model: &Model) {
         clear_background(BACKGROUND_COLOR);
         self.draw_game(model);
-        self.draw_ui();
+        self.draw_ui(model);
     }
 
     fn draw_game(&mut self, model: &Model) {
@@ -78,7 +78,7 @@ impl Renderer {
         );
     }
 
-    fn draw_ui(&self) {
+    fn draw_ui(&self, model: &Model) {
         set_default_camera();
 
         draw_text(
@@ -88,5 +88,15 @@ impl Renderer {
             20.0,
             WHITE,
         );
+
+        if model.player.health <= 0.0 {
+            draw_text(
+                "YOU DIED",
+                screen_width() / 2.0 - 50.0,
+                screen_height() / 2.0,
+                30.0,
+                WHITE,
+            );
+        }
     }
 }

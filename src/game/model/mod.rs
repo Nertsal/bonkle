@@ -100,8 +100,10 @@ impl Model {
     }
 
     pub fn move_direction(&mut self, direction: Vec2) {
-        let direction = direction.clamp_length_max(1.0);
-        self.player.body.velocity = direction * PLAYER_SPEED;
+        if self.player.health > 0.0 {
+            let direction = direction.clamp_length_max(1.0);
+            self.player.body.velocity = direction * PLAYER_SPEED;
+        }
     }
 
     pub fn head_target(&mut self, target: Vec2) {

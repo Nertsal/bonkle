@@ -2,7 +2,7 @@ use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: f32) {
-        if self.enemies.len() == 0 && self.spawners.len() == 0 {
+        if self.player.health > 0.0 && self.enemies.len() == 0 && self.spawners.len() == 0 {
             self.next_wave();
         }
         self.update_spawners(delta_time);
@@ -76,14 +76,16 @@ impl Model {
         self.player.head.movement(delta_time);
 
         // Calculate head movement direction
-        let direction = self.player.head.position - self.player.body.position;
-        let target = self.player.head_target - self.player.body.position;
-        let angle = direction.angle_between(target).abs();
-        let speed = angle.min(0.2) / 0.2;
-        let direction = vec2(direction.y, -direction.x).normalize();
-        let signum = direction.dot(target).signum();
-        let direction = direction * signum * speed;
-        self.player.head.velocity = direction * HEAD_SPEED + self.player.body.velocity;
+        if self.player.health > 0.0 {
+            let direction = self.player.head.position - self.player.body.position;
+            let target = self.player.head_target - self.player.body.position;
+            let angle = direction.angle_between(target).abs();
+            let speed = angle.min(0.2) / 0.2;
+            let direction = vec2(direction.y, -direction.x).normalize();
+            let signum = direction.dot(target).signum();
+            let direction = direction * signum * speed;
+            self.player.head.velocity = direction * HEAD_SPEED + self.player.body.velocity;
+        }
 
         // Clamp distance between body and head
         let offset = self.player.head.position - self.player.body.position;

@@ -49,6 +49,13 @@ impl Renderer {
         }
 
         self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
+        draw_circle_lines(
+            model.player.body.position.x,
+            model.player.body.position.y,
+            model.player.chain_length,
+            0.2,
+            PLAYER_BORDER_COLOR,
+        );
         self.draw_rigidbody(&model.player.head, PLAYER_COLOR);
         for enemy in &model.enemies {
             self.draw_rigidbody(&enemy.rigidbody, enemy.color);

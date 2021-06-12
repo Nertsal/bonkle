@@ -11,7 +11,7 @@ impl Renderer {
     pub fn new() -> Self {
         Self {
             game_camera: Camera2D {
-                offset: vec2(0.0, -1.0),
+                offset: vec2(0.0, 0.0),
                 zoom: vec2(0.01, 0.01 * screen_width() / screen_height()),
                 ..Default::default()
             },
@@ -37,6 +37,26 @@ impl Renderer {
 
     fn draw_game(&mut self, model: &Model) {
         set_camera(&self.game_camera);
+
+        self.draw_rigidbody(&model.player.body, WHITE);
+        self.draw_rigidbody(&model.player.head, WHITE);
+    }
+
+    fn draw_rigidbody(&self, rigidbody: &RigidBody, color: Color) {
+        match &rigidbody.collider {
+            Collider::Circle { radius } => {
+                draw_circle(rigidbody.position.x, rigidbody.position.y, *radius, color);
+            }
+            Collider::Square { size } => {
+                draw_rectangle(
+                    rigidbody.position.x,
+                    rigidbody.position.y,
+                    *size,
+                    *size,
+                    color,
+                );
+            }
+        }
     }
 
     fn draw_ui(&self) {

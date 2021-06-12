@@ -2,6 +2,7 @@ use super::*;
 use std::collections::VecDeque;
 
 mod enemy;
+mod particle;
 mod physics;
 mod player;
 mod spawner;
@@ -9,6 +10,7 @@ mod update;
 mod wave;
 
 pub use enemy::*;
+pub use particle::*;
 pub use physics::*;
 pub use player::*;
 use spawner::*;
@@ -19,12 +21,14 @@ const HEAD_SPEED: f32 = 150.0;
 const BODY_HIT_SPEED: f32 = 50.0;
 const DRAG: f32 = 1.0;
 const CORPSE_LIFETIME: f32 = 2.5;
+const PARTICLE_LIFETIME: f32 = 1.0;
 
 pub struct Model {
     pub bounds: Bounds,
     pub spawn_bounds: Bounds,
     pub player: Player,
     pub enemies: Vec<Enemy>,
+    pub particles: Vec<Particle>,
     pub spawners: Vec<Spawner>,
     pub waves: VecDeque<Wave>,
 }
@@ -43,6 +47,7 @@ impl Model {
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 3.0, 500.0),
             enemies: vec![],
             spawners: vec![],
+            particles: vec![],
             waves: {
                 let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, MELEE_COLOR, EnemyType::Melee);
                 let ranger = EnemyInfo::new(

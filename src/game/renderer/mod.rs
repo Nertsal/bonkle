@@ -38,6 +38,10 @@ impl Renderer {
     fn draw_game(&mut self, model: &Model) {
         set_camera(&self.game_camera);
 
+        for particle in &model.particles {
+            self.draw_rigidbody(&particle.rigidbody, particle.color);
+        }
+
         self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
         self.draw_rigidbody(&model.player.head, PLAYER_COLOR);
         for enemy in &model.enemies {

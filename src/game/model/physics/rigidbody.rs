@@ -17,6 +17,10 @@ impl RigidBody {
         }
     }
 
+    pub fn movement(&mut self, delta_time: f32) {
+        self.position += self.velocity * delta_time;
+    }
+
     pub fn collide(&self, other: &Self) -> Option<Collision> {
         let offset = self.position - other.position;
         let penetration = self.collider.radius + other.collider.radius - offset.length();
@@ -45,5 +49,9 @@ impl RigidBody {
         if min.y <= bounds.min.y || max.y >= bounds.max.y {
             self.velocity.y *= -1.0;
         }
+    }
+
+    pub fn drag(&mut self, drag: f32, delta_time: f32) {
+        self.velocity *= 1.0 - drag * delta_time;
     }
 }

@@ -6,6 +6,7 @@ impl Model {
             self.next_wave();
         }
         self.update_spawners(delta_time);
+        self.particles(delta_time);
     }
 
     fn update_spawners(&mut self, delta_time: f32) {
@@ -21,6 +22,18 @@ impl Model {
             let spawner = self.spawners.remove(spawner_index);
             self.spawn_group(spawner.position, spawner.spawn_group);
         }
+    }
+
+    fn particles(&mut self, delta_time: f32) {
+        for particle in &mut self.particles {
+            particle.rigidbody.movement(delta_time);
+            particle.rigidbody.clamp_bounds(&self.bounds);
+            particle.rigidbody.bounce_bounds(&self.bounds);
+            particle.rigidbody.drag(DRAG, delta_time);
+            particle.lifetime -= delta_time;
+            particle.color.a = particle.lifetime / PARTICLE_LIFETIME * 0.3;
+        }
+        self.particles.retain(|particle| particle.lifetime > 0.0);
     }
 
     pub fn fixed_update(&mut self, delta_time: f32) {
@@ -59,8 +72,8 @@ impl Model {
 
     fn move_player(&mut self, delta_time: f32) {
         // Move
-        self.player.body.position += self.player.body.velocity * delta_time;
-        self.player.head.position += self.player.head.velocity * delta_time;
+        self.player.body.movement(delta_time);
+        self.player.head.movement(delta_time);
 
         // Calculate head movement direction
         let direction = self.player.head.position - self.player.body.position;
@@ -80,10 +93,10 @@ impl Model {
 
     fn move_enemies(&mut self, delta_time: f32) {
         for enemy in &mut self.enemies {
-            enemy.rigidbody.position += enemy.rigidbody.velocity * delta_time;
+            enemy.rigidbody.movement(delta_time);
 
             if enemy.rigidbody.velocity.length() > enemy.movement_speed {
-                enemy.rigidbody.velocity *= 1.0 - DRAG * delta_time;
+                enemy.rigidbody.drag(DRAG, delta_time);
             }
             match &enemy.enemy_type {
                 EnemyType::Melee | EnemyType::Ranger { .. } => {
@@ -106,6 +119,8 @@ impl Model {
             enemy.rigidbody.clamp_bounds(&self.bounds);
         }
 
+        let mut particles = Vec::new();
+
         // Collide player body
         for enemy in &mut self.enemies {
             if enemy.health <= 0.0 {
@@ -116,11 +131,15 @@ impl Model {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity);
-                self.player.health -= hit_strength;
-                enemy.health -= hit_strength;
                 enemy.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
                         / enemy.rigidbody.mass;
+
+                let contact = self.player.body.position + collision.normal * collision.penetration;
+                self.player.health -= hit_strength;
+                particles.push((contact, hit_strength, PLAYER_COLOR));
+                enemy.health -= hit_strength;
+                particles.push((contact, hit_strength, enemy.color));
             }
         }
 
@@ -134,13 +153,19 @@ impl Model {
                 enemy.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity);
-                enemy.health -= hit_strength;
                 enemy.rigidbody.velocity +=
                     hit_strength * collision.normal * self.player.head.mass / enemy.rigidbody.mass;
+
+                let contact = self.player.head.position + collision.normal * collision.penetration;
+                enemy.health -= hit_strength;
+                particles.push((contact, hit_strength, enemy.color));
             }
         }
 
-        // Collide enemies
+        // Particles
+        for (position, damage, color) in particles {
+            self.spawn_particles_hit(position, damage, color);
+        }
     }
 
     fn check_dead(&mut self, delta_time: f32) {

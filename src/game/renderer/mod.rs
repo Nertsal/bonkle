@@ -30,7 +30,7 @@ impl Renderer {
     }
 
     pub fn draw(&mut self, model: &Model) {
-        clear_background(BLACK);
+        clear_background(BACKGROUND_COLOR);
         self.draw_game(model);
         self.draw_ui();
     }
@@ -38,8 +38,8 @@ impl Renderer {
     fn draw_game(&mut self, model: &Model) {
         set_camera(&self.game_camera);
 
-        self.draw_rigidbody(&model.player.body, WHITE);
-        self.draw_rigidbody(&model.player.head, WHITE);
+        self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
+        self.draw_rigidbody(&model.player.head, PLAYER_COLOR);
         for enemy in &model.enemies {
             self.draw_rigidbody(&enemy.rigidbody, enemy.color);
         }
@@ -50,7 +50,7 @@ impl Renderer {
                 spawner.position.y,
                 spawner.spawn_group.radius,
                 0.2,
-                RED,
+                SPAWNER_COLOR,
             );
         }
 
@@ -61,7 +61,7 @@ impl Renderer {
             bounds_size.x,
             bounds_size.y,
             0.5,
-            LIGHTGRAY,
+            BORDER_COLOR,
         );
     }
 

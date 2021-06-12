@@ -6,6 +6,14 @@ mod renderer;
 use model::*;
 use renderer::*;
 
+const BACKGROUND_COLOR: Color = BLACK;
+const BORDER_COLOR: Color = GRAY;
+const MELEE_COLOR: Color = YELLOW;
+const RANGER_COLOR: Color = ORANGE;
+const PROJECTILE_COLOR: Color = ORANGE;
+const SPAWNER_COLOR: Color = RED;
+const PLAYER_COLOR: Color = BLUE;
+
 pub struct Game {
     renderer: Renderer,
     model: Model,

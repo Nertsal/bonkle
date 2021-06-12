@@ -44,13 +44,13 @@ impl Model {
             enemies: vec![],
             spawners: vec![],
             waves: {
-                let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, YELLOW, EnemyType::Melee);
+                let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, MELEE_COLOR, EnemyType::Melee);
                 let ranger = EnemyInfo::new(
                     150.0,
                     5.0,
                     2.0,
                     25.0,
-                    ORANGE,
+                    RANGER_COLOR,
                     EnemyType::Ranged {
                         attack_time: 1.0,
                         attack_cooldown: 1.0,
@@ -59,7 +59,7 @@ impl Model {
                             5.0,
                             1.5,
                             30.0,
-                            ORANGE,
+                            PROJECTILE_COLOR,
                             EnemyType::Projectile,
                         )),
                     },
@@ -73,7 +73,7 @@ impl Model {
                 });
                 waves.push_back(Wave {
                     groups: vec![WaveGroup {
-                        enemies: vec![melee.clone(), ranger],
+                        enemies: vec![melee.clone(), ranger.clone()],
                         radius: 10.0,
                     }],
                 });

@@ -36,6 +36,7 @@ pub struct Game {
     assets: Rc<Assets>,
     last_mouse_position: Vec2,
     head_control_mode: HeadControlMode,
+    paused: bool,
 }
 
 impl Game {
@@ -58,6 +59,7 @@ impl Game {
             assets,
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
+            paused: true,
         };
         macroquad::audio::play_sound(
             game.assets.music.clone(),
@@ -71,7 +73,11 @@ impl Game {
 
     pub fn update(&mut self, delta_time: f32) {
         self.renderer.update(delta_time);
-        self.model.update(delta_time);
+        if !self.paused {
+            self.model.update(delta_time);
+        } else if get_last_key_pressed().is_some() {
+            self.paused = false;
+        }
 
         self.move_player();
 
@@ -80,6 +86,7 @@ impl Game {
         if is_key_pressed(KeyCode::R) {
             self.model = Model::new();
             self.renderer = Renderer::new(&self.assets);
+            self.paused = true;
         }
     }
 
@@ -161,12 +168,7 @@ impl Game {
     }
 
     pub fn draw(&mut self) {
-        // set_default_camera();
-        // if self.model.game_start_timer > 0.0 {
-        // draw_texture(self.assets.tutorial, screen_width() / 2.0, 100.0, WHITE);
-        // }
-
-        self.renderer.draw(&self.model);
+        self.renderer.draw(&self.model, self.paused);
     }
 }
 

@@ -47,10 +47,10 @@ impl Renderer {
         }
     }
 
-    pub fn draw(&mut self, model: &Model) {
+    pub fn draw(&mut self, model: &Model, paused: bool) {
         clear_background(BACKGROUND_COLOR);
         self.draw_game(model);
-        self.draw_ui(model);
+        self.draw_ui(model, paused);
     }
 
     fn draw_game(&mut self, model: &Model) {
@@ -145,11 +145,11 @@ impl Renderer {
         );
     }
 
-    fn draw_ui(&mut self, model: &Model) {
+    fn draw_ui(&mut self, model: &Model, paused: bool) {
         set_default_camera();
         self.ui_scale = vec2(screen_width() / 800.0, screen_height() / 600.0);
 
-        if model.game_start_timer > 0.0 {
+        if paused {
             draw_texture_ex(
                 self.assets.tutorial,
                 screen_width() / 2.0 - 80.0 * self.ui_scale.x,

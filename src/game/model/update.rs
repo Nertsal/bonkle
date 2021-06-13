@@ -2,9 +2,7 @@ use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: f32) {
-        if self.game_start_timer > 0.0 {
-            self.game_start_timer -= delta_time;
-        } else if self.player.health > 0.0 && self.enemies.len() == 0 && self.spawners.len() == 0 {
+        if self.player.health > 0.0 && self.enemies.len() == 0 && self.spawners.len() == 0 {
             self.next_wave();
         }
 

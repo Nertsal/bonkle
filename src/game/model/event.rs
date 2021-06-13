@@ -5,4 +5,5 @@ pub enum Event {
 pub enum EventSound {
     BodyHit,
     HeadHit,
+    Death,
 }

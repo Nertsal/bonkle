@@ -151,6 +151,7 @@ impl Model {
                     BODY_IMPACT * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.body.position + collision.normal * collision.penetration;
+                let player_alive = self.player.health > 0.0;
                 self.player.health -= hit_strength;
                 particles.push((contact, hit_strength * 5.0, PLAYER_COLOR));
                 enemy.health -= hit_strength;
@@ -158,6 +159,11 @@ impl Model {
                 self.events.push(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
+                if player_alive && self.player.health <= 0.0 {
+                    self.events.push(Event::Sound {
+                        sound: EventSound::Death,
+                    })
+                }
             }
         }
 

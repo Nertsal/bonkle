@@ -60,6 +60,18 @@ impl Renderer {
         };
         set_camera(&self.game_camera);
 
+        for area_effect in &model.area_effects {
+            let area_color = match &area_effect.effect {
+                Effect::Heal { .. } => Color::new(0.0, 1.0, 0.0, 0.5),
+            };
+            draw_circle(
+                area_effect.position.x,
+                area_effect.position.y,
+                area_effect.radius,
+                area_color,
+            );
+        }
+
         for particle in &model.particles {
             self.draw_rigidbody(&particle.rigidbody, particle.color);
         }

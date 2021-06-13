@@ -40,6 +40,7 @@ impl Model {
 
     pub fn fixed_update(&mut self, delta_time: f32) {
         self.attack(delta_time);
+        self.area_effects(delta_time);
         self.move_player(delta_time);
         self.move_enemies(delta_time);
         self.collide();
@@ -76,6 +77,24 @@ impl Model {
             }
         }
         self.enemies.extend(spawn_enemies);
+    }
+
+    fn area_effects(&mut self, delta_time: f32) {
+        for area_effect in &mut self.area_effects {
+            area_effect.lifetime -= delta_time;
+
+            let distance = (area_effect.position - self.player.body.position).length();
+            if distance <= self.player.body.collider.radius + area_effect.radius {
+                match &area_effect.effect {
+                    Effect::Heal { heal } => {
+                        self.player.health = (self.player.health + *heal * delta_time)
+                            .clamp(0.0, self.player.max_health);
+                    }
+                }
+            }
+        }
+        self.area_effects
+            .retain(|area_effect| area_effect.lifetime > 0.0);
     }
 
     fn move_player(&mut self, delta_time: f32) {

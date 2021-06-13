@@ -1,5 +1,6 @@
 use super::*;
 
+mod area_effect;
 mod enemy;
 mod event;
 mod particle;
@@ -9,6 +10,7 @@ mod spawner;
 mod update;
 mod wave;
 
+pub use area_effect::*;
 pub use enemy::*;
 pub use event::*;
 pub use particle::*;
@@ -33,6 +35,7 @@ pub struct Model {
     pub player: Player,
     pub enemies: Vec<Enemy>,
     pub particles: Vec<Particle>,
+    pub area_effects: Vec<AreaEffect>,
     pub spawners: Vec<Spawner>,
     pub current_stage: usize,
     pub events: Vec<Event>,
@@ -50,6 +53,7 @@ impl Model {
             spawn_bounds: Bounds::inside(bounds, 20.0),
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, 250.0),
             enemies: vec![],
+            area_effects: vec![],
             spawners: vec![],
             particles: vec![],
             current_stage: 0,

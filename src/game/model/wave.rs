@@ -17,6 +17,12 @@ impl Model {
             let group_position = Self::get_random_position_bounds(&self.spawn_bounds);
             self.spawners.push(Spawner::new(group_position, group, 2.0));
         }
+        self.area_effects.push(AreaEffect {
+            position: Self::get_random_position_bounds(&self.spawn_bounds),
+            radius: macroquad::rand::gen_range(5.0, 15.0),
+            effect: Effect::Heal { heal: 10.0 },
+            lifetime: 10.0,
+        });
         self.events.push(Event::NextWave {
             stage: self.current_stage,
         });

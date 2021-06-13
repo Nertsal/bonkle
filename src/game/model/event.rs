@@ -1,4 +1,5 @@
 pub enum Event {
+    NextWave { stage: usize },
     Sound { sound: EventSound },
 }
 

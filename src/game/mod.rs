@@ -134,6 +134,7 @@ impl Game {
                     };
                     macroquad::audio::play_sound_once(sound);
                 }
+                Event::NextWave { stage } => self.renderer.next_wave(stage),
             }
         }
     }

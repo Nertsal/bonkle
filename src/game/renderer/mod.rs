@@ -1,5 +1,7 @@
 use super::*;
 
+const STAGE_SHOW_TIME: f32 = 2.0;
+
 pub struct Renderer {
     pub game_camera: Camera2D,
     current_fps: f32,
@@ -7,6 +9,8 @@ pub struct Renderer {
     fps_update: f32,
     debug_mode: bool,
     player_life_color: Color,
+    stage: Option<usize>,
+    stage_timer: f32,
 }
 
 impl Renderer {
@@ -22,6 +26,8 @@ impl Renderer {
             fps_update: 0.0,
             debug_mode: false,
             player_life_color: PLAYER_LIFE_COLOR,
+            stage: None,
+            stage_timer: 0.0,
         }
     }
 
@@ -34,6 +40,13 @@ impl Renderer {
         if self.fps_update <= 0.0 {
             self.fps_update += self.fps_update_time;
             self.current_fps = 1.0 / delta_time;
+        }
+
+        if self.stage.is_some() {
+            self.stage_timer -= delta_time;
+            if self.stage_timer <= 0.0 {
+                self.stage = None;
+            }
         }
     }
 
@@ -128,5 +141,20 @@ impl Renderer {
                 WHITE,
             );
         }
+
+        if let Some(stage) = self.stage {
+            draw_text(
+                &format!("STAGE {}", stage),
+                screen_width() / 2.0 - 75.0,
+                100.0,
+                40.0,
+                WHITE,
+            );
+        }
+    }
+
+    pub fn next_wave(&mut self, stage: usize) {
+        self.stage = Some(stage);
+        self.stage_timer = STAGE_SHOW_TIME;
     }
 }

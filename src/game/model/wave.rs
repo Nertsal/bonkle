@@ -17,6 +17,9 @@ impl Model {
             let group_position = Self::get_random_position_bounds(&self.spawn_bounds);
             self.spawners.push(Spawner::new(group_position, group, 2.0));
         }
+        self.events.push(Event::NextWave {
+            stage: self.current_stage,
+        });
     }
 
     fn generate_wave(&self) -> Wave {

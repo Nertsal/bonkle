@@ -83,12 +83,14 @@ impl Model {
         for area_effect in &mut self.area_effects {
             area_effect.lifetime -= delta_time;
 
-            let distance = (area_effect.position - self.player.body.position).length();
-            if distance <= self.player.body.collider.radius + area_effect.radius {
-                match &area_effect.effect {
-                    Effect::Heal { heal } => {
-                        self.player.health = (self.player.health + *heal * delta_time)
-                            .clamp(0.0, self.player.max_health);
+            if self.player.health > 0.0 {
+                let distance = (area_effect.position - self.player.body.position).length();
+                if distance <= self.player.body.collider.radius + area_effect.radius {
+                    match &area_effect.effect {
+                        Effect::Heal { heal } => {
+                            self.player.health = (self.player.health + *heal * delta_time)
+                                .clamp(0.0, self.player.max_health);
+                        }
                     }
                 }
             }

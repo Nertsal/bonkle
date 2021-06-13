@@ -55,7 +55,7 @@ impl Renderer {
     }
 
     fn draw_game(&mut self, model: &Model) {
-        let zoom = 0.005;
+        let zoom = 0.0055;
         self.game_camera = Camera2D {
             offset: vec2(0.0, 0.0),
             zoom: vec2(zoom, zoom * screen_width() / screen_height()),
@@ -68,17 +68,17 @@ impl Renderer {
         }
 
         self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
-        let coefficient = model.player.health / model.player.max_health;
+        let coefficient = (model.player.health / model.player.max_health).max(0.0);
         self.player_life_color = Color::new(
-            coefficient * PLAYER_LIFE_COLOR.r,
-            coefficient * PLAYER_LIFE_COLOR.g,
-            coefficient * PLAYER_LIFE_COLOR.b,
+            PLAYER_LIFE_COLOR.r,
+            PLAYER_LIFE_COLOR.g,
+            PLAYER_LIFE_COLOR.b,
             0.5,
         );
         draw_circle(
             model.player.body.position.x,
             model.player.body.position.y,
-            model.player.chain_length,
+            model.player.chain_length * coefficient,
             self.player_life_color,
         );
         draw_circle_lines(

@@ -36,6 +36,7 @@ pub struct Model {
     pub spawners: Vec<Spawner>,
     pub current_stage: usize,
     pub events: Vec<Event>,
+    pub game_start_timer: f32,
 }
 
 impl Model {
@@ -55,6 +56,7 @@ impl Model {
             particles: vec![],
             current_stage: 0,
             events: vec![],
+            game_start_timer: 5.0,
         }
     }
 

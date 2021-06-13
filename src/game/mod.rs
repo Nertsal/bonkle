@@ -1,5 +1,6 @@
 use super::*;
 use macroquad::audio::{PlaySoundParams, Sound};
+use std::rc::Rc;
 
 mod model;
 mod renderer;
@@ -17,34 +18,40 @@ const PLAYER_COLOR: Color = BLUE;
 const PLAYER_BORDER_COLOR: Color = DARKBLUE;
 const PLAYER_LIFE_COLOR: Color = DARKBLUE;
 
-struct Assets {
+pub struct Assets {
     body_hit: Sound,
     head_hit: Sound,
     death: Sound,
     bounce: Sound,
     music: Sound,
+    tutorial: Texture2D,
 }
 
 pub struct Game {
     renderer: Renderer,
     model: Model,
-    assets: Assets,
+    assets: Rc<Assets>,
     last_mouse_position: Vec2,
     head_control_mode: HeadControlMode,
 }
 
 impl Game {
     pub async fn new() -> Self {
+        let assets = Rc::new(Assets {
+            body_hit: macroquad::audio::load_sound("body_hit.wav").await.unwrap(),
+            head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
+            death: macroquad::audio::load_sound("death.wav").await.unwrap(),
+            bounce: macroquad::audio::load_sound("bounce.wav").await.unwrap(),
+            music: macroquad::audio::load_sound("music.wav").await.unwrap(),
+            tutorial: macroquad::texture::load_texture("tutorial.png")
+                .await
+                .unwrap(),
+        });
+        assets.tutorial.set_filter(FilterMode::Nearest);
         let game = Self {
-            renderer: Renderer::new(),
+            renderer: Renderer::new(&assets),
             model: Model::new(),
-            assets: Assets {
-                body_hit: macroquad::audio::load_sound("body_hit.wav").await.unwrap(),
-                head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
-                death: macroquad::audio::load_sound("death.wav").await.unwrap(),
-                bounce: macroquad::audio::load_sound("bounce.wav").await.unwrap(),
-                music: macroquad::audio::load_sound("music.wav").await.unwrap(),
-            },
+            assets,
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
         };
@@ -68,7 +75,7 @@ impl Game {
 
         if is_key_pressed(KeyCode::R) {
             self.model = Model::new();
-            self.renderer = Renderer::new();
+            self.renderer = Renderer::new(&self.assets);
         }
     }
 
@@ -149,6 +156,11 @@ impl Game {
     }
 
     pub fn draw(&mut self) {
+        // set_default_camera();
+        // if self.model.game_start_timer > 0.0 {
+        // draw_texture(self.assets.tutorial, screen_width() / 2.0, 100.0, WHITE);
+        // }
+
         self.renderer.draw(&self.model);
     }
 }

@@ -3,6 +3,7 @@ use super::*;
 const STAGE_SHOW_TIME: f32 = 2.0;
 
 pub struct Renderer {
+    assets: Rc<Assets>,
     pub game_camera: Camera2D,
     current_fps: f32,
     fps_update_time: f32,
@@ -14,8 +15,9 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Self {
+    pub fn new(assets: &Rc<Assets>) -> Self {
         Self {
+            assets: assets.clone(),
             game_camera: Camera2D {
                 offset: vec2(0.0, 0.0),
                 zoom: vec2(0.01, 0.01 * screen_width() / screen_height()),
@@ -120,6 +122,21 @@ impl Renderer {
     }
 
     fn draw_ui(&self, model: &Model) {
+        set_default_camera();
+
+        if model.game_start_timer > 0.0 {
+            draw_texture_ex(
+                self.assets.tutorial,
+                screen_width() / 2.0 - 80.0,
+                100.0 - 40.0,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(160.0, 40.0)),
+                    ..Default::default()
+                },
+            );
+        }
+
         set_default_camera();
 
         if self.debug_mode {

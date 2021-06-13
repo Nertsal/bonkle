@@ -148,8 +148,6 @@ impl Renderer {
             );
         }
 
-        set_default_camera();
-
         if self.debug_mode {
             draw_text(
                 &format!("FPS: {:.0}", self.current_fps),

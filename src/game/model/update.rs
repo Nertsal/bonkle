@@ -156,7 +156,7 @@ impl Model {
                 enemy.health -= hit_strength;
                 particles.push((contact, hit_strength, enemy.color));
                 self.events.push(Event::Sound {
-                    sound: EventSound::Hit,
+                    sound: EventSound::BodyHit,
                 });
             }
         }
@@ -180,7 +180,7 @@ impl Model {
                 enemy.health -= hit_strength;
                 particles.push((contact, hit_strength, enemy.color));
                 self.events.push(Event::Sound {
-                    sound: EventSound::Hit,
+                    sound: EventSound::HeadHit,
                 });
             }
         }

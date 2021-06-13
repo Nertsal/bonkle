@@ -3,5 +3,6 @@ pub enum Event {
 }
 
 pub enum EventSound {
-    Hit,
+    BodyHit,
+    HeadHit,
 }

@@ -18,7 +18,8 @@ const PLAYER_BORDER_COLOR: Color = DARKBLUE;
 const PLAYER_LIFE_COLOR: Color = DARKBLUE;
 
 struct Assets {
-    hit: Sound,
+    body_hit: Sound,
+    head_hit: Sound,
 }
 
 pub struct Game {
@@ -35,7 +36,8 @@ impl Game {
             renderer: Renderer::new(),
             model: Model::new(),
             assets: Assets {
-                hit: macroquad::audio::load_sound("hit.wav").await.unwrap(),
+                body_hit: macroquad::audio::load_sound("body_hit.wav").await.unwrap(),
+                head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
             },
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
@@ -111,7 +113,8 @@ impl Game {
             match event {
                 Event::Sound { sound } => {
                     let sound = match sound {
-                        EventSound::Hit => self.assets.hit.clone(),
+                        EventSound::HeadHit => self.assets.head_hit.clone(),
+                        EventSound::BodyHit => self.assets.body_hit.clone(),
                     };
                     macroquad::audio::play_sound_once(sound);
                 }

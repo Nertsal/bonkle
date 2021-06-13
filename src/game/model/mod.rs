@@ -1,6 +1,7 @@
 use super::*;
 
 mod enemy;
+mod event;
 mod particle;
 mod physics;
 mod player;
@@ -9,6 +10,7 @@ mod update;
 mod wave;
 
 pub use enemy::*;
+pub use event::*;
 pub use particle::*;
 pub use physics::*;
 pub use player::*;
@@ -33,6 +35,7 @@ pub struct Model {
     pub particles: Vec<Particle>,
     pub spawners: Vec<Spawner>,
     pub current_stage: usize,
+    pub events: Vec<Event>,
 }
 
 impl Model {
@@ -51,6 +54,7 @@ impl Model {
             spawners: vec![],
             particles: vec![],
             current_stage: 0,
+            events: vec![],
         }
     }
 

@@ -9,7 +9,7 @@ const FIXED_DELTA_TIME: f32 = 1.0 / 60.0;
 
 #[macroquad::main("GMTK Game Jam 2021")]
 async fn main() {
-    let mut game = Game::new();
+    let mut game = Game::new().await;
     let mut frame_time = 0.0;
     loop {
         println!("---- next frame ----");

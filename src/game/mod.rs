@@ -1,4 +1,5 @@
 use super::*;
+use macroquad::audio::Sound;
 
 mod model;
 mod renderer;
@@ -16,18 +17,26 @@ const PLAYER_COLOR: Color = BLUE;
 const PLAYER_BORDER_COLOR: Color = DARKBLUE;
 const PLAYER_LIFE_COLOR: Color = DARKBLUE;
 
+struct Assets {
+    hit: Sound,
+}
+
 pub struct Game {
     renderer: Renderer,
     model: Model,
+    assets: Assets,
     last_mouse_position: Vec2,
     head_control_mode: HeadControlMode,
 }
 
 impl Game {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         Self {
             renderer: Renderer::new(),
             model: Model::new(),
+            assets: Assets {
+                hit: macroquad::audio::load_sound("hit.wav").await.unwrap(),
+            },
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
         }
@@ -38,6 +47,8 @@ impl Game {
         self.model.update(delta_time);
 
         self.move_player();
+
+        self.events();
     }
 
     fn move_player(&mut self) {
@@ -92,6 +103,20 @@ impl Game {
             }
         }
         self.last_mouse_position = mouse_position;
+    }
+
+    fn events(&mut self) {
+        let events = std::mem::take(&mut self.model.events);
+        for event in events {
+            match event {
+                Event::Sound { sound } => {
+                    let sound = match sound {
+                        EventSound::Hit => self.assets.hit.clone(),
+                    };
+                    macroquad::audio::play_sound_once(sound);
+                }
+            }
+        }
     }
 
     pub fn fixed_update(&mut self, delta_time: f32) {

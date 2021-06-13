@@ -18,10 +18,20 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75c4da790adcb2ce5e758c064b4f3ec17a30349f9961d3e5e6c9688b052a9e18"
 dependencies = [
- "alsa-sys",
+ "alsa-sys 0.3.1",
  "bitflags",
  "libc",
  "nix",
+]
+
+[[package]]
+name = "alsa-sys"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0edcbbf9ef68f15ae1b620f722180b82a98b6f0628d30baa6b8d2a5abc87d58"
+dependencies = [
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -154,6 +164,16 @@ checksum = "e7ca8a5221364ef15ce201e8ed2f609fc312682a8f4e0e3d4aa5879764e0fa3b"
 
 [[package]]
 name = "coreaudio-rs"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f229761965dad3e9b11081668a6ea00f1def7aa46062321b5ec245b834f6e491"
+dependencies = [
+ "bitflags",
+ "coreaudio-sys",
+]
+
+[[package]]
+name = "coreaudio-rs"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "11894b20ebfe1ff903cbdc52259693389eea03b94918a2def2c30c3bf227ad88"
@@ -173,13 +193,30 @@ dependencies = [
 
 [[package]]
 name = "cpal"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b55d55d69f403f62a95bd3c04b431e0aedf5120c70f15d07a8edd234443dd59"
+dependencies = [
+ "alsa-sys 0.1.2",
+ "core-foundation-sys",
+ "coreaudio-rs 0.9.1",
+ "lazy_static",
+ "libc",
+ "num-traits",
+ "stdweb",
+ "thiserror",
+ "winapi",
+]
+
+[[package]]
+name = "cpal"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8351ddf2aaa3c583fa388029f8b3d26f3c7035a20911fdd5f2e2ed7ab57dad25"
 dependencies = [
  "alsa",
  "core-foundation-sys",
- "coreaudio-rs",
+ "coreaudio-rs 0.10.0",
  "jni",
  "js-sys",
  "lazy_static",
@@ -294,6 +331,7 @@ name = "gmtk2021"
 version = "0.1.0"
 dependencies = [
  "macroquad",
+ "quad-snd",
 ]
 
 [[package]]
@@ -744,6 +782,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "658fa1faf7a4cc5f057c9ee5ef560f717ad9d8dc66d975267f709624d6e1ab88"
 
 [[package]]
+name = "quad-snd"
+version = "0.1.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f4893be36d6eae17f97eeac64ce15a55eaf2d5fa9be76ec41f7c49640f258fd"
+dependencies = [
+ "cpal 0.11.0",
+ "hound",
+ "lewton",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -782,7 +831,7 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b65c2eda643191f6d1bb12ea323a9db8d9ba95374e9be3780b5a9fb5cfb8520f"
 dependencies = [
- "cpal",
+ "cpal 0.13.3",
  "hound",
  "lewton",
 ]

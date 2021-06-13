@@ -155,6 +155,9 @@ impl Model {
                 particles.push((contact, hit_strength * 5.0, PLAYER_COLOR));
                 enemy.health -= hit_strength;
                 particles.push((contact, hit_strength, enemy.color));
+                self.events.push(Event::Sound {
+                    sound: EventSound::Hit,
+                });
             }
         }
 
@@ -176,6 +179,9 @@ impl Model {
                 let contact = self.player.head.position + collision.normal * collision.penetration;
                 enemy.health -= hit_strength;
                 particles.push((contact, hit_strength, enemy.color));
+                self.events.push(Event::Sound {
+                    sound: EventSound::Hit,
+                });
             }
         }
 

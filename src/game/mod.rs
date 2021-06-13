@@ -1,5 +1,5 @@
 use super::*;
-use macroquad::audio::Sound;
+use macroquad::audio::{PlaySoundParams, Sound};
 
 mod model;
 mod renderer;
@@ -22,6 +22,7 @@ struct Assets {
     head_hit: Sound,
     death: Sound,
     bounce: Sound,
+    music: Sound,
 }
 
 pub struct Game {
@@ -34,7 +35,7 @@ pub struct Game {
 
 impl Game {
     pub async fn new() -> Self {
-        Self {
+        let game = Self {
             renderer: Renderer::new(),
             model: Model::new(),
             assets: Assets {
@@ -42,10 +43,19 @@ impl Game {
                 head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
                 death: macroquad::audio::load_sound("death.wav").await.unwrap(),
                 bounce: macroquad::audio::load_sound("bounce.wav").await.unwrap(),
+                music: macroquad::audio::load_sound("music.wav").await.unwrap(),
             },
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
-        }
+        };
+        macroquad::audio::play_sound(
+            game.assets.music.clone(),
+            PlaySoundParams {
+                looped: true,
+                volume: 0.05,
+            },
+        );
+        game
     }
 
     pub fn update(&mut self, delta_time: f32) {

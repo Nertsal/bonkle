@@ -62,6 +62,7 @@ impl Renderer {
         };
         set_camera(&self.game_camera);
 
+        // Area effects
         for area_effect in &model.area_effects {
             let area_color = match &area_effect.effect {
                 Effect::Heal { .. } => Color::new(0.0, 1.0, 0.0, 0.5),
@@ -74,11 +75,18 @@ impl Renderer {
             );
         }
 
-        for particle in &model.particles {
-            self.draw_rigidbody(&particle.rigidbody, particle.color);
+        // Spawners
+        for spawner in &model.spawners {
+            draw_circle_lines(
+                spawner.position.x,
+                spawner.position.y,
+                spawner.spawn_group.radius,
+                0.2,
+                SPAWNER_COLOR,
+            );
         }
 
-        self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
+        // Player health
         let coefficient = (model.player.health / model.player.max_health).max(0.0);
         self.player_life_color = Color::new(
             PLAYER_LIFE_COLOR.r,
@@ -92,6 +100,18 @@ impl Renderer {
             model.player.chain_length * coefficient,
             self.player_life_color,
         );
+
+        // Particles
+        for particle in &model.particles {
+            self.draw_rigidbody(&particle.rigidbody, particle.color);
+        }
+
+        // Enemies
+        for enemy in &model.enemies {
+            self.draw_rigidbody(&enemy.rigidbody, enemy.color);
+        }
+
+        // Player border
         draw_circle_lines(
             model.player.body.position.x,
             model.player.body.position.y,
@@ -99,21 +119,12 @@ impl Renderer {
             0.2,
             PLAYER_BORDER_COLOR,
         );
+
+        // Player body & head
+        self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
         self.draw_rigidbody(&model.player.head, PLAYER_COLOR);
-        for enemy in &model.enemies {
-            self.draw_rigidbody(&enemy.rigidbody, enemy.color);
-        }
 
-        for spawner in &model.spawners {
-            draw_circle_lines(
-                spawner.position.x,
-                spawner.position.y,
-                spawner.spawn_group.radius,
-                0.2,
-                SPAWNER_COLOR,
-            );
-        }
-
+        // Bounds
         let bounds_size = model.bounds.max - model.bounds.min;
         draw_rectangle_lines(
             model.bounds.min.x,

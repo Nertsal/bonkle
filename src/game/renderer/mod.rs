@@ -5,6 +5,7 @@ const STAGE_SHOW_TIME: f32 = 2.0;
 pub struct Renderer {
     assets: Rc<Assets>,
     pub game_camera: Camera2D,
+    ui_scale: Vec2,
     current_fps: f32,
     fps_update_time: f32,
     fps_update: f32,
@@ -19,6 +20,7 @@ impl Renderer {
         Self {
             assets: assets.clone(),
             game_camera: Camera2D::default(),
+            ui_scale: vec2(1.0, 1.0),
             current_fps: 0.0,
             fps_update_time: 0.5,
             fps_update: 0.0,
@@ -132,17 +134,18 @@ impl Renderer {
         );
     }
 
-    fn draw_ui(&self, model: &Model) {
+    fn draw_ui(&mut self, model: &Model) {
         set_default_camera();
+        self.ui_scale = vec2(screen_width() / 800.0, screen_height() / 600.0);
 
         if model.game_start_timer > 0.0 {
             draw_texture_ex(
                 self.assets.tutorial,
-                screen_width() / 2.0 - 80.0,
-                100.0 - 40.0,
+                screen_width() / 2.0 - 80.0 * self.ui_scale.x,
+                60.0 * self.ui_scale.y,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(160.0, 40.0)),
+                    dest_size: Some(vec2(160.0, 40.0) * self.ui_scale),
                     ..Default::default()
                 },
             );
@@ -151,9 +154,9 @@ impl Renderer {
         if self.debug_mode {
             draw_text(
                 &format!("FPS: {:.0}", self.current_fps),
-                10.0,
-                20.0,
-                20.0,
+                10.0 * self.ui_scale.x,
+                20.0 * self.ui_scale.y,
+                20.0 * self.ui_scale(),
                 WHITE,
             );
         }
@@ -161,23 +164,23 @@ impl Renderer {
         if model.player.health <= 0.0 {
             draw_text(
                 &format!("STAGE {}", self.stage),
-                screen_width() / 2.0 - 75.0,
-                screen_height() / 2.0 - 50.0,
-                50.0,
+                screen_width() / 2.0 - 75.0 * self.ui_scale.x,
+                screen_height() / 2.0 - 50.0 * self.ui_scale.y,
+                50.0 * self.ui_scale(),
                 WHITE,
             );
             draw_text(
                 "YOU DIED",
-                screen_width() / 2.0 - 75.0,
+                screen_width() / 2.0 - 75.0 * self.ui_scale.x,
                 screen_height() / 2.0,
-                50.0,
+                50.0 * self.ui_scale(),
                 WHITE,
             );
             draw_text(
                 "PRESS R TO RESET",
-                screen_width() / 2.0 - 150.0,
-                screen_height() / 2.0 + 50.0,
-                50.0,
+                screen_width() / 2.0 - 150.0 * self.ui_scale.x,
+                screen_height() / 2.0 + 50.0 * self.ui_scale.y,
+                50.0 * self.ui_scale(),
                 WHITE,
             );
         }
@@ -185,9 +188,9 @@ impl Renderer {
         if self.stage_timer > 0.0 {
             draw_text(
                 &format!("STAGE {}", self.stage),
-                screen_width() / 2.0 - 60.0,
-                100.0,
-                40.0,
+                screen_width() / 2.0 - 60.0 * self.ui_scale.x,
+                100.0 * self.ui_scale.y,
+                40.0 * self.ui_scale(),
                 WHITE,
             );
         }
@@ -196,5 +199,9 @@ impl Renderer {
     pub fn next_wave(&mut self, stage: usize) {
         self.stage = stage;
         self.stage_timer = STAGE_SHOW_TIME;
+    }
+
+    fn ui_scale(&self) -> f32 {
+        self.ui_scale.x.min(self.ui_scale.y)
     }
 }

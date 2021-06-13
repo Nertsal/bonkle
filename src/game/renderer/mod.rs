@@ -6,6 +6,7 @@ pub struct Renderer {
     fps_update_time: f32,
     fps_update: f32,
     debug_mode: bool,
+    player_life_color: Color,
 }
 
 impl Renderer {
@@ -20,6 +21,7 @@ impl Renderer {
             fps_update_time: 0.5,
             fps_update: 0.0,
             debug_mode: false,
+            player_life_color: PLAYER_LIFE_COLOR,
         }
     }
 
@@ -49,6 +51,19 @@ impl Renderer {
         }
 
         self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
+        let coefficient = model.player.health / model.player.max_health;
+        self.player_life_color = Color::new(
+            coefficient * PLAYER_LIFE_COLOR.r,
+            coefficient * PLAYER_LIFE_COLOR.g,
+            coefficient * PLAYER_LIFE_COLOR.b,
+            0.5,
+        );
+        draw_circle(
+            model.player.body.position.x,
+            model.player.body.position.y,
+            model.player.chain_length,
+            self.player_life_color,
+        );
         draw_circle_lines(
             model.player.body.position.x,
             model.player.body.position.y,

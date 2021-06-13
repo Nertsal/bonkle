@@ -14,6 +14,7 @@ const PROJECTILE_COLOR: Color = ORANGE;
 const SPAWNER_COLOR: Color = RED;
 const PLAYER_COLOR: Color = BLUE;
 const PLAYER_BORDER_COLOR: Color = DARKBLUE;
+const PLAYER_LIFE_COLOR: Color = DARKBLUE;
 
 pub struct Game {
     renderer: Renderer,

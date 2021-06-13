@@ -6,6 +6,7 @@ pub struct Player {
     pub chain_length: f32,
     pub head_target: Vec2,
     pub health: f32,
+    pub max_health: f32,
     pub target_body_velocity: Vec2,
     pub target_head_velocity: Vec2,
 }
@@ -26,6 +27,7 @@ impl Player {
                 mass,
                 Collider::new(head_size),
             ),
+            max_health: health,
             chain_length,
             health,
             head_target: vec2(1.0, 0.0),

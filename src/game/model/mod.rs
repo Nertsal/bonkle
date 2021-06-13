@@ -28,6 +28,7 @@ const PARTICLE_LIFETIME: f32 = 1.0;
 const BODY_ACCELERATION: f32 = 3.0;
 const HEAD_ACCELERATION: f32 = 10.0;
 const BODY_IMPACT: f32 = 50.0;
+const BOMBER_TIMER: f32 = 5.0;
 
 pub struct Model {
     pub bounds: Bounds,

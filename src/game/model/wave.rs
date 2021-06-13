@@ -50,6 +50,25 @@ impl Model {
                 )),
             },
         );
+        let bomber = EnemyInfo::new(
+            50.0,
+            5.0,
+            2.0,
+            20.0,
+            BOMBER_COLOR,
+            EnemyType::Bomber {
+                projectile_count: 5,
+                bomb_timer: BOMBER_TIMER,
+                projectile: Box::new(EnemyInfo::new(
+                    1.0,
+                    5.0,
+                    1.0,
+                    40.0,
+                    BOMB_COLOR,
+                    EnemyType::Projectile { lifetime: 3.0 },
+                )),
+            },
+        );
 
         // Generate wave
         use macroquad::rand::gen_range;
@@ -65,7 +84,7 @@ impl Model {
                 enemies: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),
             };
-            let weights = [(2.0, &melee), (1.0, &ranger)];
+            let weights = [(2.0, &melee), (1.0, &ranger), (0.5, &bomber)];
             let total_weight: f32 = weights.iter().map(|(weight, _)| weight).sum();
             for _ in 0..enemies_count {
                 let mut random = gen_range(0.0, 1.0);

@@ -37,14 +37,14 @@ impl EnemyInfo {
         size: f32,
         movement_speed: f32,
         color: Color,
-        attack_type: EnemyType,
+        enemy_type: EnemyType,
     ) -> Self {
         Self {
             health,
             mass,
             size,
             movement_speed,
-            enemy_type: attack_type,
+            enemy_type,
             color,
         }
     }
@@ -60,6 +60,11 @@ pub enum EnemyType {
         projectile: Box<EnemyInfo>,
         attack_time: f32,
         attack_cooldown: f32,
+    },
+    Bomber {
+        projectile: Box<EnemyInfo>,
+        projectile_count: usize,
+        bomb_timer: f32,
     },
     Projectile {
         lifetime: f32,

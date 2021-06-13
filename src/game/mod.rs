@@ -12,6 +12,8 @@ const BACKGROUND_COLOR: Color = BLACK;
 const BORDER_COLOR: Color = GRAY;
 const MELEE_COLOR: Color = YELLOW;
 const RANGER_COLOR: Color = ORANGE;
+const BOMBER_COLOR: Color = WHITE;
+const BOMB_COLOR: Color = RED;
 const PROJECTILE_COLOR: Color = ORANGE;
 const SPAWNER_COLOR: Color = RED;
 const PLAYER_COLOR: Color = BLUE;
@@ -23,6 +25,7 @@ pub struct Assets {
     head_hit: Sound,
     death: Sound,
     bounce: Sound,
+    explosion: Sound,
     music: Sound,
     tutorial: Texture2D,
 }
@@ -42,6 +45,7 @@ impl Game {
             head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
             death: macroquad::audio::load_sound("death.wav").await.unwrap(),
             bounce: macroquad::audio::load_sound("bounce.wav").await.unwrap(),
+            explosion: macroquad::audio::load_sound("explosion.wav").await.unwrap(),
             music: macroquad::audio::load_sound("music.wav").await.unwrap(),
             tutorial: macroquad::texture::load_texture("tutorial.png")
                 .await
@@ -143,6 +147,7 @@ impl Game {
                         EventSound::BodyHit => self.assets.body_hit.clone(),
                         EventSound::Death => self.assets.death.clone(),
                         EventSound::Bounce => self.assets.bounce.clone(),
+                        EventSound::Explosion => self.assets.explosion.clone(),
                     };
                     macroquad::audio::play_sound_once(sound);
                 }

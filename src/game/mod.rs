@@ -65,6 +65,11 @@ impl Game {
         self.move_player();
 
         self.events();
+
+        if is_key_pressed(KeyCode::R) {
+            self.model = Model::new();
+            self.renderer = Renderer::new();
+        }
     }
 
     fn move_player(&mut self) {

@@ -140,12 +140,19 @@ impl Renderer {
                 50.0,
                 WHITE,
             );
+            draw_text(
+                "PRESS R TO RESET",
+                screen_width() / 2.0 - 150.0,
+                screen_height() / 2.0 + 50.0,
+                50.0,
+                WHITE,
+            );
         }
 
         if let Some(stage) = self.stage {
             draw_text(
                 &format!("STAGE {}", stage),
-                screen_width() / 2.0 - 75.0,
+                screen_width() / 2.0 - 60.0,
                 100.0,
                 40.0,
                 WHITE,

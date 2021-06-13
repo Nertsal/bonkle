@@ -39,17 +39,21 @@ impl RigidBody {
         self.position = self.position.clamp(bounds.min + size, bounds.max - size);
     }
 
-    pub fn bounce_bounds(&mut self, bounds: &Bounds) {
+    pub fn bounce_bounds(&mut self, bounds: &Bounds) -> bool {
         self.clamp_bounds(bounds);
         let size = vec2(self.collider.radius, self.collider.radius);
         let min = self.position - size;
         let max = self.position + size;
+        let mut bounce = false;
         if min.x <= bounds.min.x || max.x >= bounds.max.x {
             self.velocity.x *= -1.0;
+            bounce = true;
         }
         if min.y <= bounds.min.y || max.y >= bounds.max.y {
             self.velocity.y *= -1.0;
+            bounce = true;
         }
+        bounce
     }
 
     pub fn drag(&mut self, drag: f32, delta_time: f32) {

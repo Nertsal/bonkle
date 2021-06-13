@@ -126,10 +126,18 @@ impl Model {
 
     fn collide(&mut self) {
         // Collide bounds
-        self.player.body.bounce_bounds(&self.bounds);
+        if self.player.body.bounce_bounds(&self.bounds) {
+            self.events.push(Event::Sound {
+                sound: EventSound::Bounce,
+            });
+        }
         self.player.head.bounce_bounds(&self.bounds);
         for enemy in &mut self.enemies {
-            enemy.rigidbody.bounce_bounds(&self.bounds);
+            if enemy.rigidbody.bounce_bounds(&self.bounds) {
+                self.events.push(Event::Sound {
+                    sound: EventSound::Bounce,
+                });
+            }
         }
 
         let mut particles = Vec::new();

@@ -6,4 +6,5 @@ pub enum EventSound {
     BodyHit,
     HeadHit,
     Death,
+    Bounce,
 }

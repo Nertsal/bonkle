@@ -10,7 +10,7 @@ pub struct Renderer {
     fps_update: f32,
     debug_mode: bool,
     player_life_color: Color,
-    stage: Option<usize>,
+    stage: usize,
     stage_timer: f32,
 }
 
@@ -24,7 +24,7 @@ impl Renderer {
             fps_update: 0.0,
             debug_mode: false,
             player_life_color: PLAYER_LIFE_COLOR,
-            stage: None,
+            stage: 0,
             stage_timer: 0.0,
         }
     }
@@ -40,11 +40,8 @@ impl Renderer {
             self.current_fps = 1.0 / delta_time;
         }
 
-        if self.stage.is_some() {
+        if self.stage_timer > 0.0 {
             self.stage_timer -= delta_time;
-            if self.stage_timer <= 0.0 {
-                self.stage = None;
-            }
         }
     }
 
@@ -153,6 +150,13 @@ impl Renderer {
 
         if model.player.health <= 0.0 {
             draw_text(
+                &format!("STAGE {}", self.stage),
+                screen_width() / 2.0 - 75.0,
+                screen_height() / 2.0 - 50.0,
+                50.0,
+                WHITE,
+            );
+            draw_text(
                 "YOU DIED",
                 screen_width() / 2.0 - 75.0,
                 screen_height() / 2.0,
@@ -168,9 +172,9 @@ impl Renderer {
             );
         }
 
-        if let Some(stage) = self.stage {
+        if self.stage_timer > 0.0 {
             draw_text(
-                &format!("STAGE {}", stage),
+                &format!("STAGE {}", self.stage),
                 screen_width() / 2.0 - 60.0,
                 100.0,
                 40.0,
@@ -180,7 +184,7 @@ impl Renderer {
     }
 
     pub fn next_wave(&mut self, stage: usize) {
-        self.stage = Some(stage);
+        self.stage = stage;
         self.stage_timer = STAGE_SHOW_TIME;
     }
 }

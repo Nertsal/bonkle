@@ -18,11 +18,7 @@ impl Renderer {
     pub fn new(assets: &Rc<Assets>) -> Self {
         Self {
             assets: assets.clone(),
-            game_camera: Camera2D {
-                offset: vec2(0.0, 0.0),
-                zoom: vec2(0.01, 0.01 * screen_width() / screen_height()),
-                ..Default::default()
-            },
+            game_camera: Camera2D::default(),
             current_fps: 0.0,
             fps_update_time: 0.5,
             fps_update: 0.0,
@@ -59,6 +55,12 @@ impl Renderer {
     }
 
     fn draw_game(&mut self, model: &Model) {
+        let zoom = 0.005;
+        self.game_camera = Camera2D {
+            offset: vec2(0.0, 0.0),
+            zoom: vec2(zoom, zoom * screen_width() / screen_height()),
+            ..Default::default()
+        };
         set_camera(&self.game_camera);
 
         for particle in &model.particles {

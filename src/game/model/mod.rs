@@ -41,15 +41,13 @@ pub struct Model {
 
 impl Model {
     pub fn new() -> Self {
+        let bounds = Bounds {
+            min: vec2(-160.0, -90.0),
+            max: vec2(160.0, 90.0),
+        };
         Self {
-            bounds: Bounds {
-                min: vec2(-95.0, -70.0),
-                max: vec2(95.0, 70.0),
-            },
-            spawn_bounds: Bounds {
-                min: vec2(-75.0, -50.0),
-                max: vec2(75.0, 50.0),
-            },
+            bounds,
+            spawn_bounds: Bounds::inside(bounds, 20.0),
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, 250.0),
             enemies: vec![],
             spawners: vec![],
@@ -70,7 +68,17 @@ impl Model {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Bounds {
     pub min: Vec2,
     pub max: Vec2,
+}
+
+impl Bounds {
+    pub fn inside(bounds: Self, offset: f32) -> Self {
+        Self {
+            min: bounds.min + vec2(offset, offset),
+            max: bounds.max - vec2(offset, offset),
+        }
+    }
 }

@@ -72,7 +72,7 @@ impl Game {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        self.renderer.update(delta_time);
+        self.renderer.update(delta_time, self.paused, &self.model);
         if !self.paused {
             self.model.update(delta_time);
         } else if get_last_key_pressed().is_some() {
@@ -168,7 +168,7 @@ impl Game {
     }
 
     pub fn draw(&mut self) {
-        self.renderer.draw(&self.model, self.paused);
+        self.renderer.draw(&self.model);
     }
 }
 

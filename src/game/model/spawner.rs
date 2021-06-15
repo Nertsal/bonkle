@@ -4,6 +4,7 @@ pub struct Spawner {
     pub position: Vec2,
     pub spawn_group: WaveGroup,
     pub time_left: f32,
+    pub time_left_max: f32,
 }
 
 impl Spawner {
@@ -12,6 +13,7 @@ impl Spawner {
             position,
             spawn_group,
             time_left: spawn_time,
+            time_left_max: spawn_time,
         }
     }
 }

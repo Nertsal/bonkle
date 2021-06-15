@@ -24,13 +24,20 @@ impl Renderer {
         }
 
         // Spawners
+        let spawner_color = Color::new(SPAWNER_COLOR.r, SPAWNER_COLOR.g, SPAWNER_COLOR.b, 0.5);
         for spawner in &model.spawners {
             draw_circle_lines(
                 spawner.position.x,
                 spawner.position.y,
                 spawner.spawn_group.radius,
                 0.2,
-                SPAWNER_COLOR,
+                spawner_color,
+            );
+            draw_circle(
+                spawner.position.x,
+                spawner.position.y,
+                spawner.time_left / spawner.time_left_max * spawner.spawn_group.radius,
+                spawner_color,
             );
         }
 

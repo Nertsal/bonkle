@@ -72,7 +72,7 @@ impl Renderer {
         };
 
         self.ui_state.paused = paused;
-        self.ui_state.player_alive = model.player.health > 0.0;
+        self.ui_state.player_alive = model.player.health.is_alive();
 
         self.ui_state.update(delta_time);
     }

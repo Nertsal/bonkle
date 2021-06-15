@@ -3,7 +3,7 @@ use super::*;
 pub struct Particle {
     pub rigidbody: RigidBody,
     pub color: Color,
-    pub lifetime: f32,
+    pub lifetime: Health,
 }
 
 impl Model {
@@ -21,7 +21,7 @@ impl Model {
                     collider: Collider::new(1.0),
                 },
                 color,
-                lifetime: PARTICLE_LIFETIME,
+                lifetime: Health::new(PARTICLE_LIFETIME),
             })
         }
     }

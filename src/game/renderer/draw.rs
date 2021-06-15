@@ -42,7 +42,7 @@ impl Renderer {
         }
 
         // Player health
-        let coefficient = (model.player.health / model.player.max_health).max(0.0);
+        let coefficient = model.player.health.hp_frac();
         let player_life_color = color_alpha(PLAYER_LIFE_COLOR, 0.5);
         draw_circle(
             model.player.body.position.x,
@@ -60,16 +60,13 @@ impl Renderer {
         for enemy in &model.enemies {
             self.draw_rigidbody(&enemy.rigidbody, enemy.color);
             if let Some(health_frac) = match &enemy.enemy_type {
-                &EnemyType::Projectile {
-                    lifetime,
-                    lifetime_max,
-                } => Some(lifetime / lifetime_max),
-                _ => Some(enemy.health / enemy.max_health),
+                EnemyType::Projectile { lifetime } => Some(lifetime.hp_frac()),
+                _ => Some(enemy.health.hp_frac()),
             } {
                 draw_circle(
                     enemy.rigidbody.position.x,
                     enemy.rigidbody.position.y,
-                    health_frac.max(0.0) * enemy.rigidbody.collider.radius,
+                    health_frac * enemy.rigidbody.collider.radius,
                     enemy.color,
                 );
             }

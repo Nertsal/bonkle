@@ -3,6 +3,7 @@ use super::*;
 mod area_effect;
 mod enemy;
 mod event;
+mod health;
 mod particle;
 mod physics;
 mod player;
@@ -13,6 +14,7 @@ mod wave;
 pub use area_effect::*;
 pub use enemy::*;
 pub use event::*;
+pub use health::*;
 pub use particle::*;
 pub use physics::*;
 pub use player::*;
@@ -51,7 +53,7 @@ impl Model {
         Self {
             bounds,
             spawn_bounds: Bounds::inside(bounds, 20.0),
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, 250.0),
+            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, Health::new(250.0)),
             enemies: vec![],
             area_effects: vec![],
             spawners: vec![],

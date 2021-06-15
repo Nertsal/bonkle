@@ -21,7 +21,7 @@ impl Model {
             position: Self::get_random_position_bounds(&self.spawn_bounds),
             radius: macroquad::rand::gen_range(5.0, 15.0),
             effect: Effect::Heal { heal: 10.0 },
-            lifetime: 10.0,
+            lifetime: Health::new(10.0),
         });
         self.events.push(Event::NextWave {
             stage: self.current_stage,
@@ -30,9 +30,16 @@ impl Model {
 
     fn generate_wave(&self) -> Wave {
         // Prepare instances
-        let melee = EnemyInfo::new(150.0, 5.0, 2.0, 25.0, MELEE_COLOR, EnemyType::Melee);
+        let melee = EnemyInfo::new(
+            Health::new(150.0),
+            5.0,
+            2.0,
+            25.0,
+            MELEE_COLOR,
+            EnemyType::Melee,
+        );
         let ranger = EnemyInfo::new(
-            150.0,
+            Health::new(150.0),
             5.0,
             2.0,
             25.0,
@@ -41,20 +48,19 @@ impl Model {
                 attack_time: 1.0,
                 attack_cooldown: 1.0,
                 projectile: Box::new(EnemyInfo::new(
-                    1.0,
+                    Health::new(1.0),
                     5.0,
                     1.5,
                     30.0,
                     PROJECTILE_COLOR,
                     EnemyType::Projectile {
-                        lifetime: 5.0,
-                        lifetime_max: 5.0,
+                        lifetime: Health::new(5.0),
                     },
                 )),
             },
         );
         let bomber = EnemyInfo::new(
-            50.0,
+            Health::new(50.0),
             5.0,
             2.0,
             20.0,
@@ -63,14 +69,13 @@ impl Model {
                 projectile_count: 5,
                 bomb_timer: BOMBER_TIMER,
                 projectile: Box::new(EnemyInfo::new(
-                    1.0,
+                    Health::new(1.0),
                     5.0,
                     1.0,
                     40.0,
                     BOMB_COLOR,
                     EnemyType::Projectile {
-                        lifetime: 3.0,
-                        lifetime_max: 3.0,
+                        lifetime: Health::new(3.0),
                     },
                 )),
             },

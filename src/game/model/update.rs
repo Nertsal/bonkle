@@ -2,7 +2,7 @@ use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: f32) {
-        if self.player.health > 0.0 && self.enemies.len() == 0 && self.spawners.len() == 0 {
+        if self.player.health.is_alive() && self.enemies.len() == 0 && self.spawners.len() == 0 {
             self.next_wave();
         }
 
@@ -30,10 +30,11 @@ impl Model {
             particle.rigidbody.movement(delta_time);
             particle.rigidbody.bounce_bounds(&self.bounds);
             particle.rigidbody.drag(DRAG, delta_time);
-            particle.lifetime -= delta_time;
-            particle.color.a = particle.lifetime / PARTICLE_LIFETIME * 0.5;
+            particle.lifetime.change(-delta_time);
+            particle.color.a = particle.lifetime.hp_frac() * 0.5;
         }
-        self.particles.retain(|particle| particle.lifetime > 0.0);
+        self.particles
+            .retain(|particle| particle.lifetime.is_alive());
     }
 
     pub fn fixed_update(&mut self, delta_time: f32) {
@@ -66,9 +67,9 @@ impl Model {
                     }
                 }
                 EnemyType::Projectile { lifetime, .. } => {
-                    *lifetime -= delta_time;
-                    if *lifetime <= 0.0 {
-                        enemy.health = 0.0;
+                    lifetime.change(-delta_time);
+                    if !lifetime.is_alive() {
+                        enemy.health.hp = 0.0;
                     }
                 }
                 EnemyType::Bomber {
@@ -90,7 +91,7 @@ impl Model {
                                 vec2(cos, sin) * projectile.movement_speed;
                             spawn_enemies.push(projectile);
                         }
-                        enemy.health = 0.0;
+                        enemy.health.hp = 0.0;
                         self.events.push(Event::Sound {
                             sound: EventSound::Explosion,
                         });
@@ -115,22 +116,21 @@ impl Model {
 
     fn area_effects(&mut self, delta_time: f32) {
         for area_effect in &mut self.area_effects {
-            area_effect.lifetime -= delta_time;
+            area_effect.lifetime.change(-delta_time);
 
-            if self.player.health > 0.0 {
+            if self.player.health.is_alive() {
                 let distance = (area_effect.position - self.player.body.position).length();
                 if distance <= self.player.body.collider.radius + area_effect.radius {
                     match &area_effect.effect {
                         Effect::Heal { heal } => {
-                            self.player.health = (self.player.health + *heal * delta_time)
-                                .clamp(0.0, self.player.max_health);
+                            self.player.health.change(*heal * delta_time);
                         }
                     }
                 }
             }
         }
         self.area_effects
-            .retain(|area_effect| area_effect.lifetime > 0.0);
+            .retain(|area_effect| area_effect.lifetime.is_alive());
     }
 
     fn move_player(&mut self, delta_time: f32) {
@@ -138,7 +138,7 @@ impl Model {
         self.player.body.movement(delta_time);
         self.player.head.movement(delta_time);
 
-        if self.player.health > 0.0 {
+        if self.player.health.is_alive() {
             // Calculate head target velocity
             let direction = self.player.head.position - self.player.body.position;
             let target = self.player.head_target - self.player.body.position;
@@ -202,7 +202,7 @@ impl Model {
 
         // Collide player body
         for enemy in &mut self.enemies {
-            if enemy.health <= 0.0 {
+            if !enemy.is_alive() {
                 continue;
             }
 
@@ -217,15 +217,15 @@ impl Model {
                     BODY_IMPACT * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.body.position + collision.normal * collision.penetration;
-                let player_alive = self.player.health > 0.0;
-                self.player.health -= hit_strength;
+                let player_alive = self.player.health.is_alive();
+                self.player.health.change(-hit_strength);
                 particles.push((contact, hit_strength * 5.0, PLAYER_COLOR));
-                enemy.health -= hit_strength;
+                enemy.health.change(-hit_strength);
                 particles.push((contact, hit_strength, enemy.color));
                 self.events.push(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
-                if player_alive && self.player.health <= 0.0 {
+                if player_alive && !self.player.health.is_alive() {
                     self.events.push(Event::Sound {
                         sound: EventSound::Death,
                     })
@@ -235,7 +235,7 @@ impl Model {
 
         // Collide player head
         for enemy in &mut self.enemies {
-            if enemy.health <= 0.0 {
+            if !enemy.is_alive() {
                 continue;
             }
 
@@ -249,7 +249,7 @@ impl Model {
                     hit_strength * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.head.position + collision.normal * collision.penetration;
-                enemy.health -= hit_strength;
+                enemy.health.change(-hit_strength);
                 particles.push((contact, hit_strength, enemy.color));
                 self.events.push(Event::Sound {
                     sound: EventSound::HeadHit,
@@ -267,15 +267,14 @@ impl Model {
         let mut dead_enemies = Vec::new();
         let mut particles = Vec::new();
         for (index, enemy) in self.enemies.iter_mut().enumerate() {
-            if enemy.health <= 0.0 {
+            if !enemy.is_alive() {
                 match &mut enemy.enemy_type {
                     EnemyType::Corpse { lifetime } => {
-                        *lifetime -= delta_time;
-                        let lifetime = *lifetime;
-                        if lifetime <= 0.0 {
+                        lifetime.change(-delta_time);
+                        if !lifetime.is_alive() {
                             dead_enemies.push(index);
                         }
-                        enemy.color.a = lifetime / CORPSE_LIFETIME * 0.5;
+                        enemy.color.a = lifetime.hp_frac() * 0.5;
                     }
                     EnemyType::Bomber { bomb_timer, .. } if *bomb_timer <= 0.0 => {
                         particles.push((enemy.rigidbody.position, 500.0, BOMB_COLOR));
@@ -283,7 +282,7 @@ impl Model {
                     }
                     _ => {
                         enemy.enemy_type = EnemyType::Corpse {
-                            lifetime: CORPSE_LIFETIME,
+                            lifetime: Health::new(CORPSE_LIFETIME),
                         }
                     }
                 }

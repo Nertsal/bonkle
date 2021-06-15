@@ -3,8 +3,7 @@ use super::*;
 pub struct Enemy {
     pub rigidbody: RigidBody,
     pub movement_speed: f32,
-    pub health: f32,
-    pub max_health: f32,
+    pub health: Health,
     pub enemy_type: EnemyType,
     pub color: Color,
 }
@@ -15,16 +14,19 @@ impl Enemy {
             rigidbody: RigidBody::new(position, enemy_info.mass, Collider::new(enemy_info.size)),
             movement_speed: enemy_info.movement_speed,
             health: enemy_info.health,
-            max_health: enemy_info.health,
             enemy_type: enemy_info.enemy_type,
             color: enemy_info.color,
         }
     }
+
+    pub fn is_alive(&self) -> bool {
+        self.health.is_alive()
+    }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EnemyInfo {
-    pub health: f32,
+    pub health: Health,
     pub mass: f32,
     pub size: f32,
     pub movement_speed: f32,
@@ -34,7 +36,7 @@ pub struct EnemyInfo {
 
 impl EnemyInfo {
     pub fn new(
-        health: f32,
+        health: Health,
         mass: f32,
         size: f32,
         movement_speed: f32,
@@ -52,10 +54,10 @@ impl EnemyInfo {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum EnemyType {
     Corpse {
-        lifetime: f32,
+        lifetime: Health,
     },
     Melee,
     Ranger {
@@ -69,7 +71,6 @@ pub enum EnemyType {
         bomb_timer: f32,
     },
     Projectile {
-        lifetime: f32,
-        lifetime_max: f32,
+        lifetime: Health,
     },
 }

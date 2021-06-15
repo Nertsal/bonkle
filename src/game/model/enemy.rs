@@ -4,6 +4,7 @@ pub struct Enemy {
     pub rigidbody: RigidBody,
     pub movement_speed: f32,
     pub health: f32,
+    pub max_health: f32,
     pub enemy_type: EnemyType,
     pub color: Color,
 }
@@ -14,6 +15,7 @@ impl Enemy {
             rigidbody: RigidBody::new(position, enemy_info.mass, Collider::new(enemy_info.size)),
             movement_speed: enemy_info.movement_speed,
             health: enemy_info.health,
+            max_health: enemy_info.health,
             enemy_type: enemy_info.enemy_type,
             color: enemy_info.color,
         }
@@ -68,5 +70,6 @@ pub enum EnemyType {
     },
     Projectile {
         lifetime: f32,
+        lifetime_max: f32,
     },
 }

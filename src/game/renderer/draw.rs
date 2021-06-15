@@ -43,12 +43,7 @@ impl Renderer {
 
         // Player health
         let coefficient = (model.player.health / model.player.max_health).max(0.0);
-        let player_life_color = Color::new(
-            PLAYER_LIFE_COLOR.r,
-            PLAYER_LIFE_COLOR.g,
-            PLAYER_LIFE_COLOR.b,
-            0.5,
-        );
+        let player_life_color = color_alpha(PLAYER_LIFE_COLOR, 0.5);
         draw_circle(
             model.player.body.position.x,
             model.player.body.position.y,
@@ -64,6 +59,20 @@ impl Renderer {
         // Enemies
         for enemy in &model.enemies {
             self.draw_rigidbody(&enemy.rigidbody, enemy.color);
+            if let Some(health_frac) = match &enemy.enemy_type {
+                &EnemyType::Projectile {
+                    lifetime,
+                    lifetime_max,
+                } => Some(lifetime / lifetime_max),
+                _ => Some(enemy.health / enemy.max_health),
+            } {
+                draw_circle(
+                    enemy.rigidbody.position.x,
+                    enemy.rigidbody.position.y,
+                    health_frac.max(0.0) * enemy.rigidbody.collider.radius,
+                    enemy.color,
+                );
+            }
         }
 
         // Player border
@@ -92,10 +101,11 @@ impl Renderer {
     }
 
     fn draw_rigidbody(&self, rigidbody: &RigidBody, color: Color) {
-        draw_circle(
+        draw_circle_lines(
             rigidbody.position.x,
             rigidbody.position.y,
             rigidbody.collider.radius,
+            0.5,
             color,
         );
     }
@@ -104,4 +114,8 @@ impl Renderer {
         set_default_camera();
         self.ui_state.draw();
     }
+}
+
+fn color_alpha(color: Color, alpha: f32) -> Color {
+    Color::new(color.r, color.g, color.b, alpha)
 }

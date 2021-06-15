@@ -46,7 +46,10 @@ impl Model {
                     1.5,
                     30.0,
                     PROJECTILE_COLOR,
-                    EnemyType::Projectile { lifetime: 5.0 },
+                    EnemyType::Projectile {
+                        lifetime: 5.0,
+                        lifetime_max: 5.0,
+                    },
                 )),
             },
         );
@@ -65,7 +68,10 @@ impl Model {
                     1.0,
                     40.0,
                     BOMB_COLOR,
-                    EnemyType::Projectile { lifetime: 3.0 },
+                    EnemyType::Projectile {
+                        lifetime: 3.0,
+                        lifetime_max: 3.0,
+                    },
                 )),
             },
         );

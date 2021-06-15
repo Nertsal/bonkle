@@ -65,7 +65,7 @@ impl Model {
                         spawn_enemies.push(projectile);
                     }
                 }
-                EnemyType::Projectile { lifetime } => {
+                EnemyType::Projectile { lifetime, .. } => {
                     *lifetime -= delta_time;
                     if *lifetime <= 0.0 {
                         enemy.health = 0.0;

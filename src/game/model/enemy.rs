@@ -1,6 +1,7 @@
 use super::*;
 
 pub struct Enemy {
+    pub destroy: bool,
     pub rigidbody: RigidBody,
     pub movement_speed: f32,
     pub health: Health,
@@ -11,6 +12,7 @@ pub struct Enemy {
 impl Enemy {
     pub fn new(position: Vec2, enemy_info: EnemyInfo) -> Self {
         Self {
+            destroy: false,
             rigidbody: RigidBody::new(
                 position,
                 enemy_info.mass,

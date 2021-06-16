@@ -38,16 +38,19 @@ impl Model {
     }
 
     pub fn fixed_update(&mut self, delta_time: f32) {
-        self.attack(delta_time);
+        let mut commands = Commands::new();
+
+        self.attack(delta_time, &mut commands);
         self.area_effects(delta_time);
         self.move_player(delta_time);
         self.move_enemies(delta_time);
-        self.collide();
+        self.collide(&mut commands);
         self.check_dead(delta_time);
+
+        self.perform_commands(commands);
     }
 
-    fn attack(&mut self, delta_time: f32) {
-        let mut spawn_enemies = Vec::new();
+    fn attack(&mut self, delta_time: f32, commands: &mut Commands) {
         for enemy in &mut self.enemies {
             match &mut enemy.enemy_type {
                 EnemyType::Attacker { attack } => {
@@ -60,7 +63,7 @@ impl Model {
                                 - projectile.rigidbody.position)
                                 .normalize()
                                 * projectile.movement_speed;
-                            spawn_enemies.push(projectile);
+                            commands.spawn_enemy(projectile);
                         }
                         AttackType::Bomb {
                             projectile,
@@ -91,9 +94,14 @@ impl Model {
                                     let (sin, cos) = angle.sin_cos();
                                     projectile.rigidbody.velocity =
                                         vec2(cos, sin) * projectile.movement_speed;
-                                    spawn_enemies.push(projectile);
+                                    commands.spawn_enemy(projectile);
                                 }
-                                enemy.health.kill();
+                                enemy.destroy = true;
+                                commands.spawn_particles(
+                                    enemy.rigidbody.position,
+                                    500.0,
+                                    BOMB_COLOR,
+                                );
                                 self.events.push(Event::Sound {
                                     sound: EventSound::Explosion,
                                 });
@@ -115,7 +123,6 @@ impl Model {
                 _ => (),
             }
         }
-        self.enemies.extend(spawn_enemies);
     }
 
     fn area_effects(&mut self, delta_time: f32) {
@@ -186,7 +193,7 @@ impl Model {
         }
     }
 
-    fn collide(&mut self) {
+    fn collide(&mut self, commands: &mut Commands) {
         // Collide bounds
         if self.player.body.bounce_bounds(&self.bounds) {
             self.events.push(Event::Sound {
@@ -205,8 +212,6 @@ impl Model {
                 });
             }
         }
-
-        let mut particles = Vec::new();
 
         // Collide player body
         for enemy in &mut self.enemies {
@@ -227,9 +232,9 @@ impl Model {
                 let contact = self.player.body.position + collision.normal * collision.penetration;
                 let player_alive = self.player.health.is_alive();
                 self.player.health.change(-hit_strength);
-                particles.push((contact, hit_strength * 5.0, PLAYER_COLOR));
+                commands.spawn_particles(contact, hit_strength * 5.0, PLAYER_COLOR);
                 enemy.health.change(-hit_strength);
-                particles.push((contact, hit_strength, enemy.color));
+                commands.spawn_particles(contact, hit_strength, enemy.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
@@ -258,24 +263,20 @@ impl Model {
 
                 let contact = self.player.head.position + collision.normal * collision.penetration;
                 enemy.health.change(-hit_strength);
-                particles.push((contact, hit_strength, enemy.color));
+                commands.spawn_particles(contact, hit_strength, enemy.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::HeadHit,
                 });
             }
         }
-
-        // Particles
-        for (position, damage, color) in particles {
-            self.spawn_particles_hit(position, damage, color);
-        }
     }
 
     fn check_dead(&mut self, delta_time: f32) {
         let mut dead_enemies = Vec::new();
-        let mut particles = Vec::new();
         for (index, enemy) in self.enemies.iter_mut().enumerate() {
-            if !enemy.is_alive() {
+            if enemy.destroy {
+                dead_enemies.push(index);
+            } else if !enemy.is_alive() {
                 match &mut enemy.enemy_type {
                     EnemyType::Corpse { lifetime } => {
                         lifetime.change(-delta_time);
@@ -287,7 +288,6 @@ impl Model {
                     EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
                         match attack.attack_type {
                             AttackType::Bomb { .. } => {
-                                particles.push((enemy.rigidbody.position, 500.0, BOMB_COLOR));
                                 dead_enemies.push(index);
                             }
                             _ => (),
@@ -304,9 +304,6 @@ impl Model {
         dead_enemies.reverse();
         for dead_index in dead_enemies {
             self.enemies.remove(dead_index);
-        }
-        for (position, damage, color) in particles {
-            self.spawn_particles_hit(position, damage, color);
         }
     }
 }

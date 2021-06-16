@@ -2,6 +2,7 @@ use super::*;
 
 mod area_effect;
 mod attack;
+mod commands;
 mod enemy;
 mod event;
 mod health;
@@ -14,6 +15,7 @@ mod wave;
 
 pub use area_effect::*;
 pub use attack::*;
+use commands::*;
 pub use enemy::*;
 pub use event::*;
 pub use health::*;

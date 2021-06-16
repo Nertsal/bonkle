@@ -7,8 +7,8 @@ pub struct Particle {
 }
 
 impl Model {
-    pub fn spawn_particles_hit(&mut self, position: Vec2, damage: f32, color: Color) {
-        let particles_count = macroquad::rand::gen_range(1, (damage / 10.0).min(50.0) as usize);
+    pub fn spawn_particles_hit(&mut self, position: Vec2, intensity: f32, color: Color) {
+        let particles_count = macroquad::rand::gen_range(1, (intensity / 10.0).min(50.0) as usize);
         for _ in 0..particles_count {
             let direction = Self::get_random_direction();
             let velocity = macroquad::rand::gen_range(10.0, 30.0);

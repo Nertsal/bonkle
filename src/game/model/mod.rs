@@ -1,6 +1,7 @@
 use super::*;
 
 mod area_effect;
+mod attack;
 mod enemy;
 mod event;
 mod health;
@@ -12,6 +13,7 @@ mod update;
 mod wave;
 
 pub use area_effect::*;
+pub use attack::*;
 pub use enemy::*;
 pub use event::*;
 pub use health::*;
@@ -31,7 +33,6 @@ const PARTICLE_LIFETIME: f32 = 1.0;
 const BODY_ACCELERATION: f32 = 3.0;
 const HEAD_ACCELERATION: f32 = 10.0;
 const BODY_IMPACT: f32 = 50.0;
-const BOMBER_TIMER: f32 = 5.0;
 
 pub struct Model {
     pub bounds: Bounds,

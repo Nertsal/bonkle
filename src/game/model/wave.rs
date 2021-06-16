@@ -36,7 +36,7 @@ impl Model {
             2.0,
             25.0,
             MELEE_COLOR,
-            EnemyType::Melee,
+            EnemyType::Crawler,
         );
         let ranger = EnemyInfo::new(
             Health::new(150.0),
@@ -44,19 +44,22 @@ impl Model {
             2.0,
             25.0,
             RANGER_COLOR,
-            EnemyType::Ranger {
-                attack_time: 1.0,
-                attack_cooldown: 1.0,
-                projectile: Box::new(EnemyInfo::new(
-                    Health::new(1.0),
-                    5.0,
-                    1.5,
-                    30.0,
-                    PROJECTILE_COLOR,
-                    EnemyType::Projectile {
-                        lifetime: Health::new(5.0),
+            EnemyType::Attacker {
+                attack: Attack {
+                    attack_time: Health::new(1.0),
+                    attack_type: AttackType::Shoot {
+                        projectile: Box::new(EnemyInfo::new(
+                            Health::new(1.0),
+                            5.0,
+                            1.5,
+                            30.0,
+                            PROJECTILE_COLOR,
+                            EnemyType::Projectile {
+                                lifetime: Health::new(5.0),
+                            },
+                        )),
                     },
-                )),
+                },
             },
         );
         let bomber = EnemyInfo::new(
@@ -65,19 +68,23 @@ impl Model {
             2.0,
             20.0,
             BOMBER_COLOR,
-            EnemyType::Bomber {
-                projectile_count: 5,
-                bomb_timer: BOMBER_TIMER,
-                projectile: Box::new(EnemyInfo::new(
-                    Health::new(1.0),
-                    5.0,
-                    1.0,
-                    40.0,
-                    BOMB_COLOR,
-                    EnemyType::Projectile {
-                        lifetime: Health::new(3.0),
+            EnemyType::Attacker {
+                attack: Attack {
+                    attack_time: Health::new(5.0),
+                    attack_type: AttackType::Bomb {
+                        projectile_count: 5,
+                        projectile: Box::new(EnemyInfo::new(
+                            Health::new(1.0),
+                            5.0,
+                            1.0,
+                            40.0,
+                            BOMB_COLOR,
+                            EnemyType::Projectile {
+                                lifetime: Health::new(3.0),
+                            },
+                        )),
                     },
-                )),
+                },
             },
         );
 

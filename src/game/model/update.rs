@@ -50,62 +50,66 @@ impl Model {
         let mut spawn_enemies = Vec::new();
         for enemy in &mut self.enemies {
             match &mut enemy.enemy_type {
-                EnemyType::Ranger {
-                    projectile,
-                    attack_cooldown,
-                    attack_time,
-                } => {
-                    *attack_cooldown -= delta_time;
-                    if *attack_cooldown <= 0.0 {
-                        *attack_cooldown = *attack_time;
-                        let mut projectile =
-                            Enemy::new(enemy.rigidbody.position, (**projectile).clone());
-                        projectile.rigidbody.velocity =
-                            (self.player.body.position - projectile.rigidbody.position).normalize()
+                EnemyType::Attacker { attack } => {
+                    attack.attack_time.change(-delta_time);
+                    match &attack.attack_type {
+                        AttackType::Shoot { projectile } if !attack.attack_time.is_alive() => {
+                            let mut projectile =
+                                Enemy::new(enemy.rigidbody.position, (**projectile).clone());
+                            projectile.rigidbody.velocity = (self.player.body.position
+                                - projectile.rigidbody.position)
+                                .normalize()
                                 * projectile.movement_speed;
-                        spawn_enemies.push(projectile);
+                            spawn_enemies.push(projectile);
+                        }
+                        AttackType::Bomb {
+                            projectile,
+                            projectile_count,
+                        } => {
+                            if attack.attack_time.is_alive() {
+                                let time_frac = attack.attack_time.hp_frac();
+                                enemy.color = Color::new(
+                                    (BOMB_COLOR.r - BOMBER_COLOR.r) * (1.0 - time_frac)
+                                        + BOMBER_COLOR.r,
+                                    (BOMB_COLOR.g - BOMBER_COLOR.g) * (1.0 - time_frac)
+                                        + BOMBER_COLOR.g,
+                                    (BOMB_COLOR.b - BOMBER_COLOR.b) * (1.0 - time_frac)
+                                        + BOMBER_COLOR.b,
+                                    1.0,
+                                );
+                            } else {
+                                let random_offset =
+                                    macroquad::rand::gen_range(0.0, std::f32::consts::PI);
+                                for i in 0..*projectile_count {
+                                    let mut projectile = Enemy::new(
+                                        enemy.rigidbody.position,
+                                        (**projectile).clone(),
+                                    );
+                                    let angle = (i as f32) * std::f32::consts::PI * 2.0
+                                        / (*projectile_count as f32)
+                                        + random_offset;
+                                    let (sin, cos) = angle.sin_cos();
+                                    projectile.rigidbody.velocity =
+                                        vec2(cos, sin) * projectile.movement_speed;
+                                    spawn_enemies.push(projectile);
+                                }
+                                enemy.health.kill();
+                                self.events.push(Event::Sound {
+                                    sound: EventSound::Explosion,
+                                });
+                            }
+                        }
+                        _ => (),
+                    }
+                    if !attack.attack_time.is_alive() {
+                        attack.attack_time.hp = attack.attack_time.hp_max;
                     }
                 }
+
                 EnemyType::Projectile { lifetime, .. } => {
                     lifetime.change(-delta_time);
                     if !lifetime.is_alive() {
                         enemy.health.kill();
-                    }
-                }
-                EnemyType::Bomber {
-                    projectile,
-                    bomb_timer,
-                    projectile_count,
-                } => {
-                    *bomb_timer -= delta_time;
-                    if *bomb_timer <= 0.0 {
-                        let random_offset = macroquad::rand::gen_range(0.0, std::f32::consts::PI);
-                        for i in 0..*projectile_count {
-                            let mut projectile =
-                                Enemy::new(enemy.rigidbody.position, (**projectile).clone());
-                            let angle = (i as f32) * std::f32::consts::PI * 2.0
-                                / (*projectile_count as f32)
-                                + random_offset;
-                            let (sin, cos) = angle.sin_cos();
-                            projectile.rigidbody.velocity =
-                                vec2(cos, sin) * projectile.movement_speed;
-                            spawn_enemies.push(projectile);
-                        }
-                        enemy.health.kill();
-                        self.events.push(Event::Sound {
-                            sound: EventSound::Explosion,
-                        });
-                    } else {
-                        let bomb_timer = *bomb_timer;
-                        enemy.color = Color::new(
-                            (BOMB_COLOR.r - BOMBER_COLOR.r) * (1.0 - bomb_timer / BOMBER_TIMER)
-                                + BOMBER_COLOR.r,
-                            (BOMB_COLOR.g - BOMBER_COLOR.g) * (1.0 - bomb_timer / BOMBER_TIMER)
-                                + BOMBER_COLOR.g,
-                            (BOMB_COLOR.b - BOMBER_COLOR.b) * (1.0 - bomb_timer / BOMBER_TIMER)
-                                + BOMBER_COLOR.b,
-                            1.0,
-                        );
                     }
                 }
                 _ => (),
@@ -171,7 +175,7 @@ impl Model {
                 enemy.rigidbody.drag(delta_time);
             }
             match &enemy.enemy_type {
-                EnemyType::Melee | EnemyType::Ranger { .. } | EnemyType::Bomber { .. } => {
+                EnemyType::Crawler | EnemyType::Attacker { .. } => {
                     let target_direction = self.player.body.position - enemy.rigidbody.position;
                     let target_velocity = target_direction.normalize() * enemy.movement_speed;
                     enemy.rigidbody.velocity +=
@@ -280,9 +284,14 @@ impl Model {
                         }
                         enemy.color.a = lifetime.hp_frac() * 0.5;
                     }
-                    EnemyType::Bomber { bomb_timer, .. } if *bomb_timer <= 0.0 => {
-                        particles.push((enemy.rigidbody.position, 500.0, BOMB_COLOR));
-                        dead_enemies.push(index);
+                    EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
+                        match attack.attack_type {
+                            AttackType::Bomb { .. } => {
+                                particles.push((enemy.rigidbody.position, 500.0, BOMB_COLOR));
+                                dead_enemies.push(index);
+                            }
+                            _ => (),
+                        }
                     }
                     _ => {
                         enemy.enemy_type = EnemyType::Corpse {

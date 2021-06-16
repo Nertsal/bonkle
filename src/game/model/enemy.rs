@@ -61,21 +61,8 @@ impl EnemyInfo {
 
 #[derive(Debug, Clone)]
 pub enum EnemyType {
-    Corpse {
-        lifetime: Health,
-    },
-    Melee,
-    Ranger {
-        projectile: Box<EnemyInfo>,
-        attack_time: f32,
-        attack_cooldown: f32,
-    },
-    Bomber {
-        projectile: Box<EnemyInfo>,
-        projectile_count: usize,
-        bomb_timer: f32,
-    },
-    Projectile {
-        lifetime: Health,
-    },
+    Corpse { lifetime: Health },
+    Crawler,
+    Attacker { attack: Attack },
+    Projectile { lifetime: Health },
 }

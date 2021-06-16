@@ -23,6 +23,16 @@ impl Renderer {
             );
         }
 
+        // Player health
+        let coefficient = model.player.health.hp_frac();
+        let player_life_color = color_alpha(PLAYER_LIFE_COLOR, 0.5);
+        draw_circle(
+            model.player.body.position.x,
+            model.player.body.position.y,
+            model.player.chain_length * coefficient,
+            player_life_color,
+        );
+
         // Spawners
         let spawner_color = Color::new(SPAWNER_COLOR.r, SPAWNER_COLOR.g, SPAWNER_COLOR.b, 0.5);
         for spawner in &model.spawners {
@@ -40,16 +50,6 @@ impl Renderer {
                 spawner_color,
             );
         }
-
-        // Player health
-        let coefficient = model.player.health.hp_frac();
-        let player_life_color = color_alpha(PLAYER_LIFE_COLOR, 0.5);
-        draw_circle(
-            model.player.body.position.x,
-            model.player.body.position.y,
-            model.player.chain_length * coefficient,
-            player_life_color,
-        );
 
         // Particles
         for particle in &model.particles {

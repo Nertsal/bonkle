@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Debug, Clone)]
 pub struct RigidBody {
     pub position: Vec2,
     pub velocity: Vec2,

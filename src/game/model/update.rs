@@ -2,7 +2,7 @@ use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: f32) {
-        if self.player.health.is_alive() && self.enemies.len() == 0 && self.spawners.len() == 0 {
+        if self.player.health.is_alive() && self.entities.len() == 0 && self.spawners.len() == 0 {
             self.next_wave();
         }
 
@@ -51,26 +51,33 @@ impl Model {
     }
 
     fn attack(&mut self, delta_time: f32, commands: &mut Commands) {
-        for enemy in &mut self.enemies {
-            match &mut enemy.enemy_type {
-                EnemyType::Attacker { attack } => {
-                    attack.attack_time.change(-delta_time);
-                    match &mut attack.attack_type {
-                        AttackType::Shoot { target_pos, .. } => {
-                            *target_pos = self.player.body.position;
+        for entity in &mut self.entities {
+            // Update
+            match &mut entity.entity_type {
+                EntityType::Player { .. } => (),
+                EntityType::Enemy { enemy_type } => match enemy_type {
+                    EnemyType::Attacker { attack } => {
+                        attack.attack_time.change(-delta_time);
+                        match &mut attack.attack_type {
+                            AttackType::Shoot { target_pos, .. } => {
+                                *target_pos = self.player.body.position;
+                            }
+                            _ => (),
                         }
-                        _ => (),
                     }
-                }
-                EnemyType::Projectile { lifetime, .. } => {
-                    lifetime.change(-delta_time);
-                    if !lifetime.is_alive() {
-                        enemy.health.kill();
+                    EnemyType::Projectile { lifetime, .. } => {
+                        lifetime.change(-delta_time);
+                        if !lifetime.is_alive() {
+                            entity.health.kill();
+                        }
                     }
-                }
-                _ => (),
+                    _ => (),
+                },
             }
-            enemy.attack(commands);
+            // Attack
+            entity.attack(commands);
+            // Reset
+            entity.reset_attacks();
         }
     }
 
@@ -124,19 +131,23 @@ impl Model {
     }
 
     fn move_enemies(&mut self, delta_time: f32) {
-        for enemy in &mut self.enemies {
-            enemy.rigidbody.movement(delta_time);
+        for entity in &mut self.entities {
+            entity.rigidbody.movement(delta_time);
 
-            if enemy.rigidbody.velocity.length() > enemy.movement_speed {
-                enemy.rigidbody.drag(delta_time);
+            if entity.rigidbody.velocity.length() > entity.movement_speed {
+                entity.rigidbody.drag(delta_time);
             }
-            match &enemy.enemy_type {
-                EnemyType::Crawler | EnemyType::Attacker { .. } => {
-                    let target_direction = self.player.body.position - enemy.rigidbody.position;
-                    let target_velocity = target_direction.normalize() * enemy.movement_speed;
-                    enemy.rigidbody.velocity +=
-                        (target_velocity - enemy.rigidbody.velocity) * delta_time;
-                }
+            match &entity.entity_type {
+                EntityType::Enemy { enemy_type } => match enemy_type {
+                    EnemyType::Crawler | EnemyType::Attacker { .. } => {
+                        let target_direction =
+                            self.player.body.position - entity.rigidbody.position;
+                        let target_velocity = target_direction.normalize() * entity.movement_speed;
+                        entity.rigidbody.velocity +=
+                            (target_velocity - entity.rigidbody.velocity) * delta_time;
+                    }
+                    _ => (),
+                },
                 _ => (),
             }
         }
@@ -150,9 +161,12 @@ impl Model {
             });
         }
         self.player.head.bounce_bounds(&self.bounds);
-        for enemy in &mut self.enemies {
-            if enemy.rigidbody.bounce_bounds(&self.bounds) {
-                if let EnemyType::Projectile { lifetime } = &mut enemy.enemy_type {
+        for entity in &mut self.entities {
+            if entity.rigidbody.bounce_bounds(&self.bounds) {
+                if let EntityType::Enemy {
+                    enemy_type: EnemyType::Projectile { lifetime },
+                } = &mut entity.entity_type
+                {
                     lifetime.kill();
                 }
 
@@ -163,27 +177,27 @@ impl Model {
         }
 
         // Collide player body
-        for enemy in &mut self.enemies {
-            if !enemy.is_alive() {
+        for entity in &mut self.entities {
+            if !entity.is_alive() {
                 continue;
             }
 
-            if let Some(collision) = enemy.rigidbody.collide(&self.player.body) {
-                enemy.rigidbody.position += collision.normal * collision.penetration;
-                let relative_velocity = self.player.body.velocity - enemy.rigidbody.velocity;
+            if let Some(collision) = entity.rigidbody.collide(&self.player.body) {
+                entity.rigidbody.position += collision.normal * collision.penetration;
+                let relative_velocity = self.player.body.velocity - entity.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity).abs();
-                enemy.rigidbody.velocity +=
+                entity.rigidbody.velocity +=
                     BODY_HIT_SPEED * collision.normal * self.player.body.mass
-                        / enemy.rigidbody.mass;
+                        / entity.rigidbody.mass;
                 self.player.body.velocity -=
-                    BODY_IMPACT * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
+                    BODY_IMPACT * collision.normal * entity.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.body.position + collision.normal * collision.penetration;
                 let player_alive = self.player.health.is_alive();
                 self.player.health.change(-hit_strength);
                 commands.spawn_particles(contact, hit_strength * 5.0, PLAYER_COLOR);
-                enemy.health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, enemy.color);
+                entity.health.change(-hit_strength);
+                commands.spawn_particles(contact, hit_strength, entity.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
@@ -196,23 +210,23 @@ impl Model {
         }
 
         // Collide player head
-        for enemy in &mut self.enemies {
-            if !enemy.is_alive() {
+        for entity in &mut self.entities {
+            if !entity.is_alive() {
                 continue;
             }
 
-            if let Some(collision) = enemy.rigidbody.collide(&self.player.head) {
-                enemy.rigidbody.position += collision.normal * collision.penetration;
-                let relative_velocity = self.player.head.velocity - enemy.rigidbody.velocity;
+            if let Some(collision) = entity.rigidbody.collide(&self.player.head) {
+                entity.rigidbody.position += collision.normal * collision.penetration;
+                let relative_velocity = self.player.head.velocity - entity.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity).abs();
-                enemy.rigidbody.velocity +=
-                    hit_strength * collision.normal * self.player.head.mass / enemy.rigidbody.mass;
+                entity.rigidbody.velocity +=
+                    hit_strength * collision.normal * self.player.head.mass / entity.rigidbody.mass;
                 self.player.head.velocity -=
-                    hit_strength * collision.normal * enemy.rigidbody.mass / self.player.body.mass;
+                    hit_strength * collision.normal * entity.rigidbody.mass / self.player.body.mass;
 
                 let contact = self.player.head.position + collision.normal * collision.penetration;
-                enemy.health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, enemy.color);
+                entity.health.change(-hit_strength);
+                commands.spawn_particles(contact, hit_strength, entity.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::HeadHit,
                 });
@@ -222,37 +236,40 @@ impl Model {
 
     fn check_dead(&mut self, delta_time: f32) {
         let mut dead_enemies = Vec::new();
-        for (index, enemy) in self.enemies.iter_mut().enumerate() {
-            if enemy.destroy {
+        for (index, entity) in self.entities.iter_mut().enumerate() {
+            if entity.destroy {
                 dead_enemies.push(index);
-            } else if !enemy.is_alive() {
-                match &mut enemy.enemy_type {
-                    EnemyType::Corpse { lifetime } => {
-                        lifetime.change(-delta_time);
-                        if !lifetime.is_alive() {
-                            dead_enemies.push(index);
-                        }
-                        enemy.color.a = lifetime.hp_frac() * 0.5;
-                    }
-                    EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
-                        match attack.attack_type {
-                            AttackType::Bomb { .. } => {
+            } else if !entity.is_alive() {
+                match &mut entity.entity_type {
+                    EntityType::Enemy { enemy_type } => match enemy_type {
+                        EnemyType::Corpse { lifetime } => {
+                            lifetime.change(-delta_time);
+                            if !lifetime.is_alive() {
                                 dead_enemies.push(index);
                             }
-                            _ => (),
+                            entity.color.a = lifetime.hp_frac() * 0.5;
                         }
-                    }
-                    _ => {
-                        enemy.enemy_type = EnemyType::Corpse {
-                            lifetime: Health::new(CORPSE_LIFETIME),
+                        EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
+                            match attack.attack_type {
+                                AttackType::Bomb { .. } => {
+                                    dead_enemies.push(index);
+                                }
+                                _ => (),
+                            }
                         }
-                    }
+                        _ => {
+                            *enemy_type = EnemyType::Corpse {
+                                lifetime: Health::new(CORPSE_LIFETIME),
+                            }
+                        }
+                    },
+                    _ => (),
                 }
             }
         }
         dead_enemies.reverse();
         for dead_index in dead_enemies {
-            self.enemies.remove(dead_index);
+            self.entities.remove(dead_index);
         }
     }
 }

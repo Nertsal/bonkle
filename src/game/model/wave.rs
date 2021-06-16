@@ -5,7 +5,7 @@ pub struct Wave {
 }
 
 pub struct WaveGroup {
-    pub enemies: Vec<EnemyInfo>,
+    pub enemies: Vec<EntityInfo>,
     pub radius: f32,
 }
 
@@ -30,60 +30,70 @@ impl Model {
 
     fn generate_wave(&self) -> Wave {
         // Prepare instances
-        let melee = EnemyInfo::new(
+        let melee = EntityInfo::new(
             Health::new(150.0),
             5.0,
             2.0,
             25.0,
             MELEE_COLOR,
-            EnemyType::Crawler,
+            EntityType::Enemy {
+                enemy_type: EnemyType::Crawler,
+            },
         );
-        let ranger = EnemyInfo::new(
+        let ranger = EntityInfo::new(
             Health::new(150.0),
             5.0,
             2.0,
             25.0,
             RANGER_COLOR,
-            EnemyType::Attacker {
-                attack: Attack {
-                    attack_time: Health::new(1.0),
-                    attack_type: AttackType::Shoot {
-                        target_pos: vec2(0.0, 0.0),
-                        projectile: Box::new(EnemyInfo::new(
-                            Health::new(1.0),
-                            5.0,
-                            1.5,
-                            30.0,
-                            PROJECTILE_COLOR,
-                            EnemyType::Projectile {
-                                lifetime: Health::new(5.0),
-                            },
-                        )),
+            EntityType::Enemy {
+                enemy_type: EnemyType::Attacker {
+                    attack: Attack {
+                        attack_time: Health::new(1.0),
+                        attack_type: AttackType::Shoot {
+                            target_pos: vec2(0.0, 0.0),
+                            projectile: Box::new(EntityInfo::new(
+                                Health::new(1.0),
+                                5.0,
+                                1.5,
+                                30.0,
+                                PROJECTILE_COLOR,
+                                EntityType::Enemy {
+                                    enemy_type: EnemyType::Projectile {
+                                        lifetime: Health::new(5.0),
+                                    },
+                                },
+                            )),
+                        },
                     },
                 },
             },
         );
-        let bomber = EnemyInfo::new(
+        let bomber = EntityInfo::new(
             Health::new(50.0),
             5.0,
             2.0,
             20.0,
             BOMBER_COLOR,
-            EnemyType::Attacker {
-                attack: Attack {
-                    attack_time: Health::new(5.0),
-                    attack_type: AttackType::Bomb {
-                        projectile_count: 5,
-                        projectile: Box::new(EnemyInfo::new(
-                            Health::new(1.0),
-                            5.0,
-                            1.0,
-                            40.0,
-                            BOMB_COLOR,
-                            EnemyType::Projectile {
-                                lifetime: Health::new(3.0),
-                            },
-                        )),
+            EntityType::Enemy {
+                enemy_type: EnemyType::Attacker {
+                    attack: Attack {
+                        attack_time: Health::new(5.0),
+                        attack_type: AttackType::Bomb {
+                            projectile_count: 5,
+                            projectile: Box::new(EntityInfo::new(
+                                Health::new(1.0),
+                                5.0,
+                                1.0,
+                                40.0,
+                                BOMB_COLOR,
+                                EntityType::Enemy {
+                                    enemy_type: EnemyType::Projectile {
+                                        lifetime: Health::new(3.0),
+                                    },
+                                },
+                            )),
+                        },
                     },
                 },
             },
@@ -103,7 +113,7 @@ impl Model {
                 enemies: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),
             };
-            let weights = [(2.0, &melee), (1.0, &ranger), (10.5, &bomber)];
+            let weights = [(2.0, &melee), (1.0, &ranger), (0.5, &bomber)];
             let total_weight: f32 = weights.iter().map(|(weight, _)| weight).sum();
             for _ in 0..enemies_count {
                 let mut random = gen_range(0.0, 1.0);

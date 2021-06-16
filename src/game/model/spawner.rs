@@ -20,10 +20,10 @@ impl Spawner {
 
 impl Model {
     pub fn spawn_group(&mut self, position: Vec2, group: WaveGroup) {
-        for enemy_info in group.enemies {
-            self.enemies.push(Enemy::new(
+        for entity_info in group.enemies {
+            self.entities.push(Entity::new(
                 Self::get_random_position_circle(position, group.radius),
-                enemy_info,
+                entity_info,
             ));
         }
     }

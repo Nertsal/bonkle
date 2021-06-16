@@ -4,6 +4,7 @@ mod area_effect;
 mod attack;
 mod commands;
 mod enemy;
+mod entity;
 mod event;
 mod health;
 mod particle;
@@ -17,6 +18,7 @@ pub use area_effect::*;
 pub use attack::*;
 use commands::*;
 pub use enemy::*;
+pub use entity::*;
 pub use event::*;
 pub use health::*;
 pub use particle::*;
@@ -40,7 +42,7 @@ pub struct Model {
     pub bounds: Bounds,
     pub spawn_bounds: Bounds,
     pub player: Player,
-    pub enemies: Vec<Enemy>,
+    pub entities: Vec<Entity>,
     pub particles: Vec<Particle>,
     pub area_effects: Vec<AreaEffect>,
     pub spawners: Vec<Spawner>,
@@ -58,7 +60,7 @@ impl Model {
             bounds,
             spawn_bounds: Bounds::inside(bounds, 20.0),
             player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, Health::new(250.0)),
-            enemies: vec![],
+            entities: vec![],
             area_effects: vec![],
             spawners: vec![],
             particles: vec![],

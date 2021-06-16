@@ -20,11 +20,17 @@ impl Player {
         health: Health,
     ) -> Self {
         Self {
-            body: RigidBody::new(position, mass, Collider::new(body_size)),
+            body: RigidBody::new(
+                position,
+                mass,
+                Collider::new(body_size),
+                PhysicsMaterial::new(0.0, 1.0),
+            ),
             head: RigidBody::new(
                 position + vec2(chain_length, 0.0),
                 mass,
                 Collider::new(head_size),
+                PhysicsMaterial::new(0.0, 0.0),
             ),
             chain_length,
             health,

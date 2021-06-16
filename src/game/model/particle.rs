@@ -19,6 +19,7 @@ impl Model {
                     velocity,
                     mass: 1.0,
                     collider: Collider::new(1.0),
+                    physics_material: PhysicsMaterial::new(DRAG, BOUNCINESS),
                 },
                 color,
                 lifetime: Health::new(PARTICLE_LIFETIME),

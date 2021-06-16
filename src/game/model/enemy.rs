@@ -11,7 +11,12 @@ pub struct Enemy {
 impl Enemy {
     pub fn new(position: Vec2, enemy_info: EnemyInfo) -> Self {
         Self {
-            rigidbody: RigidBody::new(position, enemy_info.mass, Collider::new(enemy_info.size)),
+            rigidbody: RigidBody::new(
+                position,
+                enemy_info.mass,
+                Collider::new(enemy_info.size),
+                PhysicsMaterial::new(DRAG, BOUNCINESS),
+            ),
             movement_speed: enemy_info.movement_speed,
             health: enemy_info.health,
             enemy_type: enemy_info.enemy_type,

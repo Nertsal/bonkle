@@ -25,6 +25,7 @@ const PLAYER_SPEED: f32 = 50.0;
 const HEAD_SPEED: f32 = 150.0;
 const BODY_HIT_SPEED: f32 = 50.0;
 const DRAG: f32 = 1.0;
+const BOUNCINESS: f32 = 1.0;
 const CORPSE_LIFETIME: f32 = 2.5;
 const PARTICLE_LIFETIME: f32 = 1.0;
 const BODY_ACCELERATION: f32 = 3.0;

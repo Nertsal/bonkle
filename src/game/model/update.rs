@@ -29,7 +29,7 @@ impl Model {
         for particle in &mut self.particles {
             particle.rigidbody.movement(delta_time);
             particle.rigidbody.bounce_bounds(&self.bounds);
-            particle.rigidbody.drag(DRAG, delta_time);
+            particle.rigidbody.drag(delta_time);
             particle.lifetime.change(-delta_time);
             particle.color.a = particle.lifetime.hp_frac() * 0.5;
         }
@@ -168,7 +168,7 @@ impl Model {
             enemy.rigidbody.movement(delta_time);
 
             if enemy.rigidbody.velocity.length() > enemy.movement_speed {
-                enemy.rigidbody.drag(DRAG, delta_time);
+                enemy.rigidbody.drag(delta_time);
             }
             match &enemy.enemy_type {
                 EnemyType::Melee | EnemyType::Ranger { .. } | EnemyType::Bomber { .. } => {

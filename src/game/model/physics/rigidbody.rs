@@ -5,20 +5,31 @@ pub struct RigidBody {
     pub velocity: Vec2,
     pub mass: f32,
     pub collider: Collider,
+    pub physics_material: PhysicsMaterial,
 }
 
 impl RigidBody {
-    pub fn new(position: Vec2, mass: f32, collider: Collider) -> Self {
+    pub fn new(
+        position: Vec2,
+        mass: f32,
+        collider: Collider,
+        physics_material: PhysicsMaterial,
+    ) -> Self {
         Self {
             position,
             velocity: Vec2::ZERO,
             mass,
             collider,
+            physics_material,
         }
     }
 
     pub fn movement(&mut self, delta_time: f32) {
         self.position += self.velocity * delta_time;
+    }
+
+    pub fn drag(&mut self, delta_time: f32) {
+        self.velocity *= 1.0 - self.physics_material.drag * delta_time;
     }
 
     pub fn collide(&self, other: &Self) -> Option<Collision> {
@@ -40,23 +51,19 @@ impl RigidBody {
     }
 
     pub fn bounce_bounds(&mut self, bounds: &Bounds) -> bool {
-        self.clamp_bounds(bounds);
         let size = vec2(self.collider.radius, self.collider.radius);
         let min = self.position - size;
         let max = self.position + size;
         let mut bounce = false;
-        if min.x <= bounds.min.x || max.x >= bounds.max.x {
-            self.velocity.x *= -1.0;
+        if min.x < bounds.min.x || max.x > bounds.max.x {
+            self.velocity.x *= -self.physics_material.bounciness;
             bounce = true;
         }
-        if min.y <= bounds.min.y || max.y >= bounds.max.y {
-            self.velocity.y *= -1.0;
+        if min.y < bounds.min.y || max.y > bounds.max.y {
+            self.velocity.y *= -self.physics_material.bounciness;
             bounce = true;
         }
+        self.clamp_bounds(bounds);
         bounce
-    }
-
-    pub fn drag(&mut self, drag: f32, delta_time: f32) {
-        self.velocity *= 1.0 - drag * delta_time;
     }
 }

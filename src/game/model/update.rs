@@ -69,7 +69,7 @@ impl Model {
                 EnemyType::Projectile { lifetime, .. } => {
                     lifetime.change(-delta_time);
                     if !lifetime.is_alive() {
-                        enemy.health.hp = 0.0;
+                        enemy.health.kill();
                     }
                 }
                 EnemyType::Bomber {
@@ -91,7 +91,7 @@ impl Model {
                                 vec2(cos, sin) * projectile.movement_speed;
                             spawn_enemies.push(projectile);
                         }
-                        enemy.health.hp = 0.0;
+                        enemy.health.kill();
                         self.events.push(Event::Sound {
                             sound: EventSound::Explosion,
                         });
@@ -192,6 +192,10 @@ impl Model {
         self.player.head.bounce_bounds(&self.bounds);
         for enemy in &mut self.enemies {
             if enemy.rigidbody.bounce_bounds(&self.bounds) {
+                if let EnemyType::Projectile { lifetime } = &mut enemy.enemy_type {
+                    lifetime.kill();
+                }
+
                 self.events.push(Event::Sound {
                     sound: EventSound::Bounce,
                 });

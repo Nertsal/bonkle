@@ -22,4 +22,8 @@ impl Health {
     pub fn hp_frac(&self) -> f32 {
         self.hp / self.hp_max
     }
+
+    pub fn kill(&mut self) {
+        self.hp = 0.0;
+    }
 }

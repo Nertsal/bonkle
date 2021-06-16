@@ -10,6 +10,7 @@ pub struct Attack {
 pub enum AttackType {
     Shoot {
         projectile: Box<EnemyInfo>,
+        target_pos: Vec2,
     },
     Bomb {
         projectile: Box<EnemyInfo>,

@@ -2,6 +2,7 @@ use super::*;
 
 pub struct Commands {
     commands: Vec<Command>,
+    pub events: Vec<Event>,
 }
 
 enum Command {
@@ -17,7 +18,10 @@ enum Command {
 
 impl Commands {
     pub fn new() -> Self {
-        Self { commands: vec![] }
+        Self {
+            commands: vec![],
+            events: vec![],
+        }
     }
 
     pub fn spawn_enemy(&mut self, enemy: Enemy) {
@@ -30,6 +34,10 @@ impl Commands {
             intensity,
             color,
         });
+    }
+
+    pub fn event(&mut self, event: Event) {
+        self.events.push(event);
     }
 }
 
@@ -47,5 +55,6 @@ impl Model {
                 }
             }
         }
+        self.events.extend(commands.events);
     }
 }

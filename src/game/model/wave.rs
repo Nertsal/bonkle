@@ -48,6 +48,7 @@ impl Model {
                 attack: Attack {
                     attack_time: Health::new(1.0),
                     attack_type: AttackType::Shoot {
+                        target_pos: vec2(0.0, 0.0),
                         projectile: Box::new(EnemyInfo::new(
                             Health::new(1.0),
                             5.0,
@@ -102,7 +103,7 @@ impl Model {
                 enemies: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),
             };
-            let weights = [(2.0, &melee), (1.0, &ranger), (0.5, &bomber)];
+            let weights = [(2.0, &melee), (1.0, &ranger), (10.5, &bomber)];
             let total_weight: f32 = weights.iter().map(|(weight, _)| weight).sum();
             for _ in 0..enemies_count {
                 let mut random = gen_range(0.0, 1.0);

@@ -55,65 +55,13 @@ impl Model {
             match &mut enemy.enemy_type {
                 EnemyType::Attacker { attack } => {
                     attack.attack_time.change(-delta_time);
-                    match &attack.attack_type {
-                        AttackType::Shoot { projectile } if !attack.attack_time.is_alive() => {
-                            let mut projectile =
-                                Enemy::new(enemy.rigidbody.position, (**projectile).clone());
-                            projectile.rigidbody.velocity = (self.player.body.position
-                                - projectile.rigidbody.position)
-                                .normalize()
-                                * projectile.movement_speed;
-                            commands.spawn_enemy(projectile);
-                        }
-                        AttackType::Bomb {
-                            projectile,
-                            projectile_count,
-                        } => {
-                            if attack.attack_time.is_alive() {
-                                let time_frac = attack.attack_time.hp_frac();
-                                enemy.color = Color::new(
-                                    (BOMB_COLOR.r - BOMBER_COLOR.r) * (1.0 - time_frac)
-                                        + BOMBER_COLOR.r,
-                                    (BOMB_COLOR.g - BOMBER_COLOR.g) * (1.0 - time_frac)
-                                        + BOMBER_COLOR.g,
-                                    (BOMB_COLOR.b - BOMBER_COLOR.b) * (1.0 - time_frac)
-                                        + BOMBER_COLOR.b,
-                                    1.0,
-                                );
-                            } else {
-                                let random_offset =
-                                    macroquad::rand::gen_range(0.0, std::f32::consts::PI);
-                                for i in 0..*projectile_count {
-                                    let mut projectile = Enemy::new(
-                                        enemy.rigidbody.position,
-                                        (**projectile).clone(),
-                                    );
-                                    let angle = (i as f32) * std::f32::consts::PI * 2.0
-                                        / (*projectile_count as f32)
-                                        + random_offset;
-                                    let (sin, cos) = angle.sin_cos();
-                                    projectile.rigidbody.velocity =
-                                        vec2(cos, sin) * projectile.movement_speed;
-                                    commands.spawn_enemy(projectile);
-                                }
-                                enemy.destroy = true;
-                                commands.spawn_particles(
-                                    enemy.rigidbody.position,
-                                    500.0,
-                                    BOMB_COLOR,
-                                );
-                                self.events.push(Event::Sound {
-                                    sound: EventSound::Explosion,
-                                });
-                            }
+                    match &mut attack.attack_type {
+                        AttackType::Shoot { target_pos, .. } => {
+                            *target_pos = self.player.body.position;
                         }
                         _ => (),
                     }
-                    if !attack.attack_time.is_alive() {
-                        attack.attack_time.hp = attack.attack_time.hp_max;
-                    }
                 }
-
                 EnemyType::Projectile { lifetime, .. } => {
                     lifetime.change(-delta_time);
                     if !lifetime.is_alive() {
@@ -122,6 +70,7 @@ impl Model {
                 }
                 _ => (),
             }
+            enemy.attack(commands);
         }
     }
 

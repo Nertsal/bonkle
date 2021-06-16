@@ -28,34 +28,6 @@ impl Entity {
     pub fn is_alive(&self) -> bool {
         self.health.is_alive()
     }
-
-    // pub fn attack(&mut self, commands: &mut Commands) {
-    //     match &self.entity_type {
-    //         EntityType::Player { .. } => (),
-    //         EntityType::Enemy { enemy_type } => match enemy_type {
-    //             EnemyType::Attacker { attack } => {
-    //                 let (color_change, destroy) = attack.perform(&self, commands);
-    //                 self.destroy = destroy;
-    //                 if let Some(color_change) = color_change {
-    //                     self.color = color_change;
-    //                 }
-    //             }
-    //             _ => (),
-    //         },
-    //     }
-    // }
-
-    // pub fn reset_attacks(&mut self) {
-    //     match &mut self.entity_type {
-    //         EntityType::Player { .. } => {}
-    //         EntityType::Enemy { enemy_type } => match enemy_type {
-    //             EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
-    //                 attack.attack_time.hp = attack.attack_time.hp_max;
-    //             }
-    //             _ => (),
-    //         },
-    //     }
-    // }
 }
 
 #[derive(Debug, Clone)]
@@ -84,6 +56,47 @@ impl EntityInfo {
             movement_speed,
             color,
             physics_material,
+        }
+    }
+}
+
+pub enum EntityObject {
+    Player(Player),
+    Minion(Minion),
+    Enemy(Enemy),
+}
+
+impl EntityObject {
+    pub fn entity_mut(&mut self) -> &mut Entity {
+        match self {
+            Self::Player(player) => &mut player.entity,
+            Self::Minion(minion) => &mut minion.entity,
+            Self::Enemy(enemy) => &mut enemy.entity,
+        }
+    }
+
+    pub fn entity(&self) -> &Entity {
+        match &self {
+            Self::Player(player) => &player.entity,
+            Self::Minion(minion) => &minion.entity,
+            Self::Enemy(enemy) => &enemy.entity,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum EntityObjectInfo {
+    Player(PlayerInfo),
+    Minion(MinionInfo),
+    Enemy(EnemyInfo),
+}
+
+impl EntityObjectInfo {
+    pub fn into_entity_object(self, position: Vec2) -> EntityObject {
+        match self {
+            Self::Player(player) => player.into_entity_object(position),
+            Self::Minion(minion) => minion.into_entity_object(position),
+            Self::Enemy(enemy) => enemy.into_entity_object(position),
         }
     }
 }

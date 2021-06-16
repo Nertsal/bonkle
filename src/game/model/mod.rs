@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::*;
 
 mod area_effect;
@@ -7,6 +9,7 @@ mod enemy;
 mod entity;
 mod event;
 mod health;
+mod minion;
 mod particle;
 mod physics;
 mod player;
@@ -21,6 +24,7 @@ pub use enemy::*;
 pub use entity::*;
 pub use event::*;
 pub use health::*;
+pub use minion::*;
 pub use particle::*;
 pub use physics::*;
 pub use player::*;
@@ -42,6 +46,7 @@ pub struct Model {
     pub bounds: Bounds,
     pub spawn_bounds: Bounds,
     pub player: Player,
+    pub minions: Vec<Minion>,
     pub enemies: Vec<Enemy>,
     pub particles: Vec<Particle>,
     pub area_effects: Vec<AreaEffect>,
@@ -59,7 +64,22 @@ impl Model {
         Self {
             bounds,
             spawn_bounds: Bounds::inside(bounds, 20.0),
-            player: Player::new(vec2(0.0, 0.0), 10.0, 20.0, 2.0, 3.0, Health::new(250.0)),
+            player: Player::new(
+                vec2(0.0, 0.0),
+                PlayerInfo::new(
+                    3.0,
+                    20.0,
+                    EntityInfo::new(
+                        Health::new(250.0),
+                        10.0,
+                        2.0,
+                        PLAYER_SPEED,
+                        BLUE,
+                        PhysicsMaterial::new(0.0, 1.0),
+                    ),
+                ),
+            ),
+            minions: vec![],
             enemies: vec![],
             area_effects: vec![],
             spawners: vec![],
@@ -76,6 +96,10 @@ impl Model {
 
     pub fn head_target(&mut self, target: Vec2) {
         self.player.head_target = target;
+    }
+
+    pub fn player_attack(&mut self, attacks: HashSet<usize>) {
+        self.player.perform_attacks.extend(attacks);
     }
 }
 

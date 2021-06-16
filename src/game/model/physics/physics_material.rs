@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct PhysicsMaterial {
     pub drag: f32,
     pub bounciness: f32,

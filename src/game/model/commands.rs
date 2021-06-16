@@ -6,8 +6,8 @@ pub struct Commands {
 }
 
 enum Command {
-    SpawnEnemy {
-        enemy: Enemy,
+    SpawnEntity {
+        entity: EntityObject,
     },
     SpawnParticles {
         position: Vec2,
@@ -24,8 +24,8 @@ impl Commands {
         }
     }
 
-    pub fn spawn_entity(&mut self, enemy: Enemy) {
-        self.commands.push(Command::SpawnEnemy { enemy });
+    pub fn spawn_entity(&mut self, entity: EntityObject) {
+        self.commands.push(Command::SpawnEntity { entity });
     }
 
     pub fn spawn_particles(&mut self, position: Vec2, intensity: f32, color: Color) {
@@ -45,7 +45,11 @@ impl Model {
     pub fn perform_commands(&mut self, commands: Commands) {
         for command in commands.commands {
             match command {
-                Command::SpawnEnemy { enemy } => self.enemies.push(enemy),
+                Command::SpawnEntity { entity } => match entity {
+                    EntityObject::Player(_) => unimplemented!(),
+                    EntityObject::Minion(minion) => self.minions.push(minion),
+                    EntityObject::Enemy(enemy) => self.enemies.push(enemy),
+                },
                 Command::SpawnParticles {
                     position,
                     intensity,

@@ -73,6 +73,12 @@ impl Model {
                 _ => (),
             }
         }
+        for &attack_index in &self.player.perform_attacks {
+            if let Some(attack) = self.player.attacks.get_mut(attack_index) {
+                attack.attack_time.change(-delta_time);
+                attack.perform(&mut self.player.entity, commands);
+            }
+        }
     }
 
     fn area_effects(&mut self, delta_time: f32) {

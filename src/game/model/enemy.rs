@@ -5,7 +5,7 @@ pub struct Enemy {
     pub enemy_type: EnemyType,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum EnemyType {
     Corpse { lifetime: Health },
     Crawler,
@@ -22,8 +22,21 @@ impl Enemy {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct EnemyInfo {
-    pub entity_info: EntityInfo,
     pub enemy_type: EnemyType,
+    pub entity_info: EntityInfo,
+}
+
+impl EnemyInfo {
+    pub fn new(enemy_type: EnemyType, entity_info: EntityInfo) -> Self {
+        Self {
+            enemy_type,
+            entity_info,
+        }
+    }
+
+    pub fn into_entity_object(self, position: Vec2) -> EntityObject {
+        EntityObject::Enemy(Enemy::new(position, self))
+    }
 }

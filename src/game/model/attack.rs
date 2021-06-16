@@ -1,19 +1,19 @@
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Attack {
     pub attack_time: Health,
     pub attack_type: AttackType,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum AttackType {
     Shoot {
-        projectile: Box<EnemyInfo>,
+        projectile: Box<EntityObjectInfo>,
         target_pos: Vec2,
     },
     Bomb {
-        projectile: Box<EnemyInfo>,
+        projectile: Box<EntityObjectInfo>,
         projectile_count: usize,
     },
 }
@@ -25,10 +25,11 @@ impl Attack {
                 projectile,
                 target_pos,
             } if !self.attack_time.is_alive() => {
-                let mut projectile = Enemy::new(entity.rigidbody.position, (**projectile).clone());
-                projectile.entity.rigidbody.velocity =
-                    (*target_pos - projectile.entity.rigidbody.position).normalize()
-                        * projectile.entity.movement_speed;
+                let mut projectile =
+                    (*projectile.clone()).into_entity_object(entity.rigidbody.position);
+                projectile.entity_mut().rigidbody.velocity =
+                    (*target_pos - projectile.entity().rigidbody.position).normalize()
+                        * projectile.entity().movement_speed;
                 commands.spawn_entity(projectile);
             }
             AttackType::Bomb {
@@ -47,13 +48,13 @@ impl Attack {
                     let random_offset = macroquad::rand::gen_range(0.0, std::f32::consts::PI);
                     for i in 0..*projectile_count {
                         let mut projectile =
-                            Enemy::new(entity.rigidbody.position, (**projectile).clone());
+                            (*projectile.clone()).into_entity_object(entity.rigidbody.position);
                         let angle = (i as f32) * std::f32::consts::PI * 2.0
                             / (*projectile_count as f32)
                             + random_offset;
                         let (sin, cos) = angle.sin_cos();
-                        projectile.entity.rigidbody.velocity =
-                            vec2(cos, sin) * projectile.entity.movement_speed;
+                        projectile.entity_mut().rigidbody.velocity =
+                            vec2(cos, sin) * projectile.entity().movement_speed;
                         commands.spawn_entity(projectile);
                     }
                     entity.destroy = true;

@@ -1,11 +1,10 @@
 use super::*;
 
 pub struct Player {
-    pub body: RigidBody,
+    pub entity: Entity,
     pub head: RigidBody,
     pub chain_length: f32,
     pub head_target: Vec2,
-    pub health: Health,
     pub target_body_velocity: Vec2,
     pub target_head_velocity: Vec2,
 }
@@ -20,11 +19,16 @@ impl Player {
         health: Health,
     ) -> Self {
         Self {
-            body: RigidBody::new(
+            entity: Entity::new(
                 position,
-                mass,
-                Collider::new(body_size),
-                PhysicsMaterial::new(0.0, 1.0),
+                EntityInfo::new(
+                    health,
+                    mass,
+                    body_size,
+                    PLAYER_SPEED,
+                    BLUE,
+                    PhysicsMaterial::new(0.0, 1.0),
+                ),
             ),
             head: RigidBody::new(
                 position + vec2(chain_length, 0.0),
@@ -33,7 +37,6 @@ impl Player {
                 PhysicsMaterial::new(0.0, 0.0),
             ),
             chain_length,
-            health,
             head_target: vec2(1.0, 0.0),
             target_body_velocity: vec2(0.0, 0.0),
             target_head_velocity: vec2(0.0, 0.0),

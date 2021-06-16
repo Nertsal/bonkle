@@ -24,11 +24,11 @@ impl Renderer {
         }
 
         // Player health
-        let coefficient = model.player.health.hp_frac();
+        let coefficient = model.player.entity.health.hp_frac();
         let player_life_color = color_alpha(PLAYER_LIFE_COLOR, 0.5);
         draw_circle(
-            model.player.body.position.x,
-            model.player.body.position.y,
+            model.player.entity.rigidbody.position.x,
+            model.player.entity.rigidbody.position.y,
             model.player.chain_length * coefficient,
             player_life_color,
         );
@@ -57,36 +57,32 @@ impl Renderer {
         }
 
         // Enemies
-        for entity in &model.entities {
-            self.draw_rigidbody(&entity.rigidbody, entity.color);
-            if let Some(health_frac) = match &entity.entity_type {
-                EntityType::Enemy { enemy_type } => match enemy_type {
-                    EnemyType::Projectile { lifetime } => Some(lifetime.hp_frac()),
-
-                    _ => Some(entity.health.hp_frac()),
-                },
-                _ => None,
+        for enemy in &model.enemies {
+            self.draw_rigidbody(&enemy.entity.rigidbody, enemy.entity.color);
+            if let Some(health_frac) = match &enemy.enemy_type {
+                EnemyType::Projectile { lifetime } => Some(lifetime.hp_frac()),
+                _ => Some(enemy.entity.health.hp_frac()),
             } {
                 draw_circle(
-                    entity.rigidbody.position.x,
-                    entity.rigidbody.position.y,
-                    health_frac * entity.rigidbody.collider.radius,
-                    entity.color,
+                    enemy.entity.rigidbody.position.x,
+                    enemy.entity.rigidbody.position.y,
+                    health_frac * enemy.entity.rigidbody.collider.radius,
+                    enemy.entity.color,
                 );
             }
         }
 
         // Player border
         draw_circle_lines(
-            model.player.body.position.x,
-            model.player.body.position.y,
+            model.player.entity.rigidbody.position.x,
+            model.player.entity.rigidbody.position.y,
             model.player.chain_length,
             0.2,
             PLAYER_BORDER_COLOR,
         );
 
         // Player body & head
-        self.draw_rigidbody(&model.player.body, PLAYER_COLOR);
+        self.draw_rigidbody(&model.player.entity.rigidbody, PLAYER_COLOR);
         self.draw_rigidbody(&model.player.head, PLAYER_COLOR);
 
         // Bounds

@@ -5,7 +5,7 @@ pub struct Wave {
 }
 
 pub struct WaveGroup {
-    pub enemies: Vec<EntityInfo>,
+    pub enemies: Vec<EnemyInfo>,
     pub radius: f32,
 }
 
@@ -30,74 +30,79 @@ impl Model {
 
     fn generate_wave(&self) -> Wave {
         // Prepare instances
-        let melee = EntityInfo::new(
-            Health::new(150.0),
-            5.0,
-            2.0,
-            25.0,
-            MELEE_COLOR,
-            EntityType::Enemy {
-                enemy_type: EnemyType::Crawler,
-            },
-        );
-        let ranger = EntityInfo::new(
-            Health::new(150.0),
-            5.0,
-            2.0,
-            25.0,
-            RANGER_COLOR,
-            EntityType::Enemy {
-                enemy_type: EnemyType::Attacker {
-                    attack: Attack {
-                        attack_time: Health::new(1.0),
-                        attack_type: AttackType::Shoot {
-                            target_pos: vec2(0.0, 0.0),
-                            projectile: Box::new(EntityInfo::new(
+        let melee = EnemyInfo {
+            entity_info: EntityInfo::new(
+                Health::new(150.0),
+                5.0,
+                2.0,
+                25.0,
+                MELEE_COLOR,
+                PhysicsMaterial::new(DRAG, BOUNCINESS),
+            ),
+            enemy_type: EnemyType::Crawler,
+        };
+        let ranger = EnemyInfo {
+            entity_info: EntityInfo::new(
+                Health::new(150.0),
+                5.0,
+                2.0,
+                25.0,
+                RANGER_COLOR,
+                PhysicsMaterial::new(DRAG, BOUNCINESS),
+            ),
+            enemy_type: EnemyType::Attacker {
+                attack: Attack {
+                    attack_time: Health::new(1.0),
+                    attack_type: AttackType::Shoot {
+                        target_pos: vec2(0.0, 0.0),
+                        projectile: Box::new(EnemyInfo {
+                            entity_info: EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,
                                 1.5,
                                 30.0,
                                 PROJECTILE_COLOR,
-                                EntityType::Enemy {
-                                    enemy_type: EnemyType::Projectile {
-                                        lifetime: Health::new(5.0),
-                                    },
-                                },
-                            )),
-                        },
+                                PhysicsMaterial::new(DRAG, BOUNCINESS),
+                            ),
+                            enemy_type: EnemyType::Projectile {
+                                lifetime: Health::new(5.0),
+                            },
+                        }),
                     },
                 },
             },
-        );
-        let bomber = EntityInfo::new(
-            Health::new(50.0),
-            5.0,
-            2.0,
-            20.0,
-            BOMBER_COLOR,
-            EntityType::Enemy {
-                enemy_type: EnemyType::Attacker {
-                    attack: Attack {
-                        attack_time: Health::new(5.0),
-                        attack_type: AttackType::Bomb {
-                            projectile_count: 5,
-                            projectile: Box::new(EntityInfo::new(
+        };
+        let bomber = EnemyInfo {
+            entity_info: EntityInfo::new(
+                Health::new(50.0),
+                5.0,
+                2.0,
+                20.0,
+                BOMBER_COLOR,
+                PhysicsMaterial::new(DRAG, BOUNCINESS),
+            ),
+            enemy_type: EnemyType::Attacker {
+                attack: Attack {
+                    attack_time: Health::new(5.0),
+                    attack_type: AttackType::Bomb {
+                        projectile_count: 5,
+                        projectile: Box::new(EnemyInfo {
+                            entity_info: EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,
                                 1.0,
                                 40.0,
                                 BOMB_COLOR,
-                                EntityType::Enemy {
-                                    enemy_type: EnemyType::Projectile {
-                                        lifetime: Health::new(3.0),
-                                    },
-                                },
-                            )),
-                        },
+                                PhysicsMaterial::new(DRAG, BOUNCINESS),
+                            ),
+                            enemy_type: EnemyType::Projectile {
+                                lifetime: Health::new(3.0),
+                            },
+                        }),
                     },
                 },
             },
-        );
+        };
 
         // Generate wave
         use macroquad::rand::gen_range;

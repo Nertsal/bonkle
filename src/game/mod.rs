@@ -127,7 +127,8 @@ impl Game {
                 direction += 1.0;
             }
             if direction != 0.0 {
-                let target = self.model.player.head.position - self.model.player.body.position;
+                let target =
+                    self.model.player.head.position - self.model.player.entity.rigidbody.position;
                 let target = vec2(target.y, -target.x).normalize() * direction * 5.0
                     + self.model.player.head.position;
                 self.model.head_target(target);

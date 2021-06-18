@@ -14,6 +14,7 @@ mod minion;
 mod particle;
 mod physics;
 mod player;
+mod projectile;
 mod spawner;
 mod update;
 mod wave;
@@ -30,6 +31,7 @@ pub use minion::*;
 pub use particle::*;
 pub use physics::*;
 pub use player::*;
+use projectile::*;
 use spawner::*;
 use wave::*;
 

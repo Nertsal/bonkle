@@ -55,10 +55,9 @@ impl Model {
                     attack_time: Health::new(1.0),
                     attack_type: AttackType::Shoot {
                         target_pos: vec2(0.0, 0.0),
-                        projectile: Box::new(EnemyInfo::new(
-                            EnemyType::Projectile {
-                                lifetime: Health::new(5.0),
-                            },
+                        projectile: Box::new(ProjectileInfo::new(
+                            Health::new(5.0),
+                            EntityType::Enemy,
                             EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,
@@ -86,10 +85,9 @@ impl Model {
                     attack_time: Health::new(5.0),
                     attack_type: AttackType::Bomb {
                         projectile_count: 5,
-                        projectile: Box::new(EnemyInfo::new(
-                            EnemyType::Projectile {
-                                lifetime: Health::new(3.0),
-                            },
+                        projectile: Box::new(ProjectileInfo::new(
+                            Health::new(3.0),
+                            EntityType::Enemy,
                             EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,

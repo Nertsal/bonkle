@@ -11,7 +11,6 @@ pub struct Enemy {
 pub enum EnemyType {
     Crawler,
     Attacker { attack: Attack },
-    Projectile { lifetime: Health },
 }
 
 impl Enemy {
@@ -55,12 +54,6 @@ impl EntityObject for Enemy {
                     attack.perform(&mut self.entity, commands);
                 }
             }
-            EnemyType::Projectile { lifetime, .. } => {
-                lifetime.change(-delta_time);
-                if !lifetime.is_alive() {
-                    self.entity.health.kill();
-                }
-            }
             _ => (),
         }
     }
@@ -95,25 +88,6 @@ impl EntityObject for Enemy {
             _ => (),
         }
         destroy
-    }
-
-    fn health_frac(&self) -> f32 {
-        match &self.enemy_type {
-            EnemyType::Projectile { lifetime } => lifetime.hp_frac(),
-            _ => self.entity.health.hp_frac(),
-        }
-    }
-
-    fn collide_bounds(&mut self, bounds: &Bounds, commands: &mut Commands) {
-        if self.entity_mut().rigidbody.bounce_bounds(bounds) {
-            if let EnemyType::Projectile { lifetime } = &mut self.enemy_type {
-                lifetime.kill();
-            }
-
-            commands.event(Event::Sound {
-                sound: EventSound::Bounce,
-            });
-        }
     }
 }
 

@@ -31,6 +31,55 @@ impl Player {
     }
 }
 
+impl EntityObject for Player {
+    fn entity_mut(&mut self) -> &mut Entity {
+        &mut self.entity
+    }
+
+    fn entity(&self) -> &Entity {
+        &self.entity
+    }
+
+    fn entity_type(&self) -> EntityType {
+        EntityType::Player
+    }
+
+    fn decide_movement(&mut self, _: Option<Vec2>, delta_time: f32) {
+        if self.entity.is_alive() {
+            // Calculate head target velocity
+            let direction = self.head.position - self.entity.rigidbody.position;
+            let target = self.head_target - self.entity.rigidbody.position;
+            let angle = direction.angle_between(target).abs();
+            let speed = angle.min(0.2) / 0.2;
+            let direction = vec2(direction.y, -direction.x).normalize();
+            let signum = direction.dot(target).signum();
+            let direction = direction * signum * speed;
+            self.target_head_velocity = direction * HEAD_SPEED + self.entity.rigidbody.velocity;
+
+            // Accelerate towards target velocity
+            let target_change = self.target_body_velocity - self.entity.rigidbody.velocity;
+            self.entity.rigidbody.velocity += target_change * BODY_ACCELERATION * delta_time;
+
+            let target_change = self.target_head_velocity - self.head.velocity;
+            self.head.velocity += target_change * HEAD_ACCELERATION * delta_time;
+        }
+    }
+
+    fn movement(&mut self, delta_time: f32) {
+        self.entity.rigidbody.movement(delta_time);
+        self.head.movement(delta_time);
+
+        if self.entity.rigidbody.velocity.length() > self.entity.movement_speed {
+            self.entity.rigidbody.drag(delta_time);
+        }
+
+        // Clamp distance between body and head
+        let offset = self.head.position - self.entity.rigidbody.position;
+        let distance = offset.length() - self.chain_length;
+        self.head.position -= offset.normalize_or_zero() * distance;
+    }
+}
+
 #[derive(Clone)]
 pub struct PlayerInfo {
     pub entity_info: EntityInfo,
@@ -46,8 +95,10 @@ impl PlayerInfo {
             chain_length,
         }
     }
+}
 
-    pub fn into_entity_object(self, position: Vec2) -> EntityObject {
-        EntityObject::Player(Player::new(position, self))
+impl EntityObjectInfo for PlayerInfo {
+    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+        Box::new(Player::new(position, *self))
     }
 }

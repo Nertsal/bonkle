@@ -56,20 +56,16 @@ impl Renderer {
             self.draw_rigidbody(&particle.rigidbody, particle.color);
         }
 
-        // Enemies
-        for enemy in &model.enemies {
-            self.draw_rigidbody(&enemy.entity.rigidbody, enemy.entity.color);
-            if let Some(health_frac) = match &enemy.enemy_type {
-                EnemyType::Projectile { lifetime } => Some(lifetime.hp_frac()),
-                _ => Some(enemy.entity.health.hp_frac()),
-            } {
-                draw_circle(
-                    enemy.entity.rigidbody.position.x,
-                    enemy.entity.rigidbody.position.y,
-                    health_frac * enemy.entity.rigidbody.collider.radius,
-                    enemy.entity.color,
-                );
-            }
+        // Other entities
+        for enemy in &model.entities {
+            self.draw_rigidbody(&enemy.entity().rigidbody, enemy.entity().color);
+            let health_frac = enemy.health_frac();
+            draw_circle(
+                enemy.entity().rigidbody.position.x,
+                enemy.entity().rigidbody.position.y,
+                health_frac * enemy.entity().rigidbody.collider.radius,
+                enemy.entity().color,
+            );
         }
 
         // Player border

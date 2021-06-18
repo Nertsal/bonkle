@@ -9,11 +9,11 @@ pub struct Attack {
 #[derive(Clone)]
 pub enum AttackType {
     Shoot {
-        projectile: Box<EntityObjectInfo>,
+        projectile: Box<dyn EntityObjectInfo>,
         target_pos: Vec2,
     },
     Bomb {
-        projectile: Box<EntityObjectInfo>,
+        projectile: Box<dyn EntityObjectInfo>,
         projectile_count: usize,
     },
 }
@@ -24,13 +24,16 @@ impl Attack {
             AttackType::Shoot {
                 projectile,
                 target_pos,
-            } if !self.attack_time.is_alive() => {
-                let mut projectile =
-                    (*projectile.clone()).into_entity_object(entity.rigidbody.position);
-                projectile.entity_mut().rigidbody.velocity =
-                    (*target_pos - projectile.entity().rigidbody.position).normalize()
-                        * projectile.entity().movement_speed;
-                commands.spawn_entity(projectile);
+            } => {
+                if !self.attack_time.is_alive() {
+                    let mut projectile = projectile
+                        .clone()
+                        .into_entity_object(entity.rigidbody.position);
+                    projectile.entity_mut().rigidbody.velocity =
+                        (*target_pos - projectile.entity().rigidbody.position).normalize()
+                            * projectile.entity().movement_speed;
+                    commands.spawn_entity(projectile);
+                }
             }
             AttackType::Bomb {
                 projectile,
@@ -47,8 +50,9 @@ impl Attack {
                 } else {
                     let random_offset = macroquad::rand::gen_range(0.0, std::f32::consts::PI);
                     for i in 0..*projectile_count {
-                        let mut projectile =
-                            (*projectile.clone()).into_entity_object(entity.rigidbody.position);
+                        let mut projectile = projectile
+                            .clone()
+                            .into_entity_object(entity.rigidbody.position);
                         let angle = (i as f32) * std::f32::consts::PI * 2.0
                             / (*projectile_count as f32)
                             + random_offset;
@@ -64,7 +68,6 @@ impl Attack {
                     });
                 }
             }
-            _ => (),
         }
         if !self.attack_time.is_alive() {
             self.attack_time.hp = self.attack_time.hp_max;

@@ -60,43 +60,76 @@ impl EntityInfo {
     }
 }
 
-pub enum EntityObject {
-    Player(Player),
-    Minion(Minion),
-    Enemy(Enemy),
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EntityType {
+    Player,
+    Minion,
+    Enemy,
 }
 
-impl EntityObject {
-    pub fn entity_mut(&mut self) -> &mut Entity {
-        match self {
-            Self::Player(player) => &mut player.entity,
-            Self::Minion(minion) => &mut minion.entity,
-            Self::Enemy(enemy) => &mut enemy.entity,
+pub trait EntityObject {
+    fn entity_mut(&mut self) -> &mut Entity;
+
+    fn entity(&self) -> &Entity;
+
+    fn entity_type(&self) -> EntityType;
+
+    fn attack_targets(&self) -> Vec<EntityType> {
+        vec![]
+    }
+
+    fn attack(&mut self, _target_pos: Option<Vec2>, _delta_time: f32, _commands: &mut Commands) {}
+
+    fn movement_targets(&self) -> Vec<EntityType> {
+        vec![]
+    }
+
+    fn decide_movement(&mut self, _target_pos: Option<Vec2>, _delta_time: f32) {}
+
+    fn movement(&mut self, delta_time: f32) {
+        self.entity_mut().rigidbody.movement(delta_time);
+
+        if self.entity().rigidbody.velocity.length() > self.entity().movement_speed {
+            self.entity_mut().rigidbody.drag(delta_time);
         }
     }
 
-    pub fn entity(&self) -> &Entity {
-        match &self {
-            Self::Player(player) => &player.entity,
-            Self::Minion(minion) => &minion.entity,
-            Self::Enemy(enemy) => &enemy.entity,
+    fn dead(&mut self, _delta_time: f32) -> bool {
+        false
+    }
+
+    fn health_frac(&self) -> f32 {
+        self.entity().health.hp_frac()
+    }
+
+    fn collide_bounds(&mut self, bounds: &Bounds, commands: &mut Commands) {
+        if self.entity_mut().rigidbody.bounce_bounds(bounds) {
+            commands.event(Event::Sound {
+                sound: EventSound::Bounce,
+            });
         }
     }
 }
 
-#[derive(Clone)]
-pub enum EntityObjectInfo {
-    Player(PlayerInfo),
-    Minion(MinionInfo),
-    Enemy(EnemyInfo),
+pub trait EntityObjectInfo: EntityObjectInfoClone {
+    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject>;
 }
 
-impl EntityObjectInfo {
-    pub fn into_entity_object(self, position: Vec2) -> EntityObject {
-        match self {
-            Self::Player(player) => player.into_entity_object(position),
-            Self::Minion(minion) => minion.into_entity_object(position),
-            Self::Enemy(enemy) => enemy.into_entity_object(position),
-        }
+pub trait EntityObjectInfoClone {
+    fn clone_box(&self) -> Box<dyn EntityObjectInfo>;
+}
+
+impl<T> EntityObjectInfoClone for T
+where
+    T: 'static + EntityObjectInfo + Clone,
+{
+    fn clone_box(&self) -> Box<dyn EntityObjectInfo> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn EntityObjectInfo> {
+    fn clone(&self) -> Box<dyn EntityObjectInfo> {
+        self.clone_box()
     }
 }

@@ -7,7 +7,7 @@ pub struct Commands {
 
 enum Command {
     SpawnEntity {
-        entity: EntityObject,
+        entity: Box<dyn EntityObject>,
     },
     SpawnParticles {
         position: Vec2,
@@ -24,7 +24,7 @@ impl Commands {
         }
     }
 
-    pub fn spawn_entity(&mut self, entity: EntityObject) {
+    pub fn spawn_entity(&mut self, entity: Box<dyn EntityObject>) {
         self.commands.push(Command::SpawnEntity { entity });
     }
 
@@ -45,11 +45,7 @@ impl Model {
     pub fn perform_commands(&mut self, commands: Commands) {
         for command in commands.commands {
             match command {
-                Command::SpawnEntity { entity } => match entity {
-                    EntityObject::Player(_) => unimplemented!(),
-                    EntityObject::Minion(minion) => self.minions.push(minion),
-                    EntityObject::Enemy(enemy) => self.enemies.push(enemy),
-                },
+                Command::SpawnEntity { entity } => self.entities.push(entity),
                 Command::SpawnParticles {
                     position,
                     intensity,

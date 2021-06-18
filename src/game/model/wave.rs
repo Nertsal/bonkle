@@ -5,7 +5,7 @@ pub struct Wave {
 }
 
 pub struct WaveGroup {
-    pub enemies: Vec<EnemyInfo>,
+    pub entities: Vec<Box<dyn EntityObjectInfo>>,
     pub radius: f32,
 }
 
@@ -30,7 +30,7 @@ impl Model {
 
     fn generate_wave(&self) -> Wave {
         // Prepare instances
-        let melee = EnemyInfo {
+        let melee = Box::new(EnemyInfo {
             entity_info: EntityInfo::new(
                 Health::new(150.0),
                 5.0,
@@ -40,8 +40,8 @@ impl Model {
                 PhysicsMaterial::new(DRAG, BOUNCINESS),
             ),
             enemy_type: EnemyType::Crawler,
-        };
-        let ranger = EnemyInfo {
+        });
+        let ranger = Box::new(EnemyInfo {
             entity_info: EntityInfo::new(
                 Health::new(150.0),
                 5.0,
@@ -55,7 +55,7 @@ impl Model {
                     attack_time: Health::new(1.0),
                     attack_type: AttackType::Shoot {
                         target_pos: vec2(0.0, 0.0),
-                        projectile: Box::new(EntityObjectInfo::Enemy(EnemyInfo::new(
+                        projectile: Box::new(EnemyInfo::new(
                             EnemyType::Projectile {
                                 lifetime: Health::new(5.0),
                             },
@@ -67,12 +67,12 @@ impl Model {
                                 PROJECTILE_COLOR,
                                 PhysicsMaterial::new(DRAG, BOUNCINESS),
                             ),
-                        ))),
+                        )),
                     },
                 },
             },
-        };
-        let bomber = EnemyInfo {
+        });
+        let bomber = Box::new(EnemyInfo {
             entity_info: EntityInfo::new(
                 Health::new(50.0),
                 5.0,
@@ -86,7 +86,7 @@ impl Model {
                     attack_time: Health::new(5.0),
                     attack_type: AttackType::Bomb {
                         projectile_count: 5,
-                        projectile: Box::new(EntityObjectInfo::Enemy(EnemyInfo::new(
+                        projectile: Box::new(EnemyInfo::new(
                             EnemyType::Projectile {
                                 lifetime: Health::new(3.0),
                             },
@@ -98,11 +98,11 @@ impl Model {
                                 BOMB_COLOR,
                                 PhysicsMaterial::new(DRAG, BOUNCINESS),
                             ),
-                        ))),
+                        )),
                     },
                 },
             },
-        };
+        });
 
         // Generate wave
         use macroquad::rand::gen_range;
@@ -115,7 +115,7 @@ impl Model {
             let max_enemies = (self.current_stage as f32).sqrt().floor() as usize;
             let enemies_count = gen_range(max_enemies.max(3) - 2, max_enemies.max(1));
             let mut group = WaveGroup {
-                enemies: Vec::with_capacity(enemies_count),
+                entities: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),
             };
             let weights = [(2.0, &melee), (1.0, &ranger), (0.5, &bomber)];
@@ -131,7 +131,7 @@ impl Model {
                         break;
                     }
                 }
-                group.enemies.push(enemy.unwrap());
+                group.entities.push(enemy.unwrap());
             }
             wave.groups.push(group);
         }

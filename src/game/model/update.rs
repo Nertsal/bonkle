@@ -56,10 +56,7 @@ impl Model {
     fn wave(&mut self) -> bool {
         !self.player.entity.is_alive()
             || self.spawners.len() > 0
-            || self
-                .entities
-                .iter()
-                .any(|entity| entity.entity_type() == EntityType::Enemy)
+            || self.entities(vec![EntityType::Enemy]).any(|_| true)
     }
 
     fn attack(&mut self, delta_time: f32, commands: &mut Commands) {

@@ -83,7 +83,7 @@ impl EntityObject for Enemy {
         }
     }
 
-    fn dead(&mut self, delta_time: f32) -> DeadState {
+    fn dead(&mut self, _: f32) -> DeadState {
         let mut destroy = DeadState::Corpse;
         match &mut self.enemy_type {
             EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {

@@ -63,7 +63,7 @@ impl Model {
         let mut targets = HashMap::new();
         for (index, entity) in self.entities.iter().enumerate() {
             let target_types = entity.attack_targets();
-            let entity_pos = entity.entity().rigidbody.position;
+            let entity_pos = entity.rigidbody.position;
             if let Some(target_pos) = self.find_closest(entity_pos, target_types) {
                 targets.insert(index, target_pos);
             }
@@ -120,7 +120,7 @@ impl Model {
         let mut targets = HashMap::new();
         for (index, entity) in self.entities.iter().enumerate() {
             let target_types = entity.movement_targets();
-            let entity_pos = entity.entity().rigidbody.position;
+            let entity_pos = entity.rigidbody.position;
             if let Some(target_pos) = self.find_closest(entity_pos, target_types) {
                 targets.insert(index, target_pos);
             }
@@ -148,25 +148,21 @@ impl Model {
 
         // Collide player body
         for entity in &mut self.entities {
-            if !entity.entity().is_alive() {
+            if !entity.is_alive() {
                 continue;
             }
 
-            if let Some(collision) = entity
-                .entity()
-                .rigidbody
-                .collide(&self.player.entity.rigidbody)
-            {
-                entity.entity_mut().rigidbody.position += collision.normal * collision.penetration;
+            if let Some(collision) = entity.rigidbody.collide(&self.player.entity.rigidbody) {
+                entity.rigidbody.position += collision.normal * collision.penetration;
                 let relative_velocity =
-                    self.player.entity.rigidbody.velocity - entity.entity().rigidbody.velocity;
+                    self.player.entity.rigidbody.velocity - entity.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity).abs();
                 let velocity_change =
                     BODY_HIT_SPEED * collision.normal * self.player.entity.rigidbody.mass
-                        / entity.entity().rigidbody.mass;
-                entity.entity_mut().rigidbody.velocity += velocity_change;
+                        / entity.rigidbody.mass;
+                entity.rigidbody.velocity += velocity_change;
                 self.player.entity.rigidbody.velocity -=
-                    BODY_IMPACT * collision.normal * entity.entity().rigidbody.mass
+                    BODY_IMPACT * collision.normal * entity.rigidbody.mass
                         / self.player.entity.rigidbody.mass;
 
                 let contact = self.player.entity.rigidbody.position
@@ -174,8 +170,8 @@ impl Model {
                 let player_alive = self.player.entity.is_alive();
                 self.player.entity.health.change(-hit_strength);
                 commands.spawn_particles(contact, hit_strength * 5.0, PLAYER_COLOR);
-                entity.entity_mut().health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, entity.entity().color);
+                entity.health.change(-hit_strength);
+                commands.spawn_particles(contact, hit_strength, entity.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
@@ -189,25 +185,24 @@ impl Model {
 
         // Collide player head
         for entity in &mut self.entities {
-            if !entity.entity().is_alive() {
+            if !entity.is_alive() {
                 continue;
             }
 
-            if let Some(collision) = entity.entity().rigidbody.collide(&self.player.head) {
-                entity.entity_mut().rigidbody.position += collision.normal * collision.penetration;
-                let relative_velocity =
-                    self.player.head.velocity - entity.entity().rigidbody.velocity;
+            if let Some(collision) = entity.rigidbody.collide(&self.player.head) {
+                entity.rigidbody.position += collision.normal * collision.penetration;
+                let relative_velocity = self.player.head.velocity - entity.rigidbody.velocity;
                 let hit_strength = collision.normal.dot(relative_velocity).abs();
-                let velocity_change = hit_strength * collision.normal * self.player.head.mass
-                    / entity.entity().rigidbody.mass;
-                entity.entity_mut().rigidbody.velocity += velocity_change;
+                let velocity_change =
+                    hit_strength * collision.normal * self.player.head.mass / entity.rigidbody.mass;
+                entity.rigidbody.velocity += velocity_change;
                 self.player.head.velocity -=
-                    hit_strength * collision.normal * entity.entity().rigidbody.mass
+                    hit_strength * collision.normal * entity.rigidbody.mass
                         / self.player.entity.rigidbody.mass;
 
                 let contact = self.player.head.position + collision.normal * collision.penetration;
-                entity.entity_mut().health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, entity.entity().color);
+                entity.health.change(-hit_strength);
+                commands.spawn_particles(contact, hit_strength, entity.color);
                 self.events.push(Event::Sound {
                     sound: EventSound::HeadHit,
                 });
@@ -218,9 +213,9 @@ impl Model {
     fn check_dead(&mut self, delta_time: f32, commands: &mut Commands) {
         let mut dead_enemies = Vec::new();
         for (index, entity) in self.entities.iter_mut().enumerate() {
-            if entity.entity().destroy {
+            if entity.destroy {
                 dead_enemies.push(index);
-            } else if !entity.entity().is_alive() {
+            } else if !entity.is_alive() {
                 match entity.dead(delta_time) {
                     DeadState::Destroy => dead_enemies.push(index),
                     DeadState::Corpse => {
@@ -229,10 +224,10 @@ impl Model {
                             Box::new(CorpseInfo::new(
                                 entity.entity_type(),
                                 Health::new(CORPSE_LIFETIME),
-                                entity.entity().rigidbody.velocity,
-                                entity.entity().entity_info(),
+                                entity.rigidbody.velocity,
+                                entity.entity_info(),
                             ))
-                            .into_entity_object(entity.entity().rigidbody.position),
+                            .into_entity_object(entity.rigidbody.position),
                         );
                     }
                     DeadState::Idle => (),

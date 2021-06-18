@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use super::*;
 
 #[derive(Debug, Clone)]
@@ -119,6 +121,20 @@ pub trait EntityObject {
                 sound: EventSound::Bounce,
             });
         }
+    }
+}
+
+impl Deref for dyn EntityObject {
+    type Target = Entity;
+
+    fn deref(&self) -> &Self::Target {
+        self.entity()
+    }
+}
+
+impl DerefMut for dyn EntityObject {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.entity_mut()
     }
 }
 

@@ -28,6 +28,17 @@ impl Entity {
     pub fn is_alive(&self) -> bool {
         self.health.is_alive()
     }
+
+    pub fn entity_info(&self) -> EntityInfo {
+        EntityInfo::new(
+            self.health.clone(),
+            self.rigidbody.mass,
+            self.rigidbody.collider.radius,
+            self.movement_speed,
+            self.color,
+            self.rigidbody.physics_material.clone(),
+        )
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -94,8 +105,8 @@ pub trait EntityObject {
         }
     }
 
-    fn dead(&mut self, _delta_time: f32) -> bool {
-        false
+    fn dead(&mut self, _delta_time: f32) -> DeadState {
+        DeadState::Corpse
     }
 
     fn health_frac(&self) -> f32 {

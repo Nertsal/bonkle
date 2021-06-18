@@ -48,7 +48,7 @@ impl Model {
         self.decide_movement(delta_time);
         self.move_entities(delta_time);
         self.collide(&mut commands);
-        self.check_dead(delta_time);
+        self.check_dead(delta_time, &mut commands);
 
         self.perform_commands(commands);
     }
@@ -218,13 +218,28 @@ impl Model {
         }
     }
 
-    fn check_dead(&mut self, delta_time: f32) {
+    fn check_dead(&mut self, delta_time: f32, commands: &mut Commands) {
         let mut dead_enemies = Vec::new();
         for (index, entity) in self.entities.iter_mut().enumerate() {
             if entity.entity().destroy {
                 dead_enemies.push(index);
-            } else if !entity.entity().is_alive() && entity.dead(delta_time) {
-                dead_enemies.push(index);
+            } else if !entity.entity().is_alive() {
+                match entity.dead(delta_time) {
+                    DeadState::Destroy => dead_enemies.push(index),
+                    DeadState::Corpse => {
+                        dead_enemies.push(index);
+                        commands.spawn_entity(
+                            Box::new(CorpseInfo::new(
+                                entity.entity_type(),
+                                Health::new(CORPSE_LIFETIME),
+                                entity.entity().rigidbody.velocity,
+                                entity.entity().entity_info(),
+                            ))
+                            .into_entity_object(entity.entity().rigidbody.position),
+                        );
+                    }
+                    DeadState::Idle => (),
+                }
             }
         }
         dead_enemies.reverse();

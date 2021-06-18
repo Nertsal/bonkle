@@ -1,3 +1,5 @@
+use core::f32;
+
 use super::*;
 
 pub struct Enemy {
@@ -7,7 +9,6 @@ pub struct Enemy {
 
 #[derive(Clone)]
 pub enum EnemyType {
-    Corpse { lifetime: Health },
     Crawler,
     Attacker { attack: Attack },
     Projectile { lifetime: Health },
@@ -82,29 +83,16 @@ impl EntityObject for Enemy {
         }
     }
 
-    fn dead(&mut self, delta_time: f32) -> bool {
-        let mut destroy = false;
+    fn dead(&mut self, delta_time: f32) -> DeadState {
+        let mut destroy = DeadState::Corpse;
         match &mut self.enemy_type {
-            EnemyType::Corpse { lifetime } => {
-                lifetime.change(-delta_time);
-                if !lifetime.is_alive() {
-                    destroy = true;
-                }
-                self.entity.color.a = lifetime.hp_frac() * 0.5;
-            }
             EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
                 match attack.attack_type {
-                    AttackType::Bomb { .. } => {
-                        destroy = true;
-                    }
+                    AttackType::Bomb { .. } => destroy = DeadState::Destroy,
                     _ => (),
                 }
             }
-            _ => {
-                self.enemy_type = EnemyType::Corpse {
-                    lifetime: Health::new(CORPSE_LIFETIME),
-                }
-            }
+            _ => (),
         }
         destroy
     }

@@ -78,6 +78,10 @@ impl EntityObject for Player {
         let distance = offset.length() - self.chain_length;
         self.head.position -= offset.normalize_or_zero() * distance;
     }
+
+    fn dead(&mut self, _delta_time: f32) -> DeadState {
+        DeadState::Idle
+    }
 }
 
 #[derive(Clone)]

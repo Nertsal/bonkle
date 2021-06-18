@@ -71,7 +71,6 @@ impl EntityObject for Enemy {
                     self.entity.rigidbody.velocity +=
                         (target_velocity - self.entity.rigidbody.velocity) * delta_time;
                 }
-                _ => (),
             }
         }
     }

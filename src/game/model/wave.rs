@@ -30,8 +30,9 @@ impl Model {
 
     fn generate_wave(&self) -> Wave {
         // Prepare instances
-        let melee = Box::new(EnemyInfo {
-            entity_info: EntityInfo::new(
+        let melee = Box::new(EnemyInfo::new(
+            EnemyType::Crawler,
+            EntityInfo::new(
                 Health::new(150.0),
                 5.0,
                 2.0,
@@ -39,18 +40,9 @@ impl Model {
                 MELEE_COLOR,
                 PhysicsMaterial::new(DRAG, BOUNCINESS),
             ),
-            enemy_type: EnemyType::Crawler,
-        });
-        let ranger = Box::new(EnemyInfo {
-            entity_info: EntityInfo::new(
-                Health::new(150.0),
-                5.0,
-                2.0,
-                25.0,
-                RANGER_COLOR,
-                PhysicsMaterial::new(DRAG, BOUNCINESS),
-            ),
-            enemy_type: EnemyType::Attacker {
+        ));
+        let ranger = Box::new(EnemyInfo::new(
+            EnemyType::Attacker {
                 attack: Attack {
                     attack_time: Health::new(1.0),
                     attack_type: AttackType::Shoot {
@@ -70,17 +62,17 @@ impl Model {
                     },
                 },
             },
-        });
-        let bomber = Box::new(EnemyInfo {
-            entity_info: EntityInfo::new(
-                Health::new(50.0),
+            EntityInfo::new(
+                Health::new(150.0),
                 5.0,
                 2.0,
-                20.0,
-                BOMBER_COLOR,
+                25.0,
+                RANGER_COLOR,
                 PhysicsMaterial::new(DRAG, BOUNCINESS),
             ),
-            enemy_type: EnemyType::Attacker {
+        ));
+        let bomber = Box::new(EnemyInfo::new(
+            EnemyType::Attacker {
                 attack: Attack {
                     attack_time: Health::new(5.0),
                     attack_type: AttackType::Bomb {
@@ -100,7 +92,15 @@ impl Model {
                     },
                 },
             },
-        });
+            EntityInfo::new(
+                Health::new(50.0),
+                5.0,
+                2.0,
+                20.0,
+                BOMBER_COLOR,
+                PhysicsMaterial::new(DRAG, BOUNCINESS),
+            ),
+        ));
 
         // Generate wave
         use macroquad::rand::gen_range;

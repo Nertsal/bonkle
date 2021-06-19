@@ -105,13 +105,13 @@ impl Model {
         // Generate wave
         use macroquad::rand::gen_range;
         let max_groups = (self.current_stage as f32).sqrt().floor() as usize;
-        let groups_count = gen_range(max_groups.max(2) - 1, max_groups.max(1));
+        let groups_count = gen_range(max_groups.max(2) - 1, max_groups.max(1) + 1);
         let mut wave = Wave {
             groups: Vec::with_capacity(groups_count),
         };
         for _ in 0..groups_count {
             let max_enemies = (self.current_stage as f32).sqrt().floor() as usize;
-            let enemies_count = gen_range(max_enemies.max(3) - 2, max_enemies.max(1));
+            let enemies_count = gen_range(max_enemies.max(3) - 2, max_enemies.max(1) + 1);
             let mut group = WaveGroup {
                 entities: Vec::with_capacity(enemies_count),
                 radius: gen_range(10.0, 15.0),

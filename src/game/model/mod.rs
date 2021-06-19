@@ -75,6 +75,7 @@ impl Model {
                     EntityInfo::new(
                         Health::new(250.0),
                         10.0,
+                        false,
                         2.0,
                         PLAYER_SPEED,
                         BLUE,

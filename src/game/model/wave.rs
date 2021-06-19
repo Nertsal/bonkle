@@ -35,6 +35,7 @@ impl Model {
             EntityInfo::new(
                 Health::new(150.0),
                 5.0,
+                false,
                 2.0,
                 25.0,
                 MELEE_COLOR,
@@ -53,6 +54,7 @@ impl Model {
                             EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,
+                                false,
                                 1.5,
                                 30.0,
                                 PROJECTILE_COLOR,
@@ -65,6 +67,7 @@ impl Model {
             EntityInfo::new(
                 Health::new(150.0),
                 5.0,
+                false,
                 2.0,
                 25.0,
                 RANGER_COLOR,
@@ -83,6 +86,7 @@ impl Model {
                             EntityInfo::new(
                                 Health::new(1.0),
                                 5.0,
+                                false,
                                 1.0,
                                 40.0,
                                 BOMB_COLOR,
@@ -95,6 +99,7 @@ impl Model {
             EntityInfo::new(
                 Health::new(50.0),
                 5.0,
+                false,
                 2.0,
                 20.0,
                 BOMBER_COLOR,

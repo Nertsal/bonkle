@@ -18,6 +18,7 @@ impl Model {
                     position,
                     velocity,
                     mass: 1.0,
+                    is_kinematic: false,
                     collider: Collider::new(1.0),
                     physics_material: PhysicsMaterial::new(DRAG, BOUNCINESS),
                 },

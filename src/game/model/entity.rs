@@ -18,6 +18,7 @@ impl Entity {
             rigidbody: RigidBody::new(
                 position,
                 entity_info.mass,
+                entity_info.is_kinematic,
                 Collider::new(entity_info.size),
                 entity_info.physics_material,
             ),
@@ -35,6 +36,7 @@ impl Entity {
         EntityInfo::new(
             self.health.clone(),
             self.rigidbody.mass,
+            self.rigidbody.is_kinematic,
             self.rigidbody.collider.radius,
             self.movement_speed,
             self.color,
@@ -47,6 +49,7 @@ impl Entity {
 pub struct EntityInfo {
     pub health: Health,
     pub mass: f32,
+    pub is_kinematic: bool,
     pub size: f32,
     pub movement_speed: f32,
     pub color: Color,
@@ -57,6 +60,7 @@ impl EntityInfo {
     pub fn new(
         health: Health,
         mass: f32,
+        is_kinematic: bool,
         size: f32,
         movement_speed: f32,
         color: Color,
@@ -65,6 +69,7 @@ impl EntityInfo {
         Self {
             health,
             mass,
+            is_kinematic,
             size,
             movement_speed,
             color,

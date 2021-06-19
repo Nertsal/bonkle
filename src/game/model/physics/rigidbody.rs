@@ -5,6 +5,7 @@ pub struct RigidBody {
     pub position: Vec2,
     pub velocity: Vec2,
     pub mass: f32,
+    pub is_kinematic: bool,
     pub collider: Collider,
     pub physics_material: PhysicsMaterial,
 }
@@ -13,6 +14,7 @@ impl RigidBody {
     pub fn new(
         position: Vec2,
         mass: f32,
+        is_kinematic: bool,
         collider: Collider,
         physics_material: PhysicsMaterial,
     ) -> Self {
@@ -20,6 +22,7 @@ impl RigidBody {
             position,
             velocity: Vec2::ZERO,
             mass,
+            is_kinematic,
             collider,
             physics_material,
         }
@@ -43,12 +46,18 @@ impl RigidBody {
             self.position += collision.normal * collision.penetration;
             let relative_velocity = other.velocity - self.velocity;
             let hit_strength = collision.normal.dot(relative_velocity).abs();
-            let velocity_change =
-                impact_override.unwrap_or(hit_strength) * collision.normal * other.mass / self.mass;
-            self.velocity += velocity_change;
-            let velocity_change =
-                hit_override.unwrap_or(hit_strength) * collision.normal * self.mass / other.mass;
-            other.velocity -= velocity_change;
+            if !self.is_kinematic {
+                let velocity_change =
+                    impact_override.unwrap_or(hit_strength) * collision.normal * other.mass
+                        / self.mass;
+                self.velocity += velocity_change;
+            }
+            if !other.is_kinematic {
+                let velocity_change =
+                    hit_override.unwrap_or(hit_strength) * collision.normal * self.mass
+                        / other.mass;
+                other.velocity -= velocity_change;
+            }
             let contact =
                 other.position + collision.normal * (other.collider.radius - collision.penetration);
             HitInfo {

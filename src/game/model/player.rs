@@ -17,6 +17,7 @@ impl Player {
             head: RigidBody::new(
                 position + vec2(player_info.chain_length, 0.0),
                 player_info.entity_info.mass,
+                false,
                 Collider::new(player_info.head_size),
                 PhysicsMaterial::new(0.0, 0.0),
             ),

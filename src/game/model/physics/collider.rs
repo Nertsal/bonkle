@@ -16,3 +16,9 @@ pub struct Collision {
     pub normal: Vec2,
     pub penetration: f32,
 }
+
+#[derive(Debug, Clone)]
+pub struct HitInfo {
+    pub contact: Vec2,
+    pub hit_strength: f32,
+}

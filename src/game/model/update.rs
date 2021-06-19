@@ -152,31 +152,25 @@ impl Model {
                 continue;
             }
 
-            if let Some(collision) = entity.rigidbody.collide(&self.player.entity.rigidbody) {
-                entity.rigidbody.position += collision.normal * collision.penetration;
-                let relative_velocity =
-                    self.player.entity.rigidbody.velocity - entity.rigidbody.velocity;
-                let hit_strength = collision.normal.dot(relative_velocity).abs();
-                let velocity_change =
-                    BODY_HIT_SPEED * collision.normal * self.player.entity.rigidbody.mass
-                        / entity.rigidbody.mass;
-                entity.rigidbody.velocity += velocity_change;
-                self.player.entity.rigidbody.velocity -=
-                    BODY_IMPACT * collision.normal * entity.rigidbody.mass
-                        / self.player.entity.rigidbody.mass;
-
-                let contact = self.player.entity.rigidbody.position
-                    + collision.normal * collision.penetration;
+            if let Some(hit_info) = self.player.entity.rigidbody.collide(
+                &mut entity.rigidbody,
+                Some(BODY_HIT_SPEED),
+                Some(BODY_IMPACT),
+            ) {
                 let player_alive = self.player.entity.is_alive();
-                self.player.entity.health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength * 5.0, PLAYER_COLOR);
-                entity.health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, entity.color);
-                self.events.push(Event::Sound {
+                self.player.entity.health.change(-hit_info.hit_strength);
+                commands.spawn_particles(
+                    hit_info.contact,
+                    hit_info.hit_strength * 5.0,
+                    PLAYER_COLOR,
+                );
+                entity.health.change(-hit_info.hit_strength);
+                commands.spawn_particles(hit_info.contact, hit_info.hit_strength, entity.color);
+                commands.event(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
                 if player_alive && !self.player.entity.is_alive() {
-                    self.events.push(Event::Sound {
+                    commands.event(Event::Sound {
                         sound: EventSound::Death,
                     })
                 }
@@ -189,21 +183,10 @@ impl Model {
                 continue;
             }
 
-            if let Some(collision) = entity.rigidbody.collide(&self.player.head) {
-                entity.rigidbody.position += collision.normal * collision.penetration;
-                let relative_velocity = self.player.head.velocity - entity.rigidbody.velocity;
-                let hit_strength = collision.normal.dot(relative_velocity).abs();
-                let velocity_change =
-                    hit_strength * collision.normal * self.player.head.mass / entity.rigidbody.mass;
-                entity.rigidbody.velocity += velocity_change;
-                self.player.head.velocity -=
-                    hit_strength * collision.normal * entity.rigidbody.mass
-                        / self.player.entity.rigidbody.mass;
-
-                let contact = self.player.head.position + collision.normal * collision.penetration;
-                entity.health.change(-hit_strength);
-                commands.spawn_particles(contact, hit_strength, entity.color);
-                self.events.push(Event::Sound {
+            if let Some(hit_info) = self.player.head.collide(&mut entity.rigidbody, None, None) {
+                entity.health.change(-hit_info.hit_strength);
+                commands.spawn_particles(hit_info.contact, hit_info.hit_strength, entity.color);
+                commands.event(Event::Sound {
                     sound: EventSound::HeadHit,
                 });
             }

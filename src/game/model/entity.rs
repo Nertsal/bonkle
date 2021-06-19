@@ -122,6 +122,12 @@ pub trait EntityObject {
             });
         }
     }
+
+    fn collide(&mut self, other: &mut Box<dyn EntityObject>) -> Option<HitInfo> {
+        self.entity_mut()
+            .rigidbody
+            .collide(&mut other.rigidbody, None, None)
+    }
 }
 
 impl Deref for dyn EntityObject {

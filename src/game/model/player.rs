@@ -82,6 +82,14 @@ impl EntityObject for Player {
     fn dead(&mut self, _delta_time: f32) -> DeadState {
         DeadState::Idle
     }
+
+    fn collide(&mut self, other: &mut Box<dyn EntityObject>) -> Option<HitInfo> {
+        self.entity.rigidbody.collide(
+            &mut other.rigidbody,
+            Some(BODY_HIT_SPEED),
+            Some(BODY_IMPACT),
+        )
+    }
 }
 
 #[derive(Clone)]

@@ -152,11 +152,7 @@ impl Model {
                 continue;
             }
 
-            if let Some(hit_info) = self.player.entity.rigidbody.collide(
-                &mut entity.rigidbody,
-                Some(BODY_HIT_SPEED),
-                Some(BODY_IMPACT),
-            ) {
+            if let Some(hit_info) = self.player.collide(entity) {
                 let player_alive = self.player.entity.is_alive();
                 self.player.entity.health.change(-hit_info.hit_strength);
                 commands.spawn_particles(

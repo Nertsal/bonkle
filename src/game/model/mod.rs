@@ -39,7 +39,7 @@ use wave::*;
 
 const PLAYER_SPEED: f32 = 50.0;
 const HEAD_SPEED: f32 = 150.0;
-const BODY_HIT_SPEED: f32 = 50.0;
+const BODY_HIT_STRENGTH: f32 = 150.0;
 const DRAG: f32 = 1.0;
 const BOUNCINESS: f32 = 0.2;
 const CORPSE_LIFETIME: f32 = 2.5;
@@ -72,11 +72,12 @@ impl Model {
             player: Player::new(
                 vec2(0.0, 0.0),
                 PlayerInfo::new(
+                    10.0,
                     3.0,
                     20.0,
                     EntityInfo::new(
                         Health::new(250.0),
-                        10.0,
+                        5.0,
                         false,
                         2.0,
                         PLAYER_SPEED,

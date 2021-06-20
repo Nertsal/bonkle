@@ -33,7 +33,7 @@ impl Model {
         let melee = Box::new(EnemyInfo::new(
             EnemyType::Crawler,
             EntityInfo::new(
-                Health::new(150.0),
+                Health::new(300.0),
                 5.0,
                 false,
                 2.0,
@@ -65,7 +65,7 @@ impl Model {
                 },
             },
             EntityInfo::new(
-                Health::new(150.0),
+                Health::new(300.0),
                 5.0,
                 false,
                 2.0,
@@ -97,7 +97,7 @@ impl Model {
                 },
             },
             EntityInfo::new(
-                Health::new(50.0),
+                Health::new(150.0),
                 5.0,
                 false,
                 2.0,

@@ -16,7 +16,7 @@ impl Player {
         Self {
             head: RigidBody::new(
                 position + vec2(player_info.chain_length, 0.0),
-                player_info.entity_info.mass,
+                player_info.head_mass,
                 false,
                 Collider::new(player_info.head_size),
                 PhysicsMaterial::new(0.0, 0.0),
@@ -33,8 +33,8 @@ impl Player {
                     drop: Box::new(ExplosionInfo::new(
                         EntityType::Minion,
                         player_info.chain_length,
-                        player_info.chain_length / 0.1,
-                        150.0,
+                        player_info.chain_length / 0.2,
+                        300.0,
                     )),
                 },
             }],
@@ -95,7 +95,7 @@ impl EntityObject for Player {
     }
 
     fn hit_strength(&self) -> Option<f32> {
-        Some(BODY_HIT_SPEED)
+        Some(BODY_HIT_STRENGTH)
     }
 
     fn attack(&mut self, _: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
@@ -114,14 +114,16 @@ impl EntityObject for Player {
 #[derive(Clone)]
 pub struct PlayerInfo {
     pub entity_info: EntityInfo,
+    pub head_mass: f32,
     pub head_size: f32,
     pub chain_length: f32,
 }
 
 impl PlayerInfo {
-    pub fn new(head_size: f32, chain_length: f32, entity_info: EntityInfo) -> Self {
+    pub fn new(head_mass: f32, head_size: f32, chain_length: f32, entity_info: EntityInfo) -> Self {
         Self {
             entity_info,
+            head_mass,
             head_size,
             chain_length,
         }

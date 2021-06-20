@@ -46,11 +46,11 @@ impl RigidBody {
             self.position += collision.normal * collision.penetration;
             let relative_velocity = other.velocity - self.velocity;
             let hit_strength = collision.normal.dot(relative_velocity).abs();
-            let hit_self = impact_override.unwrap_or(hit_strength) * other.mass / self.mass;
+            let hit_self = impact_override.unwrap_or(hit_strength * other.mass / self.mass);
             if !self.is_kinematic {
                 self.velocity += hit_self * collision.normal;
             }
-            let hit_other = hit_override.unwrap_or(hit_strength) * self.mass / other.mass;
+            let hit_other = hit_override.unwrap_or(hit_strength * self.mass / other.mass);
             if !other.is_kinematic {
                 other.velocity -= hit_other * collision.normal;
             }

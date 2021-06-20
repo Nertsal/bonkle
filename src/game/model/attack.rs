@@ -12,9 +12,12 @@ pub enum AttackType {
         projectile: Box<dyn EntityObjectInfo>,
         target_pos: Vec2,
     },
-    Bomb {
+    Explode {
         projectile: Box<dyn EntityObjectInfo>,
         projectile_count: usize,
+    },
+    Drop {
+        drop: Box<dyn EntityObjectInfo>,
     },
 }
 
@@ -35,7 +38,7 @@ impl Attack {
                     commands.spawn_entity(projectile);
                 }
             }
-            AttackType::Bomb {
+            AttackType::Explode {
                 projectile,
                 projectile_count,
             } => {
@@ -66,6 +69,13 @@ impl Attack {
                     commands.event(Event::Sound {
                         sound: EventSound::Explosion,
                     });
+                }
+            }
+
+            AttackType::Drop { drop } => {
+                if !self.attack_time.is_alive() {
+                    let drop = drop.clone().into_entity_object(entity.rigidbody.position);
+                    commands.spawn_entity(drop);
                 }
             }
         }

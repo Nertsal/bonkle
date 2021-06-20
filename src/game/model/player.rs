@@ -27,7 +27,17 @@ impl Player {
             target_body_velocity: vec2(0.0, 0.0),
             target_head_velocity: vec2(0.0, 0.0),
             perform_attacks: HashSet::new(),
-            attacks: vec![],
+            attacks: vec![Attack {
+                attack_time: Health::new(5.0),
+                attack_type: AttackType::Drop {
+                    drop: Box::new(ExplosionInfo::new(
+                        EntityType::Minion,
+                        player_info.chain_length,
+                        player_info.chain_length / 0.1,
+                        150.0,
+                    )),
+                },
+            }],
         }
     }
 }
@@ -84,12 +94,20 @@ impl EntityObject for Player {
         DeadState::Idle
     }
 
-    fn collide(&mut self, other: &mut Box<dyn EntityObject>) -> Option<HitInfo> {
-        self.entity.rigidbody.collide(
-            &mut other.rigidbody,
-            Some(BODY_HIT_SPEED),
-            Some(BODY_IMPACT),
-        )
+    fn hit_strength(&self) -> Option<f32> {
+        Some(BODY_HIT_SPEED)
+    }
+
+    fn attack(&mut self, _: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
+        for attack in &mut self.attacks {
+            attack.attack_time.change(-delta_time);
+        }
+
+        let attacks = std::mem::take(&mut self.perform_attacks);
+        for attack_index in attacks {
+            let attack = self.attacks.get_mut(attack_index).unwrap();
+            attack.perform(&mut self.entity, commands);
+        }
     }
 }
 

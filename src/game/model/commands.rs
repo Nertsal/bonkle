@@ -45,7 +45,11 @@ impl Model {
     pub fn perform_commands(&mut self, commands: Commands) {
         for command in commands.commands {
             match command {
-                Command::SpawnEntity { entity } => self.entities.push(entity),
+                Command::SpawnEntity { entity } => match entity.entity_type() {
+                    EntityType::Player => unimplemented!(),
+                    EntityType::Enemy => self.enemies.push(entity),
+                    EntityType::Minion => self.minions.push(entity),
+                },
                 Command::SpawnParticles {
                     position,
                     intensity,

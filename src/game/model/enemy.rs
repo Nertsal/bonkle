@@ -80,7 +80,7 @@ impl EntityObject for Enemy {
         match &mut self.enemy_type {
             EnemyType::Attacker { attack } if !attack.attack_time.is_alive() => {
                 match attack.attack_type {
-                    AttackType::Bomb { .. } => destroy = DeadState::Destroy,
+                    AttackType::Explode { .. } => destroy = DeadState::Destroy,
                     _ => (),
                 }
             }

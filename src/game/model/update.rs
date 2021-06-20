@@ -56,25 +56,26 @@ impl Model {
     fn wave(&mut self) -> bool {
         !self.player.entity.is_alive()
             || self.spawners.len() > 0
-            || self.entities(vec![EntityType::Enemy]).any(|_| true)
+            || self.entities_type(vec![EntityType::Enemy]).any(|_| true)
     }
 
     fn attack(&mut self, delta_time: f32, commands: &mut Commands) {
         let mut targets = HashMap::new();
-        for (index, entity) in self.entities.iter().enumerate() {
+        for (index, entity) in self.entities().enumerate() {
             let target_types = entity.attack_targets();
             let entity_pos = entity.rigidbody.position;
             if let Some(target_pos) = self.find_closest(entity_pos, target_types) {
                 targets.insert(index, target_pos);
             }
         }
-        for (index, entity) in self.entities.iter_mut().enumerate() {
+        self.player.attack(None, delta_time, commands);
+        for (index, entity) in self.entities_mut().enumerate() {
             entity.attack(targets.get(&index).copied(), delta_time, commands);
         }
     }
 
     fn find_closest(&self, origin: Vec2, target_types: Vec<EntityType>) -> Option<Vec2> {
-        self.entities(target_types)
+        self.entities_type(target_types)
             .map(|entity| entity.rigidbody.position)
             .min_by(|&pos_a, &pos_b| {
                 let dist_a = (pos_a - origin).length();
@@ -83,10 +84,9 @@ impl Model {
             })
     }
 
-    fn entities(&self, target_types: Vec<EntityType>) -> impl Iterator<Item = &Entity> {
+    fn entities_type(&self, target_types: Vec<EntityType>) -> impl Iterator<Item = &Entity> {
         let include_player = target_types.contains(&self.player.entity_type());
-        self.entities
-            .iter()
+        self.entities()
             .filter(move |entity| target_types.contains(&entity.entity_type()))
             .map(|entity| entity.entity())
             .chain(if include_player {
@@ -118,7 +118,7 @@ impl Model {
 
     fn decide_movement(&mut self, delta_time: f32) {
         let mut targets = HashMap::new();
-        for (index, entity) in self.entities.iter().enumerate() {
+        for (index, entity) in self.entities().enumerate() {
             let target_types = entity.movement_targets();
             let entity_pos = entity.rigidbody.position;
             if let Some(target_pos) = self.find_closest(entity_pos, target_types) {
@@ -126,42 +126,43 @@ impl Model {
             }
         }
         self.player.decide_movement(None, delta_time);
-        for (index, entity) in self.entities.iter_mut().enumerate() {
+        for (index, entity) in self.entities_mut().enumerate() {
             entity.decide_movement(targets.get(&index).copied(), delta_time);
         }
     }
 
+    pub fn entities(&self) -> impl Iterator<Item = &Box<dyn EntityObject>> {
+        self.enemies.iter().chain(self.minions.iter())
+    }
+
+    fn entities_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn EntityObject>> {
+        self.enemies.iter_mut().chain(self.minions.iter_mut())
+    }
+
     fn move_entities(&mut self, delta_time: f32) {
         self.player.movement(delta_time);
-        for entity in &mut self.entities {
+        for entity in self.entities_mut() {
             entity.movement(delta_time);
         }
     }
 
     fn collide(&mut self, commands: &mut Commands) {
         // Collide bounds
-        self.player.collide_bounds(&self.bounds, commands);
-        self.player.head.bounce_bounds(&self.bounds);
-        for entity in &mut self.entities {
-            entity.collide_bounds(&self.bounds, commands);
+        let bounds = self.bounds;
+        self.player.collide_bounds(&bounds, commands);
+        self.player.head.bounce_bounds(&bounds);
+        for entity in self.entities_mut() {
+            entity.collide_bounds(&bounds, commands);
         }
 
         // Collide player body
-        for entity in &mut self.entities {
-            if !entity.is_alive() {
-                continue;
-            }
-
-            if let Some(hit_info) = self.player.collide(entity) {
+        for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
+            if let Some(hit_info) = self.player.collide(enemy) {
                 let player_alive = self.player.entity.is_alive();
-                self.player.entity.health.change(-hit_info.hit_strength);
-                commands.spawn_particles(
-                    hit_info.contact,
-                    hit_info.hit_strength * 5.0,
-                    PLAYER_COLOR,
-                );
-                entity.health.change(-hit_info.hit_strength);
-                commands.spawn_particles(hit_info.contact, hit_info.hit_strength, entity.color);
+                self.player.entity.health.change(-hit_info.hit_self);
+                commands.spawn_particles(hit_info.contact, hit_info.hit_self * 5.0, PLAYER_COLOR);
+                enemy.health.change(-hit_info.hit_other);
+                commands.spawn_particles(hit_info.contact, hit_info.hit_other, enemy.color);
                 commands.event(Event::Sound {
                     sound: EventSound::BodyHit,
                 });
@@ -174,24 +175,35 @@ impl Model {
         }
 
         // Collide player head
-        for entity in &mut self.entities {
-            if !entity.is_alive() {
-                continue;
-            }
-
-            if let Some(hit_info) = self.player.head.collide(&mut entity.rigidbody, None, None) {
-                entity.health.change(-hit_info.hit_strength);
-                commands.spawn_particles(hit_info.contact, hit_info.hit_strength, entity.color);
+        for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
+            if let Some(hit_info) = self.player.head.collide(&mut enemy.rigidbody, None, None) {
+                enemy.health.change(-hit_info.hit_other);
+                commands.spawn_particles(hit_info.contact, hit_info.hit_other, enemy.color);
                 commands.event(Event::Sound {
                     sound: EventSound::HeadHit,
                 });
+            }
+        }
+
+        // Collide minions
+        for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
+            for minion in self.minions.iter_mut().filter(|minion| minion.is_alive()) {
+                if let Some(hit_info) = enemy.collide(minion) {
+                    enemy.health.change(-hit_info.hit_self);
+                    commands.spawn_particles(hit_info.contact, hit_info.hit_self, enemy.color);
+                    minion.health.change(-hit_info.hit_other);
+                    commands.spawn_particles(hit_info.contact, hit_info.hit_other, minion.color);
+                    commands.event(Event::Sound {
+                        sound: EventSound::HeadHit,
+                    });
+                }
             }
         }
     }
 
     fn check_dead(&mut self, delta_time: f32, commands: &mut Commands) {
         let mut dead_enemies = Vec::new();
-        for (index, entity) in self.entities.iter_mut().enumerate() {
+        for (index, entity) in self.entities_mut().enumerate() {
             if entity.destroy {
                 dead_enemies.push(index);
             } else if !entity.is_alive() {
@@ -215,7 +227,11 @@ impl Model {
         }
         dead_enemies.reverse();
         for dead_index in dead_enemies {
-            self.entities.remove(dead_index);
+            if dead_index >= self.enemies.len() {
+                self.minions.remove(dead_index - self.enemies.len());
+            } else {
+                self.enemies.remove(dead_index);
+            }
         }
     }
 }

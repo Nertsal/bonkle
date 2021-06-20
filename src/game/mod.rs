@@ -1,6 +1,6 @@
 use super::*;
 use macroquad::audio::{PlaySoundParams, Sound};
-use std::rc::Rc;
+use std::{collections::HashSet, rc::Rc};
 
 mod model;
 mod renderer;
@@ -79,7 +79,7 @@ impl Game {
             self.paused = false;
         }
 
-        self.move_player();
+        self.control_player();
 
         self.events();
 
@@ -90,7 +90,7 @@ impl Game {
         }
     }
 
-    fn move_player(&mut self) {
+    fn control_player(&mut self) {
         // Move body
         let mut dir_x = 0.0;
         if is_key_down(KeyCode::A) {
@@ -143,6 +143,13 @@ impl Game {
             }
         }
         self.last_mouse_position = mouse_position;
+
+        // Attack
+        let mut attacks = HashSet::new();
+        if is_key_pressed(KeyCode::Space) {
+            attacks.insert(0);
+        }
+        self.model.player_attack(attacks)
     }
 
     fn events(&mut self) {

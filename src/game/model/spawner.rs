@@ -21,7 +21,7 @@ impl Spawner {
 impl Model {
     pub fn spawn_group(&mut self, position: Vec2, group: WaveGroup) {
         for entity_info in group.entities {
-            self.entities.push(
+            self.enemies.push(
                 entity_info
                     .into_entity_object(Self::get_random_position_circle(position, group.radius)),
             );

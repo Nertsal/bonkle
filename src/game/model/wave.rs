@@ -78,7 +78,7 @@ impl Model {
             EnemyType::Attacker {
                 attack: Attack {
                     attack_time: Health::new(5.0),
-                    attack_type: AttackType::Bomb {
+                    attack_type: AttackType::Explode {
                         projectile_count: 5,
                         projectile: Box::new(ProjectileInfo::new(
                             Health::new(3.0),

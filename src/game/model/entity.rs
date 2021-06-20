@@ -128,10 +128,16 @@ pub trait EntityObject {
         }
     }
 
+    fn hit_strength(&self) -> Option<f32> {
+        None
+    }
+
     fn collide(&mut self, other: &mut Box<dyn EntityObject>) -> Option<HitInfo> {
+        let hit_self = self.hit_strength();
+        let hit_other = other.hit_strength();
         self.entity_mut()
             .rigidbody
-            .collide(&mut other.rigidbody, None, None)
+            .collide(&mut other.rigidbody, hit_self, hit_other)
     }
 }
 

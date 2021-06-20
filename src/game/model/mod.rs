@@ -9,6 +9,7 @@ mod corpse;
 mod enemy;
 mod entity;
 mod event;
+mod explosion;
 mod health;
 mod minion;
 mod particle;
@@ -26,6 +27,7 @@ use corpse::*;
 pub use enemy::*;
 pub use entity::*;
 pub use event::*;
+pub use explosion::*;
 pub use health::*;
 pub use minion::*;
 pub use particle::*;
@@ -44,13 +46,13 @@ const CORPSE_LIFETIME: f32 = 2.5;
 const PARTICLE_LIFETIME: f32 = 1.0;
 const BODY_ACCELERATION: f32 = 3.0;
 const HEAD_ACCELERATION: f32 = 10.0;
-const BODY_IMPACT: f32 = 50.0;
 
 pub struct Model {
     pub bounds: Bounds,
     pub spawn_bounds: Bounds,
     pub player: Player,
-    pub entities: Vec<Box<dyn EntityObject>>,
+    pub enemies: Vec<Box<dyn EntityObject>>,
+    pub minions: Vec<Box<dyn EntityObject>>,
     pub particles: Vec<Particle>,
     pub area_effects: Vec<AreaEffect>,
     pub spawners: Vec<Spawner>,
@@ -83,7 +85,8 @@ impl Model {
                     ),
                 ),
             ),
-            entities: vec![],
+            enemies: vec![],
+            minions: vec![],
             area_effects: vec![],
             spawners: vec![],
             particles: vec![],

@@ -57,7 +57,7 @@ impl Renderer {
         }
 
         // Other entities
-        for enemy in &model.entities {
+        for enemy in model.entities() {
             self.draw_rigidbody(&enemy.entity().rigidbody, enemy.entity().color);
             let health_frac = enemy.health_frac();
             draw_circle(

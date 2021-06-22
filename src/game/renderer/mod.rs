@@ -77,19 +77,19 @@ impl Renderer {
                     "".to_owned(),
                     50.0,
                     WHITE,
-                    UIObject::new(vec2(0.5, 0.0), vec2(-0.0, 100.0), UIScaleMode::KeepRatio),
+                    UIObject::new(vec2(0.5, 0.0), vec2(0.0, 100.0), UIScaleMode::KeepRatio),
                 ),
                 death_element: TextElement::new(
                     "YOU DIED".to_owned(),
                     50.0,
                     WHITE,
-                    UIObject::new(vec2(0.5, 0.5), vec2(-0.0, 0.0), UIScaleMode::KeepRatio),
+                    UIObject::new(vec2(0.5, 0.5), vec2(0.0, 0.0), UIScaleMode::KeepRatio),
                 ),
                 reset_element: TextElement::new(
                     "PRESS R TO RESET".to_owned(),
                     50.0,
                     WHITE,
-                    UIObject::new(vec2(0.5, 0.5), vec2(-0.0, 50.0), UIScaleMode::KeepRatio),
+                    UIObject::new(vec2(0.5, 0.5), vec2(0.0, 50.0), UIScaleMode::KeepRatio),
                 ),
             },
         }

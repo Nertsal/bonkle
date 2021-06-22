@@ -15,11 +15,7 @@ impl Renderer {
             let area_color = match &area_effect.effect {
                 Effect::Heal { .. } => Color::new(0.0, 1.0, 0.0, 0.5),
             };
-            draw_circle(
-                area_effect.position,
-                area_effect.radius,
-                area_color,
-            );
+            draw_circle(area_effect.position, area_effect.radius, area_color);
         }
 
         // Player health
@@ -100,5 +96,5 @@ fn draw_circle(position: Vec2, radius: f32, color: Color) {
 }
 
 fn draw_circle_outline(position: Vec2, radius: f32, color: Color) {
-    draw_poly_lines(position.x, position.y, 200, radius, 0.0, 0.2, color);
+    draw_poly_lines(position.x, position.y, 50, radius, 0.0, 0.2, color);
 }

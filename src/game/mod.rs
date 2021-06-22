@@ -36,7 +36,24 @@ pub struct Game {
     assets: Rc<Assets>,
     last_mouse_position: Vec2,
     head_control_mode: HeadControlMode,
-    paused: bool,
+    state: GameState,
+}
+
+enum HeadControlMode {
+    Mouse,
+    Keys,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum GameState {
+    Menu,
+    Pregame,
+    Game,
+}
+
+pub enum GameUpdate {
+    Quit,
+    Start,
 }
 
 impl Game {
@@ -59,7 +76,7 @@ impl Game {
             assets,
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
-            paused: true,
+            state: GameState::Menu,
         };
         macroquad::audio::play_sound(
             game.assets.music.clone(),
@@ -72,26 +89,33 @@ impl Game {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        self.renderer.update(delta_time, self.paused, &self.model);
-        if !self.paused {
-            self.model.update(delta_time);
-        } else if get_last_key_pressed().is_some() {
-            self.paused = false;
+        if let Some(update) = self.renderer.update(delta_time, self.state, &self.model) {
+            match update {
+                GameUpdate::Quit => unimplemented!(),
+                GameUpdate::Start => self.state = GameState::Pregame,
+            }
         }
-
-        self.control_player();
+        match self.state {
+            GameState::Menu => {
+                self.control_head();
+            }
+            GameState::Pregame => {
+                self.control_head();
+                if get_last_key_pressed().is_some() {
+                    self.state = GameState::Game;
+                }
+            }
+            GameState::Game => {
+                self.control_head();
+                self.control_body();
+                self.model.update(delta_time);
+            }
+        }
 
         self.events();
-
-        if is_key_pressed(KeyCode::R) {
-            self.model = Model::new();
-            self.renderer = Renderer::new(&self.assets);
-            self.paused = true;
-        }
     }
 
-    fn control_player(&mut self) {
-        // Move body
+    fn control_body(&mut self) {
         let mut dir_x = 0.0;
         if is_key_down(KeyCode::A) {
             dir_x -= 1.0;
@@ -111,7 +135,15 @@ impl Game {
         let direction = vec2(dir_x, dir_y);
         self.model.move_direction(direction);
 
-        // Move head
+        // Attack
+        let mut attacks = HashSet::new();
+        if is_key_pressed(KeyCode::Space) {
+            attacks.insert(0);
+        }
+        self.model.player_attack(attacks)
+    }
+
+    fn control_head(&mut self) {
         let (mouse_x, mouse_y) = mouse_position();
         let mouse_position = vec2(mouse_x, mouse_y);
         if mouse_position != self.last_mouse_position {
@@ -143,13 +175,6 @@ impl Game {
             }
         }
         self.last_mouse_position = mouse_position;
-
-        // Attack
-        let mut attacks = HashSet::new();
-        if is_key_pressed(KeyCode::Space) {
-            attacks.insert(0);
-        }
-        self.model.player_attack(attacks)
     }
 
     fn events(&mut self) {
@@ -178,9 +203,4 @@ impl Game {
     pub fn draw(&mut self) {
         self.renderer.draw(&self.model);
     }
-}
-
-enum HeadControlMode {
-    Mouse,
-    Keys,
 }

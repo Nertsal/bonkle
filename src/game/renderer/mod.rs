@@ -23,7 +23,7 @@ impl Renderer {
         Self {
             game_camera: Camera2D::default(),
             camera_zoom: 0.02,
-            camera_zoom_speed: 0.001,
+            camera_zoom_speed: 0.05,
             ui_state: UIState {
                 state: GameState::Menu,
                 ui_scale: vec2(1.0, 1.0),
@@ -107,7 +107,8 @@ impl Renderer {
         };
         let delta = target_zoom - self.camera_zoom;
         if delta.abs() > 1e-4 {
-            self.camera_zoom += delta.signum() * delta.abs().min(self.camera_zoom_speed);
+            self.camera_zoom +=
+                delta.signum() * delta.abs().min(self.camera_zoom_speed * delta_time);
         }
         self.game_camera = Camera2D {
             offset: vec2(0.0, 0.0),

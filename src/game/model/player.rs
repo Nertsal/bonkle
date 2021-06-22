@@ -27,17 +27,41 @@ impl Player {
             target_body_velocity: vec2(0.0, 0.0),
             target_head_velocity: vec2(0.0, 0.0),
             perform_attacks: HashSet::new(),
-            attacks: vec![Attack {
-                attack_time: Health::new(5.0),
-                attack_type: AttackType::Drop {
-                    drop: Box::new(ExplosionInfo::new(
-                        EntityType::Minion,
-                        player_info.chain_length,
-                        player_info.chain_length / 0.2,
-                        300.0,
-                    )),
-                },
-            }],
+            attacks: vec![],
+            // attacks: vec![Attack {
+            //     attack_time: Health::new(1.0),
+            //     attack_type: AttackType::Shoot {
+            //         target_pos: vec2(0.0, 0.0),
+            //         projectile: Box::new(MissileInfo::new(
+            //             EntityInfo::new(
+            //                 Health::new(1000.0),
+            //                 20.0,
+            //                 false,
+            //                 3.0,
+            //                 100.0,
+            //                 PLAYER_COLOR,
+            //                 PhysicsMaterial::new(DRAG, BOUNCINESS),
+            //             ),
+            //             EntityType::Minion,
+            //             None,
+            //             6,
+            //             Box::new(BombInfo::new(
+            //                 EntityInfo::new(
+            //                     Health::new(100.0),
+            //                     5.0,
+            //                     false,
+            //                     2.0,
+            //                     40.0,
+            //                     PLAYER_COLOR,
+            //                     PhysicsMaterial::new(DRAG, BOUNCINESS),
+            //                 ),
+            //                 EntityType::Minion,
+            //                 Health::new(0.3),
+            //                 Box::new(ExplosionInfo::new(EntityType::Minion, 5.0, 10.0, 100.0)),
+            //             )),
+            //         )),
+            //     },
+            // }],
         }
     }
 }
@@ -101,6 +125,12 @@ impl EntityObject for Player {
     fn attack(&mut self, _: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
         for attack in &mut self.attacks {
             attack.attack_time.change(-delta_time);
+            match &mut attack.attack_type {
+                AttackType::Shoot { target_pos, .. } => {
+                    *target_pos = self.head_target;
+                }
+                _ => (),
+            }
         }
 
         let attacks = std::mem::take(&mut self.perform_attacks);

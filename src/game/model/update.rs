@@ -149,15 +149,21 @@ impl Model {
     fn collide(&mut self, commands: &mut Commands) {
         // Collide bounds
         let bounds = self.bounds;
-        self.player.collide_bounds(&bounds, commands);
+        if self.player.collide_bounds(&bounds) {
+            self.player.on_collide_bounds(commands);
+        }
         self.player.head.bounce_bounds(&bounds);
         for entity in self.entities_mut() {
-            entity.collide_bounds(&bounds, commands);
+            if entity.collide_bounds(&bounds) {
+                entity.on_collide_bounds(commands);
+            }
         }
 
         // Collide player body
         for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
             if let Some(hit_info) = self.player.collide(enemy) {
+                self.player.on_collide(commands);
+                enemy.on_collide(commands);
                 let player_alive = self.player.entity.is_alive();
                 self.player.entity.health.change(-hit_info.hit_self);
                 commands.spawn_particles(hit_info.contact, hit_info.hit_self * 5.0, PLAYER_COLOR);
@@ -177,6 +183,7 @@ impl Model {
         // Collide player head
         for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
             if let Some(hit_info) = self.player.head.collide(&mut enemy.rigidbody, None, None) {
+                enemy.on_collide(commands);
                 enemy.health.change(-hit_info.hit_other);
                 commands.spawn_particles(hit_info.contact, hit_info.hit_other, enemy.color);
                 commands.event(Event::Sound {
@@ -189,6 +196,8 @@ impl Model {
         for enemy in self.enemies.iter_mut().filter(|enemy| enemy.is_alive()) {
             for minion in self.minions.iter_mut().filter(|minion| minion.is_alive()) {
                 if let Some(hit_info) = enemy.collide(minion) {
+                    minion.on_collide(commands);
+                    enemy.on_collide(commands);
                     enemy.health.change(-hit_info.hit_self);
                     commands.spawn_particles(hit_info.contact, hit_info.hit_self, enemy.color);
                     minion.health.change(-hit_info.hit_other);

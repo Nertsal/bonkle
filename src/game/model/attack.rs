@@ -76,6 +76,9 @@ impl Attack {
                 if !self.attack_time.is_alive() {
                     let drop = drop.clone().into_entity_object(entity.rigidbody.position);
                     commands.spawn_entity(drop);
+                    commands.event(Event::Sound {
+                        sound: EventSound::Explosion,
+                    });
                 }
             }
         }

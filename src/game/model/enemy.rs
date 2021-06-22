@@ -36,7 +36,7 @@ impl EntityObject for Enemy {
     }
 
     fn attack_targets(&self) -> Vec<EntityType> {
-        vec![EntityType::Player, EntityType::Minion]
+        vec![EntityType::Player]
     }
 
     fn attack(&mut self, target_pos: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
@@ -59,7 +59,7 @@ impl EntityObject for Enemy {
     }
 
     fn movement_targets(&self) -> Vec<EntityType> {
-        vec![EntityType::Player, EntityType::Minion]
+        vec![EntityType::Player]
     }
 
     fn decide_movement(&mut self, target_pos: Option<Vec2>, delta_time: f32) {

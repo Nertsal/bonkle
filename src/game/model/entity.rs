@@ -120,12 +120,14 @@ pub trait EntityObject {
         self.entity().health.hp_frac()
     }
 
-    fn collide_bounds(&mut self, bounds: &Bounds, commands: &mut Commands) {
-        if self.entity_mut().rigidbody.bounce_bounds(bounds) {
-            commands.event(Event::Sound {
-                sound: EventSound::Bounce,
-            });
-        }
+    fn collide_bounds(&mut self, bounds: &Bounds) -> bool {
+        self.entity_mut().rigidbody.bounce_bounds(bounds)
+    }
+
+    fn on_collide_bounds(&mut self, commands: &mut Commands) {
+        commands.event(Event::Sound {
+            sound: EventSound::Bounce,
+        });
     }
 
     fn hit_strength(&self) -> Option<f32> {
@@ -139,6 +141,8 @@ pub trait EntityObject {
             .rigidbody
             .collide(&mut other.rigidbody, hit_self, hit_other)
     }
+
+    fn on_collide(&mut self, _commands: &mut Commands) {}
 }
 
 impl Deref for dyn EntityObject {

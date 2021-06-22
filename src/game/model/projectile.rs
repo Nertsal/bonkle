@@ -40,13 +40,11 @@ impl EntityObject for Projectile {
         self.lifetime.hp_frac()
     }
 
-    fn collide_bounds(&mut self, bounds: &Bounds, commands: &mut Commands) {
-        if self.entity_mut().rigidbody.bounce_bounds(bounds) {
-            self.lifetime.kill();
-            commands.event(Event::Sound {
-                sound: EventSound::Bounce,
-            });
-        }
+    fn on_collide_bounds(&mut self, commands: &mut Commands) {
+        commands.event(Event::Sound {
+            sound: EventSound::Bounce,
+        });
+        self.lifetime.kill();
     }
 }
 

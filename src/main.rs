@@ -3,7 +3,7 @@ mod game;
 
 use geng::prelude::*;
 
-const FIXED_DELTA_TIME: f32 = 1.0 / 60.0;
+const FPS: f64 = 60.0;
 
 fn main() {
     logger::init();
@@ -11,6 +11,7 @@ fn main() {
 
     let geng = Geng::new_with(geng::ContextOptions {
         title: "Bonkle".to_string(),
+        fixed_delta_time: 1.0 / FPS,
         ..default()
     });
 

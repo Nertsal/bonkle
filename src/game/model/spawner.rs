@@ -1,14 +1,14 @@
 use super::*;
 
 pub struct Spawner {
-    pub position: Vec2,
+    pub position: vec2<f32>,
     pub spawn_group: WaveGroup,
     pub time_left: f32,
     pub time_left_max: f32,
 }
 
 impl Spawner {
-    pub fn new(position: Vec2, spawn_group: WaveGroup, spawn_time: f32) -> Self {
+    pub fn new(position: vec2<f32>, spawn_group: WaveGroup, spawn_time: f32) -> Self {
         Self {
             position,
             spawn_group,
@@ -19,7 +19,7 @@ impl Spawner {
 }
 
 impl Model {
-    pub fn spawn_group(&mut self, position: Vec2, group: WaveGroup) {
+    pub fn spawn_group(&mut self, position: vec2<f32>, group: WaveGroup) {
         for entity_info in group.entities {
             self.enemies.push(
                 entity_info
@@ -28,15 +28,17 @@ impl Model {
         }
     }
 
-    pub fn get_random_position_bounds(bounds: &Bounds) -> Vec2 {
-        let x = macroquad::rand::gen_range(bounds.min.x, bounds.max.x);
-        let y = macroquad::rand::gen_range(bounds.min.y, bounds.max.y);
+    pub fn get_random_position_bounds(bounds: &Bounds) -> vec2<f32> {
+        let mut rng = thread_rng();
+        let x = rng.gen_range(bounds.min.x..bounds.max.x);
+        let y = rng.gen_range(bounds.min.y..bounds.max.y);
         vec2(x, y)
     }
 
-    pub fn get_random_position_circle(position: Vec2, radius: f32) -> Vec2 {
-        let angle = macroquad::rand::gen_range(0.0, std::f32::consts::PI * 2.0);
-        let distance = macroquad::rand::gen_range(0.0, 1.0);
+    pub fn get_random_position_circle(position: vec2<f32>, radius: f32) -> vec2<f32> {
+        let mut rng = thread_rng();
+        let angle = rng.gen_range(0.0..std::f32::consts::PI * 2.0);
+        let distance = rng.gen_range(0.0..1.0);
         let (sin, cos) = angle.sin_cos();
         vec2(cos, sin) * distance * radius + position
     }

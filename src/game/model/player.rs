@@ -4,15 +4,15 @@ pub struct Player {
     pub entity: Entity,
     pub head: RigidBody,
     pub chain_length: f32,
-    pub head_target: Vec2,
-    pub target_body_velocity: Vec2,
-    pub target_head_velocity: Vec2,
+    pub head_target: vec2<f32>,
+    pub target_body_velocity: vec2<f32>,
+    pub target_head_velocity: vec2<f32>,
     pub perform_attacks: HashSet<usize>,
     pub attacks: Vec<Attack>,
 }
 
 impl Player {
-    pub fn new(position: Vec2, player_info: PlayerInfo) -> Self {
+    pub fn new(position: vec2<f32>, player_info: PlayerInfo) -> Self {
         Self {
             head: RigidBody::new(
                 position + vec2(player_info.chain_length, 0.0),
@@ -79,7 +79,7 @@ impl EntityObject for Player {
         EntityType::Player
     }
 
-    fn decide_movement(&mut self, _: Option<Vec2>, delta_time: f32) {
+    fn decide_movement(&mut self, _: Option<vec2<f32>>, delta_time: f32) {
         if self.entity.is_alive() {
             // Calculate head target velocity
             let direction = self.head.position - self.entity.rigidbody.position;
@@ -87,7 +87,7 @@ impl EntityObject for Player {
             let angle = direction.angle_between(target).abs();
             let speed = angle.min(0.2) / 0.2;
             let direction = vec2(direction.y, -direction.x).normalize();
-            let signum = direction.dot(target).signum();
+            let signum = vec2::dot(direction, target).signum();
             let direction = direction * signum * speed;
             self.target_head_velocity = direction * HEAD_SPEED + self.entity.rigidbody.velocity;
 
@@ -104,13 +104,13 @@ impl EntityObject for Player {
         self.entity.rigidbody.movement(delta_time);
         self.head.movement(delta_time);
 
-        if self.entity.rigidbody.velocity.length() > self.entity.movement_speed {
+        if self.entity.rigidbody.velocity.len() > self.entity.movement_speed {
             self.entity.rigidbody.drag(delta_time);
         }
 
         // Clamp distance between body and head
         let offset = self.head.position - self.entity.rigidbody.position;
-        let distance = offset.length() - self.chain_length;
+        let distance = offset.len() - self.chain_length;
         self.head.position -= offset.normalize_or_zero() * distance;
     }
 
@@ -122,7 +122,7 @@ impl EntityObject for Player {
         Some(BODY_HIT_STRENGTH)
     }
 
-    fn attack(&mut self, _: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
+    fn attack(&mut self, _: Option<vec2<f32>>, delta_time: f32, commands: &mut Commands) {
         for attack in &mut self.attacks {
             attack.attack_time.change(-delta_time);
             match &mut attack.attack_type {
@@ -161,7 +161,7 @@ impl PlayerInfo {
 }
 
 impl EntityObjectInfo for PlayerInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Player::new(position, *self))
     }
 }

@@ -10,7 +10,7 @@ enum Command {
         entity: Box<dyn EntityObject>,
     },
     SpawnParticles {
-        position: Vec2,
+        position: vec2<f32>,
         intensity: f32,
         color: Color,
     },
@@ -28,7 +28,7 @@ impl Commands {
         self.commands.push(Command::SpawnEntity { entity });
     }
 
-    pub fn spawn_particles(&mut self, position: Vec2, intensity: f32, color: Color) {
+    pub fn spawn_particles(&mut self, position: vec2<f32>, intensity: f32, color: Color) {
         self.commands.push(Command::SpawnParticles {
             position,
             intensity,

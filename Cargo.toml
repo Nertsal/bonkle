@@ -1,10 +1,9 @@
 [package]
 name = "bonkle"
 version = "0.1.0"
-authors = ["Alexander <sasha.kudasov04@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-macroquad = "0.3"
+geng = { git = "https://github.com/geng-engine/geng" }

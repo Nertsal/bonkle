@@ -13,13 +13,13 @@ impl Collider {
 
 #[derive(Debug, Clone)]
 pub struct Collision {
-    pub normal: Vec2,
+    pub normal: vec2<f32>,
     pub penetration: f32,
 }
 
 #[derive(Debug, Clone)]
 pub struct HitInfo {
-    pub contact: Vec2,
+    pub contact: vec2<f32>,
     pub hit_self: f32,
     pub hit_other: f32,
 }

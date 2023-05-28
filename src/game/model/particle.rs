@@ -7,11 +7,12 @@ pub struct Particle {
 }
 
 impl Model {
-    pub fn spawn_particles_hit(&mut self, position: Vec2, intensity: f32, color: Color) {
-        let particles_count = macroquad::rand::gen_range(1, (intensity / 10.0).min(50.0) as usize);
+    pub fn spawn_particles_hit(&mut self, position: vec2<f32>, intensity: f32, color: Color) {
+        let mut rng = thread_rng();
+        let particles_count = rng.gen_range(1..(intensity / 10.0).min(50.0) as usize);
         for _ in 0..particles_count {
             let direction = Self::get_random_direction();
-            let velocity = macroquad::rand::gen_range(10.0, 30.0);
+            let velocity = rng.gen_range(10.0..30.0);
             let velocity = direction * velocity;
             self.particles.push(Particle {
                 rigidbody: RigidBody {
@@ -28,8 +29,8 @@ impl Model {
         }
     }
 
-    pub fn get_random_direction() -> Vec2 {
-        let angle = macroquad::rand::gen_range(0.0, std::f32::consts::PI * 2.0);
+    pub fn get_random_direction() -> vec2<f32> {
+        let angle = thread_rng().gen_range(0.0..std::f32::consts::PI * 2.0);
         let (sin, cos) = angle.sin_cos();
         vec2(cos, sin)
     }

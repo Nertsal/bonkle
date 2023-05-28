@@ -7,7 +7,7 @@ pub struct Projectile {
 }
 
 impl Projectile {
-    pub fn new(position: Vec2, projectile_info: ProjectileInfo) -> Self {
+    pub fn new(position: vec2<f32>, projectile_info: ProjectileInfo) -> Self {
         Self {
             entity: Entity::new(position, projectile_info.entity_info),
             entity_type: projectile_info.entity_type,
@@ -29,7 +29,7 @@ impl EntityObject for Projectile {
         self.entity_type
     }
 
-    fn attack(&mut self, _: Option<Vec2>, delta_time: f32, _: &mut Commands) {
+    fn attack(&mut self, _: Option<vec2<f32>>, delta_time: f32, _: &mut Commands) {
         self.lifetime.change(-delta_time);
         if !self.lifetime.is_alive() {
             self.entity.health.kill();
@@ -66,7 +66,7 @@ impl ProjectileInfo {
 }
 
 impl EntityObjectInfo for ProjectileInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Projectile::new(position, *self))
     }
 }

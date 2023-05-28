@@ -74,12 +74,12 @@ impl Model {
         }
     }
 
-    fn find_closest(&self, origin: Vec2, target_types: Vec<EntityType>) -> Option<Vec2> {
+    fn find_closest(&self, origin: vec2<f32>, target_types: Vec<EntityType>) -> Option<vec2<f32>> {
         self.entities_type(target_types)
             .map(|entity| entity.rigidbody.position)
             .min_by(|&pos_a, &pos_b| {
-                let dist_a = (pos_a - origin).length();
-                let dist_b = (pos_b - origin).length();
+                let dist_a = (pos_a - origin).len();
+                let dist_b = (pos_b - origin).len();
                 dist_a.partial_cmp(&dist_b).unwrap()
             })
     }
@@ -101,8 +101,7 @@ impl Model {
             area_effect.lifetime.change(-delta_time);
 
             if self.player.entity.is_alive() {
-                let distance =
-                    (area_effect.position - self.player.entity.rigidbody.position).length();
+                let distance = (area_effect.position - self.player.entity.rigidbody.position).len();
                 if distance <= self.player.entity.rigidbody.collider.radius + area_effect.radius {
                     match &area_effect.effect {
                         Effect::Heal { heal } => {

@@ -9,7 +9,7 @@ pub struct Explosion {
 }
 
 impl Explosion {
-    pub fn new(position: Vec2, explosion_info: ExplosionInfo) -> Self {
+    pub fn new(position: vec2<f32>, explosion_info: ExplosionInfo) -> Self {
         Self {
             entity: Entity::new(position, explosion_info.entity_info),
             entity_type: explosion_info.entity_type,
@@ -33,7 +33,7 @@ impl EntityObject for Explosion {
         self.entity_type
     }
 
-    fn attack(&mut self, _: Option<Vec2>, delta_time: f32, _: &mut Commands) {
+    fn attack(&mut self, _: Option<vec2<f32>>, delta_time: f32, _: &mut Commands) {
         self.entity.rigidbody.collider.radius += delta_time * self.speed;
         if self.entity.rigidbody.collider.radius > self.radius {
             self.entity.destroy = true;
@@ -67,7 +67,7 @@ impl ExplosionInfo {
                 true,
                 0.0,
                 0.0,
-                RED,
+                Color::RED,
                 PhysicsMaterial::new(0.0, 0.0),
             ),
             entity_type,
@@ -79,7 +79,7 @@ impl ExplosionInfo {
 }
 
 impl EntityObjectInfo for ExplosionInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Explosion::new(position, *self))
     }
 }

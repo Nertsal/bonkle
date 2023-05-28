@@ -1,40 +1,56 @@
-use super::*;
-use macroquad::audio::{PlaySoundParams, Sound};
-use std::{collections::HashSet, rc::Rc};
-
 mod model;
 mod renderer;
 
-use model::*;
-use renderer::*;
+use crate::assets::Assets;
 
-const BACKGROUND_COLOR: Color = BLACK;
-const BORDER_COLOR: Color = GRAY;
-const MELEE_COLOR: Color = YELLOW;
-const RANGER_COLOR: Color = ORANGE;
-const BOMBER_COLOR: Color = WHITE;
-const BOMB_COLOR: Color = RED;
-const PROJECTILE_COLOR: Color = ORANGE;
-const SPAWNER_COLOR: Color = RED;
-const PLAYER_COLOR: Color = BLUE;
-const PLAYER_BORDER_COLOR: Color = DARKBLUE;
-const PLAYER_LIFE_COLOR: Color = DARKBLUE;
+use self::model::*;
+use self::renderer::*;
 
-pub struct Assets {
-    body_hit: Sound,
-    head_hit: Sound,
-    death: Sound,
-    bounce: Sound,
-    explosion: Sound,
-    music: Sound,
-    tutorial: Texture2D,
-}
+use std::{collections::HashSet, rc::Rc};
+
+use geng::prelude::*;
+use geng::Camera2d;
+
+type Color = Rgba<f32>;
+
+const BACKGROUND_COLOR: Color = Color::BLACK;
+const BORDER_COLOR: Color = Color::GRAY;
+const MELEE_COLOR: Color = Color::YELLOW;
+const RANGER_COLOR: Color = Color {
+    r: 1.0,
+    g: 0.63,
+    b: 0.0,
+    a: 1.0,
+};
+const BOMBER_COLOR: Color = Color::WHITE;
+const BOMB_COLOR: Color = Color::RED;
+const PROJECTILE_COLOR: Color = Color {
+    r: 1.0,
+    g: 0.63,
+    b: 0.0,
+    a: 1.0,
+};
+const SPAWNER_COLOR: Color = Color::RED;
+const PLAYER_COLOR: Color = Color::BLUE;
+const PLAYER_BORDER_COLOR: Color = Color {
+    r: 0.00,
+    g: 0.32,
+    b: 0.67,
+    a: 1.00,
+};
+const PLAYER_LIFE_COLOR: Color = Color {
+    r: 0.00,
+    g: 0.32,
+    b: 0.67,
+    a: 1.00,
+};
 
 pub struct Game {
+    geng: Geng,
+    assets: Rc<Assets>,
     renderer: Renderer,
     model: Model,
-    assets: Rc<Assets>,
-    last_mouse_position: Vec2,
+    last_mouse_position: vec2<f64>,
     head_control_mode: HeadControlMode,
     state: GameState,
 }
@@ -57,34 +73,18 @@ pub enum GameUpdate {
 }
 
 impl Game {
-    pub async fn new() -> Self {
-        let assets = Rc::new(Assets {
-            body_hit: macroquad::audio::load_sound("body_hit.wav").await.unwrap(),
-            head_hit: macroquad::audio::load_sound("head_hit.wav").await.unwrap(),
-            death: macroquad::audio::load_sound("death.wav").await.unwrap(),
-            bounce: macroquad::audio::load_sound("bounce.wav").await.unwrap(),
-            explosion: macroquad::audio::load_sound("explosion.wav").await.unwrap(),
-            music: macroquad::audio::load_sound("music.wav").await.unwrap(),
-            tutorial: macroquad::texture::load_texture("tutorial.png")
-                .await
-                .unwrap(),
-        });
-        assets.tutorial.set_filter(FilterMode::Nearest);
+    pub fn new(geng: &Geng, assets: &Rc<Assets>) -> Self {
         let game = Self {
+            geng: geng.clone(),
+            assets: assets.clone(),
             renderer: Renderer::new(&assets),
             model: Model::new(),
-            assets,
             last_mouse_position: vec2(0.0, 0.0),
             head_control_mode: HeadControlMode::Keys,
             state: GameState::Menu,
         };
-        macroquad::audio::play_sound(
-            game.assets.music.clone(),
-            PlaySoundParams {
-                looped: true,
-                volume: 0.05,
-            },
-        );
+        let mut music = assets.music.play();
+        music.set_volume(0.05);
         game
     }
 
@@ -101,9 +101,10 @@ impl Game {
             }
             GameState::Pregame => {
                 self.control_head();
-                if get_last_key_pressed().is_some() {
-                    self.state = GameState::Game;
-                }
+                // TODO
+                // if get_last_key_pressed().is_some() {
+                //     self.state = GameState::Game;
+                // }
             }
             GameState::Game => {
                 self.control_head();
@@ -116,19 +117,24 @@ impl Game {
     }
 
     fn control_body(&mut self) {
+        use geng::Key;
+
+        let window = self.geng.window();
+        let is_pressed = |keys: &[Key]| keys.iter().any(|&key| window.is_key_pressed(key));
+
         let mut dir_x = 0.0;
-        if is_key_down(KeyCode::A) {
+        if is_pressed(&[Key::A]) {
             dir_x -= 1.0;
         }
-        if is_key_down(KeyCode::D) {
+        if is_pressed(&[Key::D]) {
             dir_x += 1.0;
         }
 
         let mut dir_y = 0.0;
-        if is_key_down(KeyCode::S) {
+        if is_pressed(&[Key::S]) {
             dir_y -= 1.0;
         }
-        if is_key_down(KeyCode::W) {
+        if is_pressed(&[Key::W]) {
             dir_y += 1.0;
         }
 
@@ -137,27 +143,29 @@ impl Game {
 
         // Attack
         let mut attacks = HashSet::new();
-        if is_key_pressed(KeyCode::Space) {
+        if is_pressed(&[Key::Space]) {
             attacks.insert(0);
         }
         self.model.player_attack(attacks)
     }
 
     fn control_head(&mut self) {
-        let (mouse_x, mouse_y) = mouse_position();
-        let mouse_position = vec2(mouse_x, mouse_y);
+        let mouse_position = self.geng.window().mouse_position();
         if mouse_position != self.last_mouse_position {
+            // Mouse control
             let target = self.renderer.game_camera.screen_to_world(mouse_position);
             self.model.head_target(target);
             self.head_control_mode = HeadControlMode::Mouse;
         } else {
+            // Keyboard control
             let mut direction = 0.0;
-            if is_key_down(KeyCode::Left) {
+            if self.geng.window().is_key_pressed(geng::Key::Left) {
                 direction -= 1.0;
             }
-            if is_key_down(KeyCode::Right) {
+            if self.geng.window().is_key_pressed(geng::Key::Right) {
                 direction += 1.0;
             }
+
             if direction != 0.0 {
                 let target =
                     self.model.player.head.position - self.model.player.entity.rigidbody.position;
@@ -183,13 +191,13 @@ impl Game {
             match event {
                 Event::Sound { sound } => {
                     let sound = match sound {
-                        EventSound::HeadHit => self.assets.head_hit.clone(),
-                        EventSound::BodyHit => self.assets.body_hit.clone(),
-                        EventSound::Death => self.assets.death.clone(),
-                        EventSound::Bounce => self.assets.bounce.clone(),
-                        EventSound::Explosion => self.assets.explosion.clone(),
+                        EventSound::HeadHit => &self.assets.head_hit,
+                        EventSound::BodyHit => &self.assets.body_hit,
+                        EventSound::Death => &self.assets.death,
+                        EventSound::Bounce => &self.assets.bounce,
+                        EventSound::Explosion => &self.assets.explosion,
                     };
-                    macroquad::audio::play_sound_once(sound);
+                    sound.play();
                 }
                 Event::NextWave { stage } => self.renderer.next_wave(stage),
             }

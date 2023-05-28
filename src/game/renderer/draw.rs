@@ -1,8 +1,8 @@
 use super::*;
 
 impl Renderer {
-    pub fn draw(&self, model: &Model) {
-        clear_background(BACKGROUND_COLOR);
+    pub fn draw(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        ugli::clear(framebuffer, Some(BACKGROUND_COLOR), None, None);
         self.draw_game(model);
         self.draw_ui();
     }

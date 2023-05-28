@@ -1,7 +1,7 @@
 use super::*;
 
 pub struct AreaEffect {
-    pub position: Vec2,
+    pub position: vec2<f32>,
     pub radius: f32,
     pub effect: Effect,
     pub lifetime: Health,

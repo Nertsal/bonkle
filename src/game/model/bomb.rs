@@ -9,7 +9,7 @@ pub struct Bomb {
 }
 
 impl Bomb {
-    fn new(position: Vec2, bomb_info: BombInfo) -> Self {
+    fn new(position: vec2<f32>, bomb_info: BombInfo) -> Self {
         Self {
             entity: Entity::new(position, bomb_info.entity_info),
             entity_type: bomb_info.entity_type,
@@ -38,7 +38,7 @@ impl EntityObject for Bomb {
         self.entity_type
     }
 
-    fn attack(&mut self, _: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
+    fn attack(&mut self, _: Option<vec2<f32>>, delta_time: f32, commands: &mut Commands) {
         self.lifetime.change(-delta_time);
         if self.attack || !self.lifetime.is_alive() {
             self.entity.destroy = true;
@@ -76,7 +76,7 @@ impl BombInfo {
 }
 
 impl EntityObjectInfo for BombInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Bomb::new(position, *self))
     }
 }

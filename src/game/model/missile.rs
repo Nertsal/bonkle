@@ -3,14 +3,14 @@ use super::*;
 pub struct Missile {
     entity: Entity,
     entity_type: EntityType,
-    target_pos: Option<Vec2>,
+    target_pos: Option<vec2<f32>>,
     target_precision: f32,
     attack: bool,
     impact_attack: Attack,
 }
 
 impl Missile {
-    fn new(position: Vec2, missile_info: MissileInfo) -> Self {
+    fn new(position: vec2<f32>, missile_info: MissileInfo) -> Self {
         Self {
             entity: Entity::new(position, missile_info.entity_info),
             entity_type: missile_info.entity_type,
@@ -41,12 +41,12 @@ impl EntityObject for Missile {
         self.entity_type
     }
 
-    fn attack(&mut self, _: Option<Vec2>, _: f32, commands: &mut Commands) {
+    fn attack(&mut self, _: Option<vec2<f32>>, _: f32, commands: &mut Commands) {
         if self.attack
             || self
                 .target_pos
                 .map(|target_pos| {
-                    (self.entity.rigidbody.position - target_pos).length() <= self.target_precision
+                    (self.entity.rigidbody.position - target_pos).len() <= self.target_precision
                 })
                 .unwrap_or(false)
         {
@@ -71,7 +71,7 @@ impl EntityObject for Missile {
 pub struct MissileInfo {
     entity_info: EntityInfo,
     entity_type: EntityType,
-    target_pos: Option<Vec2>,
+    target_pos: Option<vec2<f32>>,
     bombs_count: usize,
     bomb: Box<dyn EntityObjectInfo>,
 }
@@ -80,7 +80,7 @@ impl MissileInfo {
     pub fn new(
         entity_info: EntityInfo,
         entity_type: EntityType,
-        target_pos: Option<Vec2>,
+        target_pos: Option<vec2<f32>>,
         bombs_count: usize,
         bomb: Box<dyn EntityObjectInfo>,
     ) -> Self {
@@ -95,7 +95,7 @@ impl MissileInfo {
 }
 
 impl EntityObjectInfo for MissileInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Missile::new(position, *self))
     }
 }

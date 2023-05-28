@@ -14,7 +14,7 @@ pub enum EnemyType {
 }
 
 impl Enemy {
-    pub fn new(position: Vec2, enemy_info: EnemyInfo) -> Self {
+    pub fn new(position: vec2<f32>, enemy_info: EnemyInfo) -> Self {
         Self {
             entity: Entity::new(position, enemy_info.entity_info),
             enemy_type: enemy_info.enemy_type,
@@ -39,7 +39,7 @@ impl EntityObject for Enemy {
         vec![EntityType::Player]
     }
 
-    fn attack(&mut self, target_pos: Option<Vec2>, delta_time: f32, commands: &mut Commands) {
+    fn attack(&mut self, target_pos: Option<vec2<f32>>, delta_time: f32, commands: &mut Commands) {
         match &mut self.enemy_type {
             EnemyType::Attacker { attack } => {
                 attack.attack_time.change(-delta_time);
@@ -62,7 +62,7 @@ impl EntityObject for Enemy {
         vec![EntityType::Player]
     }
 
-    fn decide_movement(&mut self, target_pos: Option<Vec2>, delta_time: f32) {
+    fn decide_movement(&mut self, target_pos: Option<vec2<f32>>, delta_time: f32) {
         if let Some(target_pos) = target_pos {
             match &self.enemy_type {
                 EnemyType::Crawler | EnemyType::Attacker { .. } => {
@@ -106,7 +106,7 @@ impl EnemyInfo {
 }
 
 impl EntityObjectInfo for EnemyInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Enemy::new(position, *self))
     }
 }

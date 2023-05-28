@@ -10,7 +10,7 @@ pub struct Attack {
 pub enum AttackType {
     Shoot {
         projectile: Box<dyn EntityObjectInfo>,
-        target_pos: Vec2,
+        target_pos: vec2<f32>,
     },
     Explode {
         projectile: Box<dyn EntityObjectInfo>,
@@ -51,7 +51,7 @@ impl Attack {
                         1.0,
                     );
                 } else {
-                    let random_offset = macroquad::rand::gen_range(0.0, std::f32::consts::PI);
+                    let random_offset = thread_rng().gen_range(0.0..std::f32::consts::PI);
                     for i in 0..*projectile_count {
                         let mut projectile = projectile
                             .clone()

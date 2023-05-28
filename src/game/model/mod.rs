@@ -85,7 +85,7 @@ impl Model {
                         false,
                         2.0,
                         PLAYER_SPEED,
-                        BLUE,
+                        Color::BLUE,
                         PhysicsMaterial::new(0.0, 1.0),
                     ),
                 ),
@@ -100,12 +100,12 @@ impl Model {
         }
     }
 
-    pub fn move_direction(&mut self, direction: Vec2) {
-        let direction = direction.clamp_length_max(1.0);
+    pub fn move_direction(&mut self, direction: vec2<f32>) {
+        let direction = direction.clamp_len(..=1.0);
         self.player.target_body_velocity = direction * PLAYER_SPEED;
     }
 
-    pub fn head_target(&mut self, target: Vec2) {
+    pub fn head_target(&mut self, target: vec2<f32>) {
         self.player.head_target = target;
     }
 
@@ -116,8 +116,8 @@ impl Model {
 
 #[derive(Clone, Copy)]
 pub struct Bounds {
-    pub min: Vec2,
-    pub max: Vec2,
+    pub min: vec2<f32>,
+    pub max: vec2<f32>,
 }
 
 impl Bounds {

@@ -12,7 +12,7 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn new(position: Vec2, entity_info: EntityInfo) -> Self {
+    pub fn new(position: vec2<f32>, entity_info: EntityInfo) -> Self {
         Self {
             destroy: false,
             rigidbody: RigidBody::new(
@@ -96,13 +96,19 @@ pub trait EntityObject {
         vec![]
     }
 
-    fn attack(&mut self, _target_pos: Option<Vec2>, _delta_time: f32, _commands: &mut Commands) {}
+    fn attack(
+        &mut self,
+        _target_pos: Option<vec2<f32>>,
+        _delta_time: f32,
+        _commands: &mut Commands,
+    ) {
+    }
 
     fn movement_targets(&self) -> Vec<EntityType> {
         vec![]
     }
 
-    fn decide_movement(&mut self, _target_pos: Option<Vec2>, _delta_time: f32) {}
+    fn decide_movement(&mut self, _target_pos: Option<vec2<f32>>, _delta_time: f32) {}
 
     fn movement(&mut self, delta_time: f32) {
         self.entity_mut().rigidbody.movement(delta_time);
@@ -160,7 +166,7 @@ impl DerefMut for dyn EntityObject {
 }
 
 pub trait EntityObjectInfo: EntityObjectInfoClone {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject>;
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject>;
 }
 
 pub trait EntityObjectInfoClone {

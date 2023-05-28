@@ -5,7 +5,7 @@ pub struct Minion {
 }
 
 impl Minion {
-    pub fn new(position: Vec2, minion_info: MinionInfo) -> Self {
+    pub fn new(position: vec2<f32>, minion_info: MinionInfo) -> Self {
         Self {
             entity: Entity::new(position, minion_info.entity_info),
         }
@@ -46,7 +46,7 @@ impl MinionInfo {
 }
 
 impl EntityObjectInfo for MinionInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Minion::new(position, *self))
     }
 }

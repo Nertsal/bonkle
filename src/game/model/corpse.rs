@@ -14,7 +14,7 @@ pub struct Corpse {
 }
 
 impl Corpse {
-    pub fn new(position: Vec2, corpse_info: CorpseInfo) -> Self {
+    pub fn new(position: vec2<f32>, corpse_info: CorpseInfo) -> Self {
         Self {
             entity: {
                 let mut entity = Entity::new(position, corpse_info.entity_info);
@@ -56,14 +56,14 @@ pub struct CorpseInfo {
     entity_info: EntityInfo,
     entity_type: EntityType,
     lifetime: Health,
-    velocity: Vec2,
+    velocity: vec2<f32>,
 }
 
 impl CorpseInfo {
     pub fn new(
         entity_type: EntityType,
         lifetime: Health,
-        velocity: Vec2,
+        velocity: vec2<f32>,
         entity_info: EntityInfo,
     ) -> Self {
         Self {
@@ -76,7 +76,7 @@ impl CorpseInfo {
 }
 
 impl EntityObjectInfo for CorpseInfo {
-    fn into_entity_object(self: Box<Self>, position: Vec2) -> Box<dyn EntityObject> {
+    fn into_entity_object(self: Box<Self>, position: vec2<f32>) -> Box<dyn EntityObject> {
         Box::new(Corpse::new(position, *self))
     }
 }

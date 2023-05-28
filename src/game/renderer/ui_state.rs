@@ -2,8 +2,8 @@ use super::*;
 
 pub struct UIState {
     pub state: GameState,
-    pub ui_scale: Vec2,
-    pub camera_scale: Vec2,
+    pub ui_scale: vec2<f32>,
+    pub camera_scale: vec2<f32>,
     pub debug_mode: bool,
     pub player_alive: bool,
     pub stage: usize,
@@ -20,29 +20,29 @@ pub struct UIState {
 impl UIState {
     pub fn update(
         &mut self,
-        camera_scale: Vec2,
+        camera_scale: vec2<f32>,
         delta_time: f32,
-        position: Vec2,
+        position: vec2<f32>,
+        framebuffer_size: vec2<f32>,
     ) -> Option<GameUpdate> {
         self.camera_scale = camera_scale;
         self.ui_scale = vec2(
-            screen_width() / DEFAULT_WIDTH,
-            screen_height() / DEFAULT_HEIGHT,
+            framebuffer_size.x / DEFAULT_WIDTH,
+            framebuffer_size.y / DEFAULT_HEIGHT,
         );
 
         if self.stage_timer > 0.0 {
             self.stage_timer -= delta_time;
         }
 
-        if is_key_pressed(KeyCode::F6) {
-            self.debug_mode = !self.debug_mode;
-        }
+        // TODO
+        // if is_key_pressed(KeyCode::F6) {
+        //     self.debug_mode = !self.debug_mode;
+        // }
 
         let mut game_update = None;
         match self.state {
             GameState::Menu => {
-                let press =
-                    is_mouse_button_pressed(MouseButton::Left) || is_key_pressed(KeyCode::Enter);
                 self.play_button.hovering =
                     self.play_button
                         .point_inside(position, self.ui_scale, self.camera_scale);
@@ -51,13 +51,16 @@ impl UIState {
                     self.quit_button
                         .point_inside(position, self.ui_scale, self.camera_scale);
                 self.quit_button.update(delta_time);
-                if press {
-                    if self.play_button.hovering {
-                        game_update = Some(GameUpdate::Start);
-                    } else if self.quit_button.hovering {
-                        game_update = Some(GameUpdate::Quit);
-                    }
-                }
+                // TODO
+                // let press =
+                //     is_mouse_button_pressed(MouseButton::Left) || is_key_pressed(KeyCode::Enter);
+                // if press {
+                //     if self.play_button.hovering {
+                //         game_update = Some(GameUpdate::Start);
+                //     } else if self.quit_button.hovering {
+                //         game_update = Some(GameUpdate::Quit);
+                //     }
+                // }
             }
             _ => (),
         }

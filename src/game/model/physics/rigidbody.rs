@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Debug, Clone)]
 pub struct RigidBody {
-    pub position: Vec2,
-    pub velocity: Vec2,
+    pub position: vec2<f32>,
+    pub velocity: vec2<f32>,
     pub mass: f32,
     pub is_kinematic: bool,
     pub collider: Collider,
@@ -12,7 +12,7 @@ pub struct RigidBody {
 
 impl RigidBody {
     pub fn new(
-        position: Vec2,
+        position: vec2<f32>,
         mass: f32,
         is_kinematic: bool,
         collider: Collider,
@@ -20,7 +20,7 @@ impl RigidBody {
     ) -> Self {
         Self {
             position,
-            velocity: Vec2::ZERO,
+            velocity: vec2::ZERO,
             mass,
             is_kinematic,
             collider,
@@ -48,11 +48,11 @@ impl RigidBody {
             let hit_strength = collision.normal.dot(relative_velocity).abs();
             let hit_self = impact_override.unwrap_or(hit_strength * other.mass / self.mass);
             if !self.is_kinematic {
-                self.velocity += hit_self * collision.normal;
+                self.velocity += collision.normal * hit_self;
             }
             let hit_other = hit_override.unwrap_or(hit_strength * self.mass / other.mass);
             if !other.is_kinematic {
-                other.velocity -= hit_other * collision.normal;
+                other.velocity -= collision.normal * hit_other;
             }
             let contact =
                 other.position + collision.normal * (other.collider.radius - collision.penetration);
@@ -66,7 +66,7 @@ impl RigidBody {
 
     pub fn collision(&self, other: &Self) -> Option<Collision> {
         let offset = self.position - other.position;
-        let penetration = self.collider.radius + other.collider.radius - offset.length();
+        let penetration = self.collider.radius + other.collider.radius - offset.len();
         if penetration >= 0.0 {
             Some(Collision {
                 normal: offset.normalize(),
@@ -79,7 +79,9 @@ impl RigidBody {
 
     pub fn clamp_bounds(&mut self, bounds: &Bounds) {
         let size = vec2(self.collider.radius, self.collider.radius);
-        self.position = self.position.clamp(bounds.min + size, bounds.max - size);
+        self.position = self
+            .position
+            .clamp_aabb(Aabb2::from_corners(bounds.min + size, bounds.max - size));
     }
 
     pub fn bounce_bounds(&mut self, bounds: &Bounds) -> bool {

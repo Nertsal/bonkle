@@ -1,3 +1,7 @@
+mod logic;
+
+use self::logic::Logic;
+
 use crate::{
     collection::{Collection, Id},
     util::{RealConversions, Vec2RealConversions},
@@ -7,6 +11,7 @@ use ecs::prelude::*;
 use geng::prelude::*;
 
 pub type Color = Rgba<f32>;
+pub type Time = R32;
 pub type Coord = R32;
 pub type Mass = R32;
 pub type Bounds = Aabb2<Coord>;
@@ -16,13 +21,27 @@ pub struct Player {
     pub body: Id,
 }
 
+#[derive(Debug, Clone)]
+pub struct PlayerInput {
+    pub target_move_dir: vec2<Coord>,
+}
+
 #[derive(StructOf, Debug, Clone)]
 pub struct BonkleBody {
     pub position: vec2<Coord>,
     pub velocity: vec2<Coord>,
     pub radius: Coord,
     pub mass: Mass,
+    pub movement_speed: Coord,
+    // TODO: #[structof(flatten)] or smth
+    pub controller: Option<BodyController>,
     // pub material: PhysicsMaterial, // TODO
+}
+
+#[derive(StructOf, Debug, Clone)]
+pub struct BodyController {
+    pub target_velocity: vec2<Coord>,
+    pub acceleration: Coord,
 }
 
 pub struct Model {
@@ -47,6 +66,11 @@ impl Model {
             velocity: vec2::ZERO,
             radius: 1.0.as_r32(),
             mass: 5.0.as_r32(),
+            movement_speed: 10.0.as_r32(),
+            controller: Some(BodyController {
+                target_velocity: vec2::ZERO,
+                acceleration: 10.0.as_r32(),
+            }),
         });
 
         Self {
@@ -63,5 +87,14 @@ impl Model {
             player: Player { body: player_body },
             bodies,
         }
+    }
+
+    pub fn update(&mut self, player_input: PlayerInput, delta_time: Time) {
+        let mut logic = Logic {
+            model: self,
+            player_input,
+            delta_time,
+        };
+        logic.process();
     }
 }

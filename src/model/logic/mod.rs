@@ -25,7 +25,7 @@ impl Logic<'_> {
         let controller =
             unwrap_or_panic!(body.controller.as_mut(), "Player has no body controller");
         controller.target_velocity =
-            self.player_input.target_move_dir.normalize_or_zero() * *body.movement_speed;
+            self.player_input.target_move_dir.normalize_or_zero() * *body.speed;
     }
 
     fn body_control(&mut self) {

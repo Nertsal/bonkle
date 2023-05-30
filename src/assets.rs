@@ -20,3 +20,11 @@ fn looping(sfx: &mut geng::Sound) {
 fn pixel(texture: &mut ugli::Texture) {
     texture.set_filter(ugli::Filter::Nearest);
 }
+
+impl Assets {
+    pub async fn load(manager: &geng::Manager) -> anyhow::Result<Self> {
+        geng::Load::load(manager, &run_dir().join("assets"))
+            .await
+            .context("failed to load assets")
+    }
+}

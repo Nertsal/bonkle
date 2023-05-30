@@ -1,5 +1,6 @@
 use crate::{
     assets::*,
+    config::Config,
     model::*,
     render::GameRender,
     util::{RealConversions, Vec2RealConversions},
@@ -15,12 +16,12 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>) -> Self {
+    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config) -> Self {
         Self {
             geng: geng.clone(),
             assets: assets.clone(),
             render: GameRender::new(geng, assets),
-            model: Model::new(),
+            model: Model::new(config),
         }
     }
 

@@ -4,7 +4,8 @@ use self::logic::Logic;
 
 use crate::{
     collection::{Collection, Id},
-    util::{RealConversions, Vec2RealConversions},
+    config::Config,
+    util::Vec2RealConversions,
 };
 
 use ecs::prelude::*;
@@ -32,7 +33,7 @@ pub struct BonkleBody {
     pub velocity: vec2<Coord>,
     pub radius: Coord,
     pub mass: Mass,
-    pub movement_speed: Coord,
+    pub speed: Coord,
     // TODO: #[structof(flatten)] or smth
     pub controller: Option<BodyController>,
     // pub material: PhysicsMaterial, // TODO
@@ -59,17 +60,17 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new() -> Self {
+    pub fn new(config: Config) -> Self {
         let mut bodies = StructOf::<Collection<BonkleBody>>::new();
         let player_body = bodies.insert(BonkleBody {
             position: vec2::ZERO,
             velocity: vec2::ZERO,
-            radius: 1.0.as_r32(),
-            mass: 5.0.as_r32(),
-            movement_speed: 10.0.as_r32(),
+            radius: config.player.radius,
+            mass: config.player.mass,
+            speed: config.player.speed,
             controller: Some(BodyController {
                 target_velocity: vec2::ZERO,
-                acceleration: 10.0.as_r32(),
+                acceleration: config.player.acceleration,
             }),
         });
 

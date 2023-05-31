@@ -1,5 +1,7 @@
+mod body;
 mod logic;
 
+pub use self::body::*;
 use self::logic::Logic;
 
 use crate::{
@@ -20,29 +22,31 @@ pub type Bounds = Aabb2<Coord>;
 #[derive(Debug, Clone)]
 pub struct Player {
     pub body: Id,
+    pub head: Id,
 }
 
 #[derive(Debug, Clone)]
 pub struct PlayerInput {
     pub target_move_dir: vec2<Coord>,
+    pub head_target: RotationTarget,
 }
 
-#[derive(StructOf, Debug, Clone)]
-pub struct BonkleBody {
-    pub position: vec2<Coord>,
-    pub velocity: vec2<Coord>,
-    pub radius: Coord,
-    pub mass: Mass,
-    pub speed: Coord,
-    // TODO: #[structof(flatten)] or smth
-    pub controller: Option<BodyController>,
-    // pub material: PhysicsMaterial, // TODO
+#[derive(Debug, Clone)]
+pub enum RotationTarget {
+    Relative { delta: Angle<R32> },
+    LookAt { position: vec2<Coord> },
 }
 
-#[derive(StructOf, Debug, Clone)]
-pub struct BodyController {
-    pub target_velocity: vec2<Coord>,
-    pub acceleration: Coord,
+impl RotationTarget {
+    pub fn get_target(&self, origin: vec2<R32>, angle: Angle<R32>) -> Angle<R32> {
+        match self {
+            RotationTarget::Relative { delta } => (angle + *delta).normalized_pi(),
+            RotationTarget::LookAt { position } => {
+                let delta = *position - origin;
+                Angle::from_radians(delta.arg())
+            }
+        }
+    }
 }
 
 pub struct Model {
@@ -62,30 +66,36 @@ pub struct Model {
 impl Model {
     pub fn new(config: Config) -> Self {
         let mut bodies = StructOf::<Collection<BonkleBody>>::new();
-        let player_body = bodies.insert(BonkleBody {
-            position: vec2::ZERO,
-            velocity: vec2::ZERO,
-            radius: config.player.radius,
-            mass: config.player.mass,
-            speed: config.player.speed,
-            controller: Some(BodyController {
-                target_velocity: vec2::ZERO,
-                acceleration: config.player.acceleration,
-            }),
+
+        let player_body = bodies.insert(BonkleBody::new(config.player.body, vec2::ZERO));
+
+        let mut player_head = BonkleBody::new(
+            config.player.head,
+            vec2::UNIT_Y * config.player.orbit_distance,
+        );
+        player_head.attachment = Some(BodyAttachment {
+            to_body: player_body,
+            ty: AttachmentType::Orbit {
+                distance: config.player.orbit_distance,
+            },
         });
+        let player_head = bodies.insert(player_head);
 
         Self {
             current_stage: 0,
             camera: Camera2d {
                 center: vec2::ZERO,
                 rotation: 0.0,
-                fov: 50.0,
+                fov: 200.0,
             },
             bounds: Bounds {
                 min: vec2(-160.0, -90.0).as_r32(),
                 max: vec2(160.0, 90.0).as_r32(),
             },
-            player: Player { body: player_body },
+            player: Player {
+                body: player_body,
+                head: player_head,
+            },
             bodies,
         }
     }

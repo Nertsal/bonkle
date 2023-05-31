@@ -2,13 +2,20 @@ use geng::prelude::*;
 
 use crate::model::Coord;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
     pub player: PlayerConfig,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct PlayerConfig {
+    pub body: BodyConfig,
+    pub head: BodyConfig,
+    pub orbit_distance: Coord,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct BodyConfig {
     pub radius: Coord,
     pub mass: Coord,
     pub speed: Coord,

@@ -15,7 +15,7 @@ const FPS: f64 = 60.0;
 
 #[derive(Parser)]
 struct Args {
-    #[clap(long, default_value = "config.toml")]
+    #[clap(long, default_value = "config.ron")]
     config: PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,

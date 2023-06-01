@@ -31,7 +31,7 @@ impl Logic<'_> {
             self.player_input.target_move_dir.normalize_or_zero() * *body.speed;
 
         // Head
-        let body_position = *body.position;
+        let body_position = body.collider.position;
         let body_velocity = *body.velocity;
         let head = self
             .model
@@ -41,7 +41,7 @@ impl Logic<'_> {
         let controller =
             unwrap_or_panic!(head.controller.as_mut(), "Player has no head controller");
 
-        let pos = *head.position;
+        let pos = head.collider.position;
         let delta = pos - body_position;
         let angle = Angle::from_radians(delta.arg());
 
@@ -80,14 +80,14 @@ impl Logic<'_> {
     fn body_movement(&mut self) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            position: &'a mut vec2<Coord>,
+            collider: &'a mut Collider,
             velocity: &'a vec2<Coord>,
         }
 
         let mut query = query_body_ref!(self.model.bodies);
         let mut iter = query.iter_mut();
         while let Some((_body_id, body)) = iter.next() {
-            *body.position += *body.velocity * self.delta_time;
+            body.collider.position += *body.velocity * self.delta_time;
         }
     }
 
@@ -95,7 +95,7 @@ impl Logic<'_> {
     fn body_attachment(&mut self) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            position: &'a mut vec2<Coord>,
+            collider: &'a mut Collider,
             attachment: &'a Option<BodyAttachment>,
         }
 
@@ -108,9 +108,10 @@ impl Logic<'_> {
                 if let Some(to_body) = query.get(attachment.to_body) {
                     match attachment.ty {
                         AttachmentType::Orbit { distance } => {
-                            let angle =
-                                Angle::from_radians((*body.position - *to_body.position).arg());
-                            let target = *to_body.position + angle.unit_vec() * distance;
+                            let angle = Angle::from_radians(
+                                (body.collider.position - to_body.collider.position).arg(),
+                            );
+                            let target = to_body.collider.position + angle.unit_vec() * distance;
                             corrections.insert(body_id, target);
                         }
                     }
@@ -124,7 +125,7 @@ impl Logic<'_> {
         // Apply corrections
         for (body, target_pos) in corrections {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
-            *body.position = target_pos;
+            body.collider.position = target_pos;
         }
     }
 }

@@ -4,9 +4,8 @@ use super::*;
 
 #[derive(StructOf, Debug, Clone)]
 pub struct BonkleBody {
-    pub position: vec2<Coord>,
+    pub collider: Collider,
     pub velocity: vec2<Coord>,
-    pub radius: Coord,
     pub mass: Mass,
     pub speed: Coord,
     // TODO: #[structof(flatten)] or smth
@@ -35,9 +34,8 @@ pub enum AttachmentType {
 impl BonkleBody {
     pub fn new(config: BodyConfig, position: vec2<Coord>) -> Self {
         Self {
-            position,
+            collider: Collider::new(position, config.shape),
             velocity: vec2::ZERO,
-            radius: config.radius,
             mass: config.mass,
             speed: config.speed,
             controller: Some(BodyController {

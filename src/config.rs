@@ -1,6 +1,6 @@
 use geng::prelude::*;
 
-use crate::model::Coord;
+use crate::model::{Coord, Shape};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
@@ -16,7 +16,7 @@ pub struct PlayerConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct BodyConfig {
-    pub radius: Coord,
+    pub shape: Shape,
     pub mass: Coord,
     pub speed: Coord,
     pub acceleration: Coord,
@@ -27,6 +27,6 @@ impl Config {
         let s = file::load_string(path)
             .await
             .context("failed to open config file")?;
-        toml::from_str(&s).context("failed to parse config")
+        ron::from_str(&s).context("failed to parse config")
     }
 }

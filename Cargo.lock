@@ -717,6 +717,7 @@ dependencies = [
  "ecs",
  "geng",
  "parry2d",
+ "ron",
  "serde",
 ]
 

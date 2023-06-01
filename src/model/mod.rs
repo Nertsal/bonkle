@@ -1,7 +1,9 @@
 mod body;
+mod collider;
 mod logic;
 
 pub use self::body::*;
+pub use self::collider::*;
 use self::logic::Logic;
 
 use crate::{

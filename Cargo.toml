@@ -10,4 +10,5 @@ clap = { version = "4.2.5", features = ["derive"] }
 ecs = { git = "https://github.com/geng-engine/ecs", version = "0.1.0" }
 geng = { git = "https://github.com/geng-engine/geng", version = "0.14.0" }
 parry2d = "0.13.4"
+ron = "0.8.0"
 serde = { version = "1.0.160", features = ["derive"] }

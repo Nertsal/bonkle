@@ -83,6 +83,11 @@ impl Model {
         });
         let player_head = bodies.insert(player_head);
 
+        bodies.insert(BonkleBody::new(
+            config.player.body,
+            vec2(20.0, 0.0).as_r32(),
+        ));
+
         Self {
             current_stage: 0,
             camera: Camera2d {

@@ -14,6 +14,7 @@ impl Logic<'_> {
         self.body_control();
         self.body_movement();
         self.body_attachment();
+        self.body_collisions();
     }
 
     fn player_control(&mut self) {
@@ -126,6 +127,87 @@ impl Logic<'_> {
         for (body, target_pos) in corrections {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
             body.collider.position = target_pos;
+        }
+    }
+
+    fn body_collisions(&mut self) {
+        #[derive(StructQuery, Clone, Copy)]
+        struct BodyRef<'a> {
+            collider: &'a Collider,
+            velocity: &'a vec2<Coord>,
+        }
+
+        let query = query_body_ref!(self.model.bodies);
+
+        // Evaluate collisions
+        struct CollisionInfo<'a> {
+            body_id: Id,
+            body: BodyRef<'a>,
+            other_id: Id,
+            other: BodyRef<'a>,
+            collision: Collision,
+        }
+
+        let mut collisions: Vec<CollisionInfo> = Vec::new();
+        // TODO: optimize with quad-tree or smth
+        for (body_id, body) in &query {
+            for (other_id, other) in &query {
+                if body_id == other_id {
+                    continue;
+                }
+                if let Some(collision) = body.collider.collide(other.collider) {
+                    collisions.push(CollisionInfo {
+                        body_id,
+                        body,
+                        other_id,
+                        other,
+                        collision,
+                    });
+                }
+            }
+        }
+
+        // Resolve collisions
+        struct Correction {
+            position: vec2<Coord>,
+            velocity: vec2<Coord>,
+        }
+
+        let mut corrections: HashMap<Id, Correction> = HashMap::new();
+        for info in collisions {
+            let mut body_correct = Correction {
+                position: info.body.collider.position,
+                velocity: *info.body.velocity,
+            };
+            let mut other_correct = Correction {
+                position: info.other.collider.position,
+                velocity: *info.other.velocity,
+            };
+
+            // Translate
+            let translation = info.collision.normal * info.collision.penetration / r32(2.0);
+            body_correct.position -= translation;
+            other_correct.position += translation;
+
+            // TODO: bounce
+
+            // TODO: angular bounce
+
+            corrections.extend([(info.body_id, body_correct), (info.other_id, other_correct)]);
+        }
+
+        // Apply corrections
+        #[derive(StructQuery)]
+        struct BodyUpdate<'a> {
+            collider: &'a mut Collider,
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let mut query = query_body_update!(self.model.bodies);
+        for (body, correction) in corrections {
+            let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
+            body.collider.position = correction.position;
+            *body.velocity = correction.velocity;
         }
     }
 }

@@ -18,6 +18,19 @@ impl GameRender {
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         self.draw_bodies(model, framebuffer);
+        self.draw_bounds(model, framebuffer);
+    }
+
+    fn draw_bounds(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        let [bl, br, tr, tl] = model.bounds.map(Coord::as_f32).corners();
+        let bm = (bl + br) / 2.0;
+        let points = vec![bm, br, tr, tl, bl, bm];
+        let chain = Chain::new(points);
+        self.geng.draw2d().draw2d(
+            framebuffer,
+            &model.camera,
+            &draw2d::Chain::new(chain, 0.1, Color::GRAY, 2),
+        );
     }
 
     fn draw_bodies(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {

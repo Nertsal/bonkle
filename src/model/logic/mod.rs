@@ -15,6 +15,7 @@ impl Logic<'_> {
         self.body_movement();
         self.body_attachment();
         self.body_collisions();
+        self.body_bounds();
     }
 
     fn player_control(&mut self) {
@@ -150,7 +151,7 @@ impl Logic<'_> {
         }
 
         let mut collisions: Vec<CollisionInfo> = Vec::new();
-        // TODO: optimize with quad-tree or smth
+        // TODO: optimize with quad-tree or aabb's or smth
         for (body_id, body) in &query {
             for (other_id, other) in &query {
                 if body_id == other_id {
@@ -190,7 +191,7 @@ impl Logic<'_> {
             body_correction.position -= translation;
             other_correction.position += translation;
 
-            // Bounce
+            // Linear bounce
             let relative_velocity = *info.body.velocity - *info.other.velocity;
             let hit_strength = vec2::dot(info.collision.normal, relative_velocity).abs();
             let hit_self = hit_strength * *info.other.mass / *info.body.mass;
@@ -198,7 +199,7 @@ impl Logic<'_> {
             body_correction.velocity -= info.collision.normal * hit_self;
             other_correction.velocity += info.collision.normal * hit_other;
 
-            // TODO: angular bounce
+            // TODO: Angular bounce
 
             corrections.extend([
                 (info.body_id, body_correction),
@@ -218,6 +219,53 @@ impl Logic<'_> {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
             body.collider.position = correction.position;
             *body.velocity = correction.velocity;
+        }
+    }
+
+    /// Collide with level bounds.
+    fn body_bounds(&mut self) {
+        #[derive(StructQuery)]
+        struct BodyRef<'a> {
+            collider: &'a mut Collider,
+        }
+
+        let bounds = self.model.bounds;
+        let mut query = query_body_ref!(self.model.bodies);
+        let mut iter = query.iter_mut();
+        while let Some((_, body)) = iter.next() {
+            let aabb = body.collider.compute_aabb();
+
+            let left = (bounds.min.x - aabb.min.x).as_f32();
+            let right = (aabb.max.x - bounds.max.x).as_f32();
+
+            let (nx, dx) = if right > left && right > 0.0 {
+                (1.0, right)
+            } else if left > 0.0 {
+                (-1.0, left)
+            } else {
+                (1.0, 0.0)
+            };
+
+            let down = (bounds.min.y - aabb.min.y).as_f32();
+            let up = (aabb.max.y - bounds.max.y).as_f32();
+
+            let (ny, dy) = if up > down && up > 0.0 {
+                (1.0, up)
+            } else if down > 0.0 {
+                (-1.0, down)
+            } else {
+                (1.0, 0.0)
+            };
+
+            let normal = vec2(nx, ny).as_r32();
+            let penetration = vec2(dx, dy).as_r32();
+
+            // Translate
+            body.collider.position -= normal * penetration;
+
+            // Linear bounce
+
+            // TODO: angular bounce
         }
     }
 }

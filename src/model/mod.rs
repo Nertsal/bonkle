@@ -93,11 +93,11 @@ impl Model {
             camera: Camera2d {
                 center: vec2::ZERO,
                 rotation: 0.0,
-                fov: 200.0,
+                fov: 100.0,
             },
             bounds: Bounds {
-                min: vec2(-160.0, -90.0).as_r32(),
-                max: vec2(160.0, 90.0).as_r32(),
+                min: vec2(-50.0, -40.0).as_r32(),
+                max: vec2(50.0, 40.0).as_r32(),
             },
             player: Player {
                 body: player_body,

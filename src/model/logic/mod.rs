@@ -135,6 +135,7 @@ impl Logic<'_> {
         struct BodyRef<'a> {
             collider: &'a Collider,
             velocity: &'a vec2<Coord>,
+            mass: &'a Mass,
         }
 
         let query = query_body_ref!(self.model.bodies);
@@ -175,25 +176,34 @@ impl Logic<'_> {
 
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
         for info in collisions {
-            let mut body_correct = Correction {
+            let mut body_correction = Correction {
                 position: info.body.collider.position,
                 velocity: *info.body.velocity,
             };
-            let mut other_correct = Correction {
+            let mut other_correction = Correction {
                 position: info.other.collider.position,
                 velocity: *info.other.velocity,
             };
 
             // Translate
             let translation = info.collision.normal * info.collision.penetration / r32(2.0);
-            body_correct.position -= translation;
-            other_correct.position += translation;
+            body_correction.position -= translation;
+            other_correction.position += translation;
 
-            // TODO: bounce
+            // Bounce
+            let relative_velocity = *info.body.velocity - *info.other.velocity;
+            let hit_strength = vec2::dot(info.collision.normal, relative_velocity).abs();
+            let hit_self = hit_strength * *info.other.mass / *info.body.mass;
+            let hit_other = hit_strength * *info.body.mass / *info.other.mass;
+            body_correction.velocity -= info.collision.normal * hit_self;
+            other_correction.velocity += info.collision.normal * hit_other;
 
             // TODO: angular bounce
 
-            corrections.extend([(info.body_id, body_correct), (info.other_id, other_correct)]);
+            corrections.extend([
+                (info.body_id, body_correction),
+                (info.other_id, other_correction),
+            ]);
         }
 
         // Apply corrections

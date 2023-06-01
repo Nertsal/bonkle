@@ -227,6 +227,7 @@ impl Logic<'_> {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             collider: &'a mut Collider,
+            velocity: &'a mut vec2<Coord>,
         }
 
         let bounds = self.model.bounds;
@@ -243,7 +244,7 @@ impl Logic<'_> {
             } else if left > 0.0 {
                 (-1.0, left)
             } else {
-                (1.0, 0.0)
+                (0.0, 0.0)
             };
 
             let down = (bounds.min.y - aabb.min.y).as_f32();
@@ -254,7 +255,7 @@ impl Logic<'_> {
             } else if down > 0.0 {
                 (-1.0, down)
             } else {
-                (1.0, 0.0)
+                (0.0, 0.0)
             };
 
             let normal = vec2(nx, ny).as_r32();
@@ -264,6 +265,9 @@ impl Logic<'_> {
             body.collider.position -= normal * penetration;
 
             // Linear bounce
+            let bounciness = r32(0.7);
+            let projection = vec2::dot(normal, *body.velocity);
+            *body.velocity -= normal * projection * (Coord::ONE + bounciness);
 
             // TODO: angular bounce
         }

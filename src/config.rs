@@ -4,7 +4,13 @@ use crate::model::{Coord, Shape};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
+    pub arena: ArenaConfig,
     pub player: PlayerConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct ArenaConfig {
+    pub size: vec2<Coord>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -20,6 +26,7 @@ pub struct BodyConfig {
     pub mass: Coord,
     pub speed: Coord,
     pub acceleration: Coord,
+    pub deceleration: Coord,
 }
 
 impl Config {

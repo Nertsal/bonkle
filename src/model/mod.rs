@@ -1,10 +1,12 @@
 mod body;
 mod collider;
 mod logic;
+mod shape;
 
 pub use self::body::*;
 pub use self::collider::*;
 use self::logic::Logic;
+pub use self::shape::*;
 
 use crate::{
     collection::{Collection, Id},
@@ -96,8 +98,8 @@ impl Model {
                 fov: 100.0,
             },
             bounds: Bounds {
-                min: vec2(-50.0, -40.0).as_r32(),
-                max: vec2(50.0, 40.0).as_r32(),
+                min: -config.arena.size / r32(2.0),
+                max: config.arena.size / r32(2.0),
             },
             player: Player {
                 body: player_body,

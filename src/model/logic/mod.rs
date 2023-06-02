@@ -73,9 +73,16 @@ impl Logic<'_> {
         let mut query = query_body_ref!(self.model.bodies);
         let mut iter = query.iter_mut();
         while let Some((_body_id, body)) = iter.next() {
-            *body.velocity += (body.controller.target_velocity - *body.velocity)
-                * body.controller.acceleration
-                * self.delta_time;
+            let acceleration = if vec2::dot(body.controller.target_velocity, *body.velocity)
+                < Coord::ZERO
+                || body.controller.target_velocity.len() < body.velocity.len()
+            {
+                body.controller.deceleration
+            } else {
+                body.controller.acceleration
+            };
+            *body.velocity +=
+                (body.controller.target_velocity - *body.velocity) * acceleration * self.delta_time;
         }
     }
 
@@ -98,13 +105,18 @@ impl Logic<'_> {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             collider: &'a mut Collider,
+            velocity: &'a mut vec2<Coord>,
             attachment: &'a Option<BodyAttachment>,
         }
 
         let mut query = query_body_ref!(self.model.bodies);
 
         // Collect corrections
-        let mut corrections = HashMap::<Id, vec2<Coord>>::new();
+        struct Correction {
+            position: vec2<Coord>,
+            velocity: vec2<Coord>,
+        }
+        let mut corrections = HashMap::<Id, Correction>::new();
         for (body_id, body) in &query {
             if let Some(attachment) = body.attachment {
                 if let Some(to_body) = query.get(attachment.to_body) {
@@ -113,8 +125,14 @@ impl Logic<'_> {
                             let angle = Angle::from_radians(
                                 (body.collider.position - to_body.collider.position).arg(),
                             );
-                            let target = to_body.collider.position + angle.unit_vec() * distance;
-                            corrections.insert(body_id, target);
+                            let position = to_body.collider.position + angle.unit_vec() * distance;
+
+                            // Preserve speed - change direction
+                            let speed = body.velocity.len();
+                            let dir = angle.unit_vec().rotate_90();
+                            let velocity = dir * speed * vec2::dot(dir, *body.velocity).signum();
+
+                            corrections.insert(body_id, Correction { position, velocity });
                         }
                     }
                 } else {
@@ -125,9 +143,10 @@ impl Logic<'_> {
         }
 
         // Apply corrections
-        for (body, target_pos) in corrections {
+        for (body, correction) in corrections {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
-            body.collider.position = target_pos;
+            body.collider.position = correction.position;
+            *body.velocity = correction.velocity;
         }
     }
 

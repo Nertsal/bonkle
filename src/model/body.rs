@@ -18,6 +18,7 @@ pub struct BonkleBody {
 pub struct BodyController {
     pub target_velocity: vec2<Coord>,
     pub acceleration: Coord,
+    pub deceleration: Coord,
 }
 
 #[derive(Debug, Clone)]
@@ -41,6 +42,7 @@ impl BonkleBody {
             controller: Some(BodyController {
                 target_velocity: vec2::ZERO,
                 acceleration: config.acceleration,
+                deceleration: config.deceleration,
             }),
             attachment: None,
         }

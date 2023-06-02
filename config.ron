@@ -1,4 +1,7 @@
 Config(
+    arena: ArenaConfig(
+        size: (120, 80),
+    ),
     player: PlayerConfig(
         orbit_distance: 10.0,
         body: BodyConfig(
@@ -8,6 +11,7 @@ Config(
             mass: 5.0,
             speed: 25.0,
             acceleration: 3.0,
+            deceleration: 5.0,
         ),
         head: BodyConfig(
             shape: Circle(
@@ -15,7 +19,8 @@ Config(
             ),
             mass: 10.0,
             speed: 75.0,
-            acceleration: 10.0,
+            acceleration: 2.0,
+            deceleration: 5.0,
         ),
     ),
 )

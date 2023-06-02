@@ -1,4 +1,4 @@
-use crate::config::BodyConfig;
+use crate::assets::BodyConfig;
 
 use super::*;
 
@@ -16,6 +16,7 @@ pub struct BonkleBody {
 
 #[derive(StructOf, Debug, Clone)]
 pub struct BodyController {
+    pub ai: Option<BodyAI>,
     pub target_velocity: vec2<Coord>,
     pub acceleration: Coord,
     pub deceleration: Coord,
@@ -40,6 +41,7 @@ impl BonkleBody {
             mass: config.mass,
             speed: config.speed,
             controller: Some(BodyController {
+                ai: config.ai,
                 target_velocity: vec2::ZERO,
                 acceleration: config.acceleration,
                 deceleration: config.deceleration,

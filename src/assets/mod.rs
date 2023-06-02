@@ -1,3 +1,9 @@
+mod config;
+mod entities;
+
+pub use self::config::*;
+pub use self::entities::*;
+
 use geng::prelude::*;
 
 #[derive(geng::Load)]

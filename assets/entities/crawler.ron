@@ -1,0 +1,10 @@
+BodyConfig(
+    ai: Some(Crawler),
+    shape: Circle(
+        radius: 1.0,
+    ),
+    mass: 5.0,
+    speed: 10.0,
+    acceleration: 3.0,
+    deceleration: 5.0,
+)

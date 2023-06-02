@@ -1,6 +1,5 @@
 use crate::{
     assets::*,
-    config::Config,
     model::*,
     render::GameRender,
     util::{RealConversions, Vec2RealConversions},
@@ -24,13 +23,13 @@ enum HeadControlMode {
 }
 
 impl Game {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config) -> Self {
+    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config, entities: EntitiesAssets) -> Self {
         Self {
             geng: geng.clone(),
             assets: assets.clone(),
             render: GameRender::new(geng, assets),
             framebuffer_size: vec2(1, 1),
-            model: Model::new(config),
+            model: Model::new(config, entities),
             head_control_mode: HeadControlMode::Delta,
         }
     }

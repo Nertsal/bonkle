@@ -8,9 +8,10 @@ pub use self::collider::*;
 use self::logic::Logic;
 pub use self::shape::*;
 
+use crate::assets::EntitiesAssets;
 use crate::{
+    assets::Config,
     collection::{Collection, Id},
-    config::Config,
     util::Vec2RealConversions,
 };
 
@@ -53,6 +54,11 @@ impl RotationTarget {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum BodyAI {
+    Crawler,
+}
+
 pub struct Model {
     pub current_stage: usize,
     pub camera: Camera2d,
@@ -68,7 +74,7 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, entities: EntitiesAssets) -> Self {
         let mut bodies = StructOf::<Collection<BonkleBody>>::new();
 
         let player_body = bodies.insert(BonkleBody::new(config.player.body, vec2::ZERO));
@@ -86,7 +92,7 @@ impl Model {
         let player_head = bodies.insert(player_head);
 
         bodies.insert(BonkleBody::new(
-            config.player.body,
+            entities.configs["crawler"],
             vec2(20.0, 0.0).as_r32(),
         ));
 

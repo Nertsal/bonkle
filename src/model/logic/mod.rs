@@ -11,6 +11,7 @@ pub struct Logic<'a> {
 impl Logic<'_> {
     pub fn process(&mut self) {
         self.player_control();
+        self.body_ai();
         self.body_control();
         self.body_movement();
         self.body_attachment();
@@ -60,6 +61,40 @@ impl Logic<'_> {
         let speed = *head.speed * speed_coef;
 
         controller.target_velocity = body_velocity + dir * speed; // TODO: better velocity calculation
+    }
+
+    fn body_ai(&mut self) {
+        #[derive(StructQuery)]
+        struct BodyRef<'a> {
+            collider: &'a Collider,
+            speed: &'a Coord,
+            #[query(optional)]
+            controller: &'a mut BodyController,
+        }
+
+        // Calculate actions
+        let mut actions: HashMap<Id, BodyController> = HashMap::new();
+        let mut query = query_body_ref!(self.model.bodies);
+        for (body_id, body) in &query {
+            let mut controller = body.controller.clone();
+            let Some(ai) = &controller.ai else { continue; };
+            match ai {
+                BodyAI::Crawler => {
+                    if let Some(player_body) = query.get(self.model.player.body) {
+                        let delta = player_body.collider.position - body.collider.position;
+                        let dir = delta.normalize_or_zero();
+                        controller.target_velocity = dir * *body.speed;
+                    }
+                }
+            };
+            actions.insert(body_id, controller);
+        }
+
+        // Apply actions
+        for (body_id, new_controller) in actions {
+            let body = query.get_mut(body_id).unwrap();
+            *body.controller = new_controller;
+        }
     }
 
     fn body_control(&mut self) {

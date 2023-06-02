@@ -1,6 +1,5 @@
 mod assets;
 mod collection;
-mod config;
 mod game;
 mod model;
 mod render;
@@ -15,7 +14,7 @@ const FPS: f64 = 60.0;
 
 #[derive(Parser)]
 struct Args {
-    #[clap(long, default_value = "config.ron")]
+    #[clap(long, default_value = "assets/config.ron")]
     config: PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,
@@ -39,8 +38,11 @@ fn main() {
         async move {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
-            let config = config::Config::load(&args.config).await.unwrap();
-            game::Game::new(&geng, &Rc::new(assets), config)
+            let config = geng::Load::load(manager, &args.config).await.unwrap();
+            let entities = geng::Load::load(manager, &run_dir().join("assets").join("entities"))
+                .await
+                .unwrap();
+            game::Game::new(&geng, &Rc::new(assets), config, entities)
         }
     };
 

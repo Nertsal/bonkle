@@ -10,6 +10,7 @@ Config(
             ),
             mass: 5.0,
             speed: 25.0,
+            health: Some(100),
             acceleration: 3.0,
             deceleration: 5.0,
         ),

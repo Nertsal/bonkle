@@ -227,6 +227,7 @@ impl Logic<'_> {
         struct Correction {
             position: vec2<Coord>,
             velocity: vec2<Coord>,
+            damage: Hp,
         }
 
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
@@ -234,10 +235,12 @@ impl Logic<'_> {
             let mut body_correction = Correction {
                 position: info.body.collider.position,
                 velocity: *info.body.velocity,
+                damage: Hp::ZERO,
             };
             let mut other_correction = Correction {
                 position: info.other.collider.position,
                 velocity: *info.other.velocity,
+                damage: Hp::ZERO,
             };
 
             // Translate
@@ -253,6 +256,11 @@ impl Logic<'_> {
             body_correction.velocity -= info.collision.normal * hit_self;
             other_correction.velocity += info.collision.normal * hit_other;
 
+            // Damage
+            let damage_fn = |hit: R32| -> Hp { hit / r32(5.0) };
+            body_correction.damage = damage_fn(hit_self);
+            other_correction.damage = damage_fn(hit_other);
+
             // TODO: Angular bounce
 
             corrections.extend([
@@ -266,6 +274,7 @@ impl Logic<'_> {
         struct BodyUpdate<'a> {
             collider: &'a mut Collider,
             velocity: &'a mut vec2<Coord>,
+            health: &'a mut Option<Health>,
         }
 
         let mut query = query_body_update!(self.model.bodies);
@@ -273,6 +282,9 @@ impl Logic<'_> {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
             body.collider.position = correction.position;
             *body.velocity = correction.velocity;
+            if let Some(health) = body.health {
+                health.damage(correction.damage);
+            }
         }
     }
 

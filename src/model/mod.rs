@@ -1,10 +1,12 @@
 mod body;
 mod collider;
+mod health;
 mod logic;
 mod shape;
 
 pub use self::body::*;
 pub use self::collider::*;
+pub use self::health::*;
 use self::logic::Logic;
 pub use self::shape::*;
 

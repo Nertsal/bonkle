@@ -1,6 +1,6 @@
 use geng::prelude::*;
 
-use crate::model::{BodyAI, Coord, Shape};
+use crate::model::{BodyAI, Coord, Hp, Shape};
 
 #[derive(geng::Load, Serialize, Deserialize, Debug, Clone)]
 #[load(serde = "toml")]
@@ -26,6 +26,7 @@ pub struct BodyConfig {
     pub shape: Shape,
     pub mass: Coord,
     pub speed: Coord,
+    pub health: Option<Hp>,
     pub ai: Option<BodyAI>,
     pub acceleration: Coord,
     pub deceleration: Coord,

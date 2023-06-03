@@ -8,6 +8,7 @@ pub struct BonkleBody {
     pub velocity: vec2<Coord>,
     pub mass: Mass,
     pub speed: Coord,
+    pub health: Option<Health>,
     // TODO: #[structof(flatten)] or smth
     pub controller: Option<BodyController>,
     // pub material: PhysicsMaterial, // TODO
@@ -40,6 +41,7 @@ impl BonkleBody {
             velocity: vec2::ZERO,
             mass: config.mass,
             speed: config.speed,
+            health: config.health.map(Health::new),
             controller: Some(BodyController {
                 ai: config.ai,
                 target_velocity: vec2::ZERO,

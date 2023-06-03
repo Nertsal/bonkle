@@ -24,6 +24,12 @@ impl Collider {
         }
     }
 
+    pub fn transform_mat(&self) -> mat3<Coord> {
+        let position = self.position;
+        let rotation = self.rotation.as_radians();
+        mat3::translate(position) * mat3::rotate(rotation)
+    }
+
     pub fn compute_aabb(&self) -> Aabb2<Coord> {
         let (iso, shape) = self.to_parry();
         let parry2d::bounding_volume::Aabb { mins, maxs } = shape.compute_aabb(&iso);

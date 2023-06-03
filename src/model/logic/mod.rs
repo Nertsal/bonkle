@@ -17,6 +17,7 @@ impl Logic<'_> {
         self.body_attachment();
         self.body_collisions();
         self.body_bounds();
+        self.check_deaths();
     }
 
     fn player_control(&mut self) {
@@ -336,6 +337,24 @@ impl Logic<'_> {
             *body.velocity -= normal * projection * (Coord::ONE + bounciness);
 
             // TODO: angular bounce
+        }
+    }
+
+    fn check_deaths(&mut self) {
+        #[derive(StructQuery)]
+        struct BodyRef<'a> {
+            #[query(optional)]
+            health: &'a Health,
+        }
+
+        let deaths: Vec<Id> = query_body_ref!(self.model.bodies)
+            .iter()
+            .filter(|(_, body)| body.health.is_dead())
+            .map(|(id, _)| id)
+            .collect();
+        for body_id in deaths {
+            self.model.bodies.remove(body_id);
+            // TODO: corpse + particles
         }
     }
 }

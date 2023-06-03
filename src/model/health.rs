@@ -33,11 +33,11 @@ impl Health {
         self.hp = (self.hp + hp).clamp(Hp::ZERO, self.max_hp);
     }
 
-    pub fn is_alive(&mut self) -> bool {
+    pub fn is_alive(&self) -> bool {
         self.hp > Hp::ZERO
     }
 
-    pub fn is_dead(&mut self) -> bool {
+    pub fn is_dead(&self) -> bool {
         !self.is_alive()
     }
 }

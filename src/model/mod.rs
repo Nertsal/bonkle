@@ -64,6 +64,8 @@ pub enum BodyAI {
 #[derive(StructOf, Debug, Clone)]
 pub struct Particle {
     pub collider: Collider,
+    pub velocity: vec2<Coord>,
+    pub lifetime: Health,
 }
 
 pub struct Model {
@@ -78,7 +80,7 @@ pub struct Model {
     pub corpses: StructOf<Arena<BodyCorpse>>,
     // pub enemies: Vec<Box<dyn EntityObject>>,
     // pub minions: Vec<Box<dyn EntityObject>>,
-    // pub particles: StructOf<Arena<Particle>>,
+    pub particles: StructOf<Arena<Particle>>,
     // pub area_effects: Vec<AreaEffect>,
     // pub spawners: Vec<Spawner>,
 }
@@ -123,7 +125,7 @@ impl Model {
             },
             bodies,
             corpses: StructOf::new(),
-            // particles: StructOf::new(),
+            particles: StructOf::new(),
             config,
             entities,
         }

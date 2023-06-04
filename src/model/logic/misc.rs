@@ -1,5 +1,7 @@
 use super::*;
 
+use crate::util::RealConversions;
+
 impl Logic<'_> {
     pub fn check_deaths(&mut self) {
         #[derive(StructQuery)]
@@ -23,24 +25,53 @@ impl Logic<'_> {
         }
     }
 
-    pub fn process_corpses(&mut self) {
+    pub fn update_lifetimes(&mut self) {
         #[derive(StructQuery)]
-        struct CorpseRef<'a> {
+        struct ItemRef<'a> {
             lifetime: &'a mut Health,
         }
 
-        let mut query = query_corpse_ref!(self.model.corpses);
-        let mut iter = query.iter_mut();
-        let mut deaths = Vec::new();
-        while let Some((id, corpse)) = iter.next() {
-            corpse.lifetime.damage(self.delta_time);
-            if corpse.lifetime.is_dead() {
-                deaths.push(id);
-            }
+        macro_rules! process {
+            ($storage:expr) => {
+                let mut query = query_item_ref!($storage);
+                let mut iter = query.iter_mut();
+                let mut deaths = Vec::new();
+                while let Some((id, item)) = iter.next() {
+                    item.lifetime.damage(self.delta_time);
+                    if item.lifetime.is_dead() {
+                        deaths.push(id);
+                    }
+                }
+                for id in deaths {
+                    $storage.remove(id);
+                }
+            };
         }
 
-        for id in deaths {
-            self.model.corpses.remove(id);
+        process!(self.model.corpses);
+        process!(self.model.particles);
+    }
+
+    pub fn spawn_particles_hit(&mut self, position: vec2<Coord>, intensity: R32) {
+        let mut rng = thread_rng();
+        let particles_count =
+            rng.gen_range(3..(intensity.as_f32() / 10.0).clamp(4.0, 50.0) as usize);
+        for _ in 0..particles_count {
+            let direction = Angle::from_radians(rng.gen_range(0.0..=f32::PI * 2.0))
+                .unit_vec()
+                .as_r32();
+            let velocity = rng.gen_range(5.0..15.0).as_r32();
+            let velocity = direction * velocity;
+            self.model.particles.insert(Particle {
+                collider: Collider::new(
+                    position,
+                    Shape::Circle {
+                        radius: 0.3.as_r32(),
+                    },
+                ),
+                velocity,
+                lifetime: Health::new(1.0.as_r32()),
+            });
         }
     }
 }

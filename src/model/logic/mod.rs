@@ -26,6 +26,6 @@ impl Logic<'_> {
 
         // Misc
         self.check_deaths();
-        self.process_corpses();
+        self.update_lifetimes();
     }
 }

@@ -46,6 +46,7 @@ impl Logic<'_> {
             damage: Hp,
         }
 
+        let mut particles = Vec::new();
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
         for info in collisions {
             let mut body_correction = Correction {
@@ -83,6 +84,14 @@ impl Logic<'_> {
                 (info.body_id, body_correction),
                 (info.other_id, other_correction),
             ]);
+
+            // Particles
+            particles.extend([(info.collision.point, hit_strength)]);
+        }
+
+        // Particles
+        for (position, intensity) in particles {
+            self.spawn_particles_hit(position, intensity);
         }
 
         // Apply corrections

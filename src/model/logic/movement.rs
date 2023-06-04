@@ -1,30 +1,30 @@
 use super::*;
 
 impl Logic<'_> {
-    /// Move bodies and corpses according to their velocity.
+    /// Move bodies, corpses, and particles according to their velocity.
     pub fn movement(&mut self) {
         macro_rules! process {
             ($storage:expr) => {
-                let mut query = query_body_ref!($storage);
+                let mut query = query_move_ref!($storage);
                 let mut iter = query.iter_mut();
-                while let Some((_body_id, body)) = iter.next() {
-                    body.collider.position += *body.velocity * self.delta_time;
+                while let Some((_, item)) = iter.next() {
+                    item.collider.position += *item.velocity * self.delta_time;
                 }
             };
         }
 
         {
             #[derive(StructQuery)]
-            struct BodyRef<'a> {
+            struct MoveRef<'a> {
                 collider: &'a mut Collider,
                 velocity: &'a vec2<Coord>,
             }
             process!(self.model.bodies);
+            process!(self.model.particles);
         }
-
         {
             #[derive(StructQuery)]
-            struct BodyRef<'a> {
+            struct MoveRef<'a> {
                 #[query(nested = ".body")]
                 collider: &'a mut Collider,
                 #[query(nested = ".body")]

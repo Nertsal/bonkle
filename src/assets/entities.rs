@@ -8,8 +8,8 @@ pub struct EntitiesAssets {
     pub configs: HashMap<String, BodyConfig>,
 }
 
-impl geng::Load for EntitiesAssets {
-    fn load(manager: &geng::Manager, path: &std::path::Path) -> geng::asset::Future<Self> {
+impl geng::asset::Load for EntitiesAssets {
+    fn load(manager: &geng::asset::Manager, path: &std::path::Path) -> geng::asset::Future<Self> {
         let _manager = manager.clone();
         let path = path.to_owned();
         async move {

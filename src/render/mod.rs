@@ -21,6 +21,7 @@ impl GameRender {
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        self.draw_corpses(model, framebuffer);
         self.draw_bodies(model, framebuffer);
         self.draw_bounds(model, framebuffer);
     }
@@ -56,6 +57,21 @@ impl GameRender {
                     framebuffer,
                 );
             }
+            self.draw_collider_outline(body.collider, 0.1, color, &model.camera, framebuffer);
+        }
+    }
+
+    fn draw_corpses(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[derive(StructQuery)]
+        struct Item<'a> {
+            #[query(optic = ".body.collider._get._id")]
+            collider: &'a Collider,
+            lifetime: &'a Health,
+        }
+
+        for (_body_id, body) in &query_item!(model.corpses) {
+            let mut color = Color::BLUE; // TODO
+            color.a = body.lifetime.ratio().as_f32() * 0.5;
             self.draw_collider_outline(body.collider, 0.1, color, &model.camera, framebuffer);
         }
     }

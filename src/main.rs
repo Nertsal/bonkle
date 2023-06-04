@@ -38,10 +38,13 @@ fn main() {
         async move {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
-            let config = geng::Load::load(manager, &args.config).await.unwrap();
-            let entities = geng::Load::load(manager, &run_dir().join("assets").join("entities"))
+            let config = geng::asset::Load::load(manager, &args.config)
                 .await
                 .unwrap();
+            let entities =
+                geng::asset::Load::load(manager, &run_dir().join("assets").join("entities"))
+                    .await
+                    .unwrap();
             game::Game::new(&geng, &Rc::new(assets), config, entities)
         }
     };

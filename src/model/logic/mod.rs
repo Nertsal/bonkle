@@ -10,14 +10,20 @@ pub struct Logic<'a> {
 
 impl Logic<'_> {
     pub fn process(&mut self) {
+        // Control
         self.player_control();
         self.body_ai();
         self.body_control();
-        self.body_movement();
+
+        // Movement/collisions
+        self.movement();
         self.body_attachment();
         self.body_collisions();
-        self.body_bounds();
+        self.collide_bounds();
+
+        // Misc
         self.check_deaths();
+        self.process_corpses();
     }
 
     fn player_control(&mut self) {
@@ -69,7 +75,7 @@ impl Logic<'_> {
         struct BodyRef<'a> {
             collider: &'a Collider,
             speed: &'a Coord,
-            #[query(optional)]
+            #[query(optic = "._Some")]
             controller: &'a mut BodyController,
         }
 
@@ -102,7 +108,7 @@ impl Logic<'_> {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             velocity: &'a mut vec2<Coord>,
-            #[query(optional)]
+            #[query(optic = "._Some")]
             controller: &'a BodyController,
         }
 
@@ -122,17 +128,36 @@ impl Logic<'_> {
         }
     }
 
-    fn body_movement(&mut self) {
-        #[derive(StructQuery)]
-        struct BodyRef<'a> {
-            collider: &'a mut Collider,
-            velocity: &'a vec2<Coord>,
+    /// Move bodies and corpses according to their velocity.
+    fn movement(&mut self) {
+        macro_rules! process {
+            ($storage:expr) => {
+                let mut query = query_body_ref!($storage);
+                let mut iter = query.iter_mut();
+                while let Some((_body_id, body)) = iter.next() {
+                    body.collider.position += *body.velocity * self.delta_time;
+                }
+            };
         }
 
-        let mut query = query_body_ref!(self.model.bodies);
-        let mut iter = query.iter_mut();
-        while let Some((_body_id, body)) = iter.next() {
-            body.collider.position += *body.velocity * self.delta_time;
+        {
+            #[derive(StructQuery)]
+            struct BodyRef<'a> {
+                collider: &'a mut Collider,
+                velocity: &'a vec2<Coord>,
+            }
+            process!(self.model.bodies);
+        }
+
+        {
+            #[derive(StructQuery)]
+            struct BodyRef<'a> {
+                #[query(optic = ".body.collider._get._id")]
+                collider: &'a mut Collider,
+                #[query(optic = ".body.velocity._get._id")]
+                velocity: &'a vec2<Coord>,
+            }
+            process!(self.model.corpses);
         }
     }
 
@@ -289,61 +314,78 @@ impl Logic<'_> {
         }
     }
 
-    /// Collide with level bounds.
-    fn body_bounds(&mut self) {
-        #[derive(StructQuery)]
-        struct BodyRef<'a> {
-            collider: &'a mut Collider,
-            velocity: &'a mut vec2<Coord>,
+    /// Collide bodies and corpses with level bounds.
+    fn collide_bounds(&mut self) {
+        macro_rules! process {
+            ($storage:expr) => {
+                let bounds = self.model.bounds;
+                let mut query = query_body_ref!($storage);
+                let mut iter = query.iter_mut();
+                while let Some((_, body)) = iter.next() {
+                    let aabb = body.collider.compute_aabb();
+
+                    let left = (bounds.min.x - aabb.min.x).as_f32();
+                    let right = (aabb.max.x - bounds.max.x).as_f32();
+
+                    let (nx, dx) = if right > left && right > 0.0 {
+                        (1.0, right)
+                    } else if left > 0.0 {
+                        (-1.0, left)
+                    } else {
+                        (0.0, 0.0)
+                    };
+
+                    let down = (bounds.min.y - aabb.min.y).as_f32();
+                    let up = (aabb.max.y - bounds.max.y).as_f32();
+
+                    let (ny, dy) = if up > down && up > 0.0 {
+                        (1.0, up)
+                    } else if down > 0.0 {
+                        (-1.0, down)
+                    } else {
+                        (0.0, 0.0)
+                    };
+
+                    let normal = vec2(nx, ny).as_r32();
+                    let penetration = vec2(dx, dy).as_r32();
+
+                    // Translate
+                    body.collider.position -= normal * penetration;
+
+                    // Linear bounce
+                    let bounciness = r32(0.7);
+                    let projection = vec2::dot(normal, *body.velocity);
+                    *body.velocity -= normal * projection * (Coord::ONE + bounciness);
+
+                    // TODO: angular bounce
+                }
+            };
         }
 
-        let bounds = self.model.bounds;
-        let mut query = query_body_ref!(self.model.bodies);
-        let mut iter = query.iter_mut();
-        while let Some((_, body)) = iter.next() {
-            let aabb = body.collider.compute_aabb();
-
-            let left = (bounds.min.x - aabb.min.x).as_f32();
-            let right = (aabb.max.x - bounds.max.x).as_f32();
-
-            let (nx, dx) = if right > left && right > 0.0 {
-                (1.0, right)
-            } else if left > 0.0 {
-                (-1.0, left)
-            } else {
-                (0.0, 0.0)
-            };
-
-            let down = (bounds.min.y - aabb.min.y).as_f32();
-            let up = (aabb.max.y - bounds.max.y).as_f32();
-
-            let (ny, dy) = if up > down && up > 0.0 {
-                (1.0, up)
-            } else if down > 0.0 {
-                (-1.0, down)
-            } else {
-                (0.0, 0.0)
-            };
-
-            let normal = vec2(nx, ny).as_r32();
-            let penetration = vec2(dx, dy).as_r32();
-
-            // Translate
-            body.collider.position -= normal * penetration;
-
-            // Linear bounce
-            let bounciness = r32(0.7);
-            let projection = vec2::dot(normal, *body.velocity);
-            *body.velocity -= normal * projection * (Coord::ONE + bounciness);
-
-            // TODO: angular bounce
+        {
+            #[derive(StructQuery)]
+            struct BodyRef<'a> {
+                collider: &'a mut Collider,
+                velocity: &'a mut vec2<Coord>,
+            }
+            process!(self.model.bodies);
+        }
+        {
+            #[derive(StructQuery)]
+            struct BodyRef<'a> {
+                #[query(optic = ".body.collider._get._id")]
+                collider: &'a mut Collider,
+                #[query(optic = ".body.velocity._get._id")]
+                velocity: &'a mut vec2<Coord>,
+            }
+            process!(self.model.corpses);
         }
     }
 
     fn check_deaths(&mut self) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            #[query(optional)]
+            #[query(optic = "._Some")]
             health: &'a Health,
         }
 
@@ -353,8 +395,33 @@ impl Logic<'_> {
             .map(|(id, _)| id)
             .collect();
         for body_id in deaths {
-            self.model.bodies.remove(body_id);
-            // TODO: corpse + particles
+            let body = self.model.bodies.remove(body_id).unwrap();
+            self.model.corpses.insert(BodyCorpse {
+                body,
+                lifetime: Health::new(r32(1.0)),
+            });
+            // TODO: particles
+        }
+    }
+
+    fn process_corpses(&mut self) {
+        #[derive(StructQuery)]
+        struct CorpseRef<'a> {
+            lifetime: &'a mut Health,
+        }
+
+        let mut query = query_corpse_ref!(self.model.corpses);
+        let mut iter = query.iter_mut();
+        let mut deaths = Vec::new();
+        while let Some((id, corpse)) = iter.next() {
+            corpse.lifetime.damage(self.delta_time);
+            if corpse.lifetime.is_dead() {
+                deaths.push(id);
+            }
+        }
+
+        for id in deaths {
+            self.model.corpses.remove(id);
         }
     }
 }

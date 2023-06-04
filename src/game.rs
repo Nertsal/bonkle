@@ -5,6 +5,7 @@ use crate::{
     util::{RealConversions, Vec2RealConversions},
 };
 
+use ecs::prelude::Archetype;
 use geng::prelude::*;
 
 pub struct Game {
@@ -87,6 +88,15 @@ impl Game {
             head_target,
         }
     }
+
+    fn handle_key(&mut self, key: geng::Key) {
+        if let geng::Key::Space = key {
+            self.model.bodies.insert(BonkleBody::new(
+                self.model.entities.configs["crawler"],
+                vec2(20.0, 0.0).as_r32(),
+            ));
+        }
+    }
 }
 
 impl geng::State for Game {
@@ -105,8 +115,9 @@ impl geng::State for Game {
 
     fn handle_event(&mut self, event: geng::Event) {
         match event {
-            geng::Event::KeyDown { .. } => {
+            geng::Event::KeyDown { key } => {
                 self.head_control_mode = HeadControlMode::Delta;
+                self.handle_key(key);
             }
             geng::Event::MouseDown { .. } => {
                 self.head_control_mode = HeadControlMode::LookAt;

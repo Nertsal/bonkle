@@ -6,7 +6,7 @@ pub use self::entities::*;
 
 use geng::prelude::*;
 
-#[derive(geng::Load)]
+#[derive(geng::asset::Load)]
 pub struct Assets {
     pub body_hit: geng::Sound,
     pub head_hit: geng::Sound,
@@ -28,8 +28,8 @@ fn pixel(texture: &mut ugli::Texture) {
 }
 
 impl Assets {
-    pub async fn load(manager: &geng::Manager) -> anyhow::Result<Self> {
-        geng::Load::load(manager, &run_dir().join("assets"))
+    pub async fn load(manager: &geng::asset::Manager) -> anyhow::Result<Self> {
+        geng::asset::Load::load(manager, &run_dir().join("assets"))
             .await
             .context("failed to load assets")
     }

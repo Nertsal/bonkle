@@ -34,6 +34,13 @@ pub enum AttachmentType {
     Orbit { distance: Coord },
 }
 
+#[derive(StructOf, Debug, Clone)]
+pub struct BodyCorpse {
+    #[structof(nested)]
+    pub body: BonkleBody,
+    pub lifetime: Health,
+}
+
 impl BonkleBody {
     pub fn new(config: BodyConfig, position: vec2<Coord>) -> Self {
         Self {

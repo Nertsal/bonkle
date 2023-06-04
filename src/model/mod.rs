@@ -62,12 +62,15 @@ pub enum BodyAI {
 }
 
 pub struct Model {
+    pub config: Config,
+    pub entities: EntitiesAssets,
     pub current_stage: usize,
     pub camera: Camera2d,
     pub bounds: Bounds,
     // pub spawn_bounds: Bounds,
     pub player: Player,
     pub bodies: StructOf<Collection<BonkleBody>>,
+    pub corpses: StructOf<Vec<BodyCorpse>>,
     // pub enemies: Vec<Box<dyn EntityObject>>,
     // pub minions: Vec<Box<dyn EntityObject>>,
     // pub particles: Vec<Particle>,
@@ -114,6 +117,9 @@ impl Model {
                 head: player_head,
             },
             bodies,
+            corpses: StructOf::new(),
+            config,
+            entities,
         }
     }
 

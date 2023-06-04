@@ -5,7 +5,7 @@ BodyConfig(
     ),
     mass: 5.0,
     speed: 10.0,
-    health: Some(10),
+    health: Some(25),
     acceleration: 3.0,
     deceleration: 5.0,
 )

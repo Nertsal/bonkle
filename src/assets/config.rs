@@ -2,7 +2,7 @@ use geng::prelude::*;
 
 use crate::model::{BodyAI, Coord, Hp, Shape};
 
-#[derive(geng::Load, Serialize, Deserialize, Debug, Clone)]
+#[derive(geng::asset::Load, Serialize, Deserialize, Debug, Clone)]
 #[load(serde = "toml")]
 pub struct Config {
     pub arena: ArenaConfig,

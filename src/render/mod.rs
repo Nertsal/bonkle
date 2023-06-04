@@ -64,7 +64,7 @@ impl GameRender {
     fn draw_corpses(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[derive(StructQuery)]
         struct Item<'a> {
-            #[query(optic = ".body.collider._get._id")]
+            #[query(nested = ".body")]
             collider: &'a Collider,
             lifetime: &'a Health,
         }

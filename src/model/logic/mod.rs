@@ -152,9 +152,9 @@ impl Logic<'_> {
         {
             #[derive(StructQuery)]
             struct BodyRef<'a> {
-                #[query(optic = ".body.collider._get._id")]
+                #[query(nested = ".body")]
                 collider: &'a mut Collider,
-                #[query(optic = ".body.velocity._get._id")]
+                #[query(nested = ".body")]
                 velocity: &'a vec2<Coord>,
             }
             process!(self.model.corpses);
@@ -373,9 +373,9 @@ impl Logic<'_> {
         {
             #[derive(StructQuery)]
             struct BodyRef<'a> {
-                #[query(optic = ".body.collider._get._id")]
+                #[query(nested = ".body")]
                 collider: &'a mut Collider,
-                #[query(optic = ".body.velocity._get._id")]
+                #[query(nested = ".body")]
                 velocity: &'a mut vec2<Coord>,
             }
             process!(self.model.corpses);

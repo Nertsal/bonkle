@@ -1205,7 +1205,6 @@ checksum = "68b0cf012f1230e43cd00ebb729c6bb58707ecfa8ad08b52ef3a4ccd2697fc30"
 [[package]]
 name = "ecs"
 version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs#09118294a2108125fddc5135b46b2e8b306059ec"
 dependencies = [
  "ecs-derive",
 ]
@@ -1213,7 +1212,6 @@ dependencies = [
 [[package]]
 name = "ecs-derive"
 version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs#09118294a2108125fddc5135b46b2e8b306059ec"
 dependencies = [
  "darling",
  "proc-macro2",

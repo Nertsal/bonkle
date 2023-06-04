@@ -9,14 +9,14 @@ use geng::prelude::*;
 
 pub struct GameRender {
     geng: Geng,
-    assets: Rc<Assets>,
+    // assets: Rc<Assets>,
 }
 
 impl GameRender {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>) -> Self {
+    pub fn new(geng: &Geng, _assets: &Rc<Assets>) -> Self {
         Self {
             geng: geng.clone(),
-            assets: assets.clone(),
+            // assets: assets.clone(),
         }
     }
 

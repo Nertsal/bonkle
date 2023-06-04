@@ -71,18 +71,18 @@ impl Logic<'_> {
     }
 
     fn body_ai(&mut self) {
+        // Calculate actions
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             collider: &'a Collider,
             speed: &'a Coord,
             #[query(optic = "._Some")]
-            controller: &'a mut BodyController,
+            controller: &'a BodyController,
         }
 
-        // Calculate actions
         let mut actions: HashMap<Id, BodyController> = HashMap::new();
-        let mut query = query_body_ref!(self.model.bodies);
-        for (body_id, body) in &query {
+        let query = query_body_ref!(self.model.bodies);
+        for (body_id, body) in &query_body_ref!(self.model.bodies) {
             let mut controller = body.controller.clone();
             let Some(ai) = &controller.ai else { continue; };
             match ai {
@@ -98,6 +98,13 @@ impl Logic<'_> {
         }
 
         // Apply actions
+        #[derive(StructQuery)]
+        struct UpdateRef<'a> {
+            #[query(optic = "._Some")]
+            controller: &'a mut BodyController,
+        }
+
+        let mut query = query_update_ref!(self.model.bodies);
         for (body_id, new_controller) in actions {
             let body = query.get_mut(body_id).unwrap();
             *body.controller = new_controller;
@@ -163,21 +170,21 @@ impl Logic<'_> {
 
     /// Correct bodies' attachments by moving them in a position that satifies the constraint.
     fn body_attachment(&mut self) {
+        // Collect corrections
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            collider: &'a mut Collider,
-            velocity: &'a mut vec2<Coord>,
+            collider: &'a Collider,
+            velocity: &'a vec2<Coord>,
             attachment: &'a Option<BodyAttachment>,
         }
 
-        let mut query = query_body_ref!(self.model.bodies);
-
-        // Collect corrections
         struct Correction {
             position: vec2<Coord>,
             velocity: vec2<Coord>,
         }
+
         let mut corrections = HashMap::<Id, Correction>::new();
+        let query = query_body_ref!(self.model.bodies);
         for (body_id, body) in &query {
             if let Some(attachment) = body.attachment {
                 if let Some(to_body) = query.get(attachment.to_body) {
@@ -204,9 +211,17 @@ impl Logic<'_> {
         }
 
         // Apply corrections
+        #[derive(StructQuery)]
+        struct CorrectionRef<'a> {
+            #[query(optic = ".collider._get.position", component = "Collider")]
+            position: &'a mut vec2<Coord>,
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let mut query = query_correction_ref!(self.model.bodies);
         for (body, correction) in corrections {
             let body = query.get_mut(body).unwrap(); // Body guaranteed to be valid
-            body.collider.position = correction.position;
+            *body.position = correction.position;
             *body.velocity = correction.velocity;
         }
     }

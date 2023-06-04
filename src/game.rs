@@ -10,7 +10,7 @@ use geng::prelude::*;
 
 pub struct Game {
     geng: Geng,
-    assets: Rc<Assets>,
+    // assets: Rc<Assets>,
     render: GameRender,
     framebuffer_size: vec2<usize>,
     model: Model,
@@ -27,7 +27,7 @@ impl Game {
     pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config, entities: EntitiesAssets) -> Self {
         Self {
             geng: geng.clone(),
-            assets: assets.clone(),
+            // assets: assets.clone(),
             render: GameRender::new(geng, assets),
             framebuffer_size: vec2(1, 1),
             model: Model::new(config, entities),

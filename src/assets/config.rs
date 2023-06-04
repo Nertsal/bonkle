@@ -1,6 +1,8 @@
-use geng::prelude::*;
+#![allow(clippy::needless_question_mark)] // `#[derive(geng::asset::Load)]` gives that idk why
 
 use crate::model::{BodyAI, Coord, Hp, Shape};
+
+use geng::prelude::*;
 
 #[derive(geng::asset::Load, Serialize, Deserialize, Debug, Clone)]
 #[load(serde = "toml")]

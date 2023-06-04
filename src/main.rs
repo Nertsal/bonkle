@@ -1,5 +1,4 @@
 mod assets;
-mod collection;
 mod game;
 mod model;
 mod render;

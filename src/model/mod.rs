@@ -11,15 +11,15 @@ use self::logic::Logic;
 pub use self::shape::*;
 
 use crate::assets::EntitiesAssets;
-use crate::{
-    assets::Config,
-    collection::{Collection, Id},
-    util::Vec2RealConversions,
-};
+use crate::{assets::Config, util::Vec2RealConversions};
 
-use ecs::prelude::*;
+use ecs::{
+    arena::{Arena, Index},
+    prelude::*,
+};
 use geng::prelude::*;
 
+pub type Id = Index;
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
@@ -61,6 +61,11 @@ pub enum BodyAI {
     Crawler,
 }
 
+#[derive(StructOf, Debug, Clone)]
+pub struct Particle {
+    pub collider: Collider,
+}
+
 pub struct Model {
     pub config: Config,
     pub entities: EntitiesAssets,
@@ -69,18 +74,18 @@ pub struct Model {
     pub bounds: Bounds,
     // pub spawn_bounds: Bounds,
     pub player: Player,
-    pub bodies: StructOf<Collection<BonkleBody>>,
-    pub corpses: StructOf<Vec<BodyCorpse>>,
+    pub bodies: StructOf<Arena<BonkleBody>>,
+    pub corpses: StructOf<Arena<BodyCorpse>>,
     // pub enemies: Vec<Box<dyn EntityObject>>,
     // pub minions: Vec<Box<dyn EntityObject>>,
-    // pub particles: Vec<Particle>,
+    // pub particles: StructOf<Arena<Particle>>,
     // pub area_effects: Vec<AreaEffect>,
     // pub spawners: Vec<Spawner>,
 }
 
 impl Model {
     pub fn new(config: Config, entities: EntitiesAssets) -> Self {
-        let mut bodies = StructOf::<Collection<BonkleBody>>::new();
+        let mut bodies = StructOf::<Arena<BonkleBody>>::new();
 
         let player_body = bodies.insert(BonkleBody::new(config.player.body, vec2::ZERO));
 
@@ -118,6 +123,7 @@ impl Model {
             },
             bodies,
             corpses: StructOf::new(),
+            // particles: StructOf::new(),
             config,
             entities,
         }

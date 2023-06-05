@@ -10,17 +10,20 @@ use geng::prelude::*;
 pub struct GameRender {
     geng: Geng,
     // assets: Rc<Assets>,
+    theme: ColorTheme,
 }
 
 impl GameRender {
-    pub fn new(geng: &Geng, _assets: &Rc<Assets>) -> Self {
+    pub fn new(geng: &Geng, _assets: &Rc<Assets>, theme: ColorTheme) -> Self {
         Self {
             geng: geng.clone(),
             // assets: assets.clone(),
+            theme,
         }
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        ugli::clear(framebuffer, Some(self.theme.background), None, None);
         self.draw_corpses(model, framebuffer);
         self.draw_particles(model, framebuffer);
         self.draw_bodies(model, framebuffer);
@@ -35,19 +38,20 @@ impl GameRender {
         self.geng.draw2d().draw2d(
             framebuffer,
             &model.camera,
-            &draw2d::Chain::new(chain, 0.1, Color::GRAY, 2),
+            &draw2d::Chain::new(chain, 0.1, self.theme.border, 2),
         );
     }
 
     fn draw_bodies(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[derive(StructQuery)]
         struct Item<'a> {
+            name: &'a String,
             collider: &'a Collider,
             health: &'a Option<Health>,
         }
 
         for (_body_id, body) in &query_item!(model.bodies) {
-            let color = Color::BLUE; // TODO
+            let color = self.theme.get_entity(body.name).unwrap_or(Color::BLUE);
             if let Some(health) = body.health {
                 let fill = health.ratio().as_f32().clamp(0.0, 1.0);
                 self.draw_collider(
@@ -73,12 +77,14 @@ impl GameRender {
         #[derive(StructQuery)]
         struct Item<'a> {
             #[query(nested = ".body")]
+            name: &'a String,
+            #[query(nested = ".body")]
             collider: &'a Collider,
             lifetime: &'a Health,
         }
 
         for (_body_id, body) in &query_item!(model.corpses) {
-            let mut color = Color::BLUE; // TODO
+            let mut color = self.theme.get_entity(body.name).unwrap_or(Color::BLUE);
             color.a = body.lifetime.ratio().as_f32() * 0.5;
             self.draw_collider_outline(
                 body.collider,
@@ -94,12 +100,13 @@ impl GameRender {
     fn draw_particles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[derive(StructQuery)]
         struct Item<'a> {
+            name: &'a String,
             collider: &'a Collider,
             lifetime: &'a Health,
         }
 
-        for (_body_id, particle) in &query_item!(model.particles) {
-            let mut color = Color::BLUE; // TODO
+        for (_id, particle) in &query_item!(model.particles) {
+            let mut color = self.theme.get_entity(particle.name).unwrap_or(Color::BLUE);
             let t = particle.lifetime.ratio().as_f32();
             let t = tween::Tweener::cubic_in_out(0.0, 1.0, 1.0).move_by(t);
             color.a = t * 0.9;

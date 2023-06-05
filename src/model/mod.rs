@@ -2,24 +2,19 @@ mod body;
 mod collider;
 mod health;
 mod logic;
+mod particles;
 mod shape;
 
-pub use self::body::*;
-pub use self::collider::*;
-pub use self::health::*;
 use self::logic::Logic;
-pub use self::shape::*;
+pub use self::{body::*, collider::*, health::*, particles::*, shape::*};
 
 use crate::assets::EntitiesAssets;
 use crate::{assets::Config, util::Vec2RealConversions};
 
-use ecs::{
-    arena::{Arena, Index},
-    prelude::*,
-};
+use ecs::{arena::Arena, prelude::*};
 use geng::prelude::*;
 
-pub type Id = Index;
+pub type Id = ecs::arena::Index;
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
@@ -61,13 +56,6 @@ pub enum BodyAI {
     Crawler,
 }
 
-#[derive(StructOf, Debug, Clone)]
-pub struct Particle {
-    pub collider: Collider,
-    pub velocity: vec2<Coord>,
-    pub lifetime: Health,
-}
-
 pub struct Model {
     pub config: Config,
     pub entities: EntitiesAssets,
@@ -89,9 +77,10 @@ impl Model {
     pub fn new(config: Config, entities: EntitiesAssets) -> Self {
         let mut bodies = StructOf::<Arena<BonkleBody>>::new();
 
-        let player_body = bodies.insert(BonkleBody::new(config.player.body, vec2::ZERO));
+        let player_body = bodies.insert(BonkleBody::new("player", config.player.body, vec2::ZERO));
 
         let mut player_head = BonkleBody::new(
+            "player",
             config.player.head,
             vec2::UNIT_Y * config.player.orbit_distance,
         );
@@ -104,6 +93,7 @@ impl Model {
         let player_head = bodies.insert(player_head);
 
         bodies.insert(BonkleBody::new(
+            "crawler",
             entities.configs["crawler"],
             vec2(20.0, 0.0).as_r32(),
         ));

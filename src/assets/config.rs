@@ -1,11 +1,11 @@
 #![allow(clippy::needless_question_mark)] // `#[derive(geng::asset::Load)]` gives that idk why
 
-use crate::model::{BodyAI, Coord, Hp, Shape};
+use crate::model::{BodyAI, Color, Coord, Hp, Shape};
 
 use geng::prelude::*;
 
 #[derive(geng::asset::Load, Serialize, Deserialize, Debug, Clone)]
-#[load(serde = "toml")]
+#[load(serde = "ron")]
 pub struct Config {
     pub arena: ArenaConfig,
     pub player: PlayerConfig,
@@ -32,4 +32,22 @@ pub struct BodyConfig {
     pub ai: Option<BodyAI>,
     pub acceleration: Coord,
     pub deceleration: Coord,
+}
+
+#[derive(geng::asset::Load, Serialize, Deserialize, Debug, Clone)]
+#[load(serde = "toml")]
+pub struct ColorTheme {
+    pub background: Color,
+    pub border: Color,
+    pub player: Color,
+    pub entities: HashMap<String, Color>,
+}
+
+impl ColorTheme {
+    pub fn get_entity(&self, name: impl AsRef<str>) -> Option<Color> {
+        match name.as_ref() {
+            "player" => Some(self.player),
+            name => self.entities.get(name).copied(),
+        }
+    }
 }

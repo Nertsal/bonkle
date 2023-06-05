@@ -4,6 +4,7 @@ use super::*;
 
 #[derive(StructOf, Debug, Clone)]
 pub struct BonkleBody {
+    pub name: String,
     pub collider: Collider,
     pub velocity: vec2<Coord>,
     pub mass: Mass,
@@ -42,8 +43,9 @@ pub struct BodyCorpse {
 }
 
 impl BonkleBody {
-    pub fn new(config: BodyConfig, position: vec2<Coord>) -> Self {
+    pub fn new(name: impl Into<String>, config: BodyConfig, position: vec2<Coord>) -> Self {
         Self {
+            name: name.into(),
             collider: Collider::new(position, config.shape),
             velocity: vec2::ZERO,
             mass: config.mass,

@@ -15,6 +15,8 @@ const FPS: f64 = 60.0;
 struct Args {
     #[clap(long, default_value = "assets/config.ron")]
     config: PathBuf,
+    #[clap(long, default_value = "assets/themes/default.toml")]
+    theme: PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,
 }
@@ -40,11 +42,12 @@ fn main() {
             let config = geng::asset::Load::load(manager, &args.config)
                 .await
                 .unwrap();
+            let theme = geng::asset::Load::load(manager, &args.theme).await.unwrap();
             let entities =
                 geng::asset::Load::load(manager, &run_dir().join("assets").join("entities"))
                     .await
                     .unwrap();
-            game::Game::new(&geng, &Rc::new(assets), config, entities)
+            game::Game::new(&geng, &Rc::new(assets), config, theme, entities)
         }
     };
 

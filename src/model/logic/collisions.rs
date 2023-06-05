@@ -4,6 +4,7 @@ impl Logic<'_> {
     pub fn body_collisions(&mut self) {
         #[derive(StructQuery, Clone, Copy)]
         struct BodyRef<'a> {
+            name: &'a String,
             collider: &'a Collider,
             velocity: &'a vec2<Coord>,
             mass: &'a Mass,
@@ -24,7 +25,7 @@ impl Logic<'_> {
         // TODO: optimize with quad-tree or aabb's or smth
         for (body_id, body) in &query {
             for (other_id, other) in &query {
-                if body_id == other_id {
+                if body_id <= other_id {
                     continue;
                 }
                 if let Some(collision) = body.collider.collide(other.collider) {
@@ -80,18 +81,32 @@ impl Logic<'_> {
 
             // TODO: Angular bounce
 
+            // Particles
+            let pos = info.collision.point;
+            let angle = Angle::from_radians(body_correction.velocity.arg());
+            let angle_other = Angle::from_radians(other_correction.velocity.arg());
+            let angle_range = Angle::from_degrees(r32(30.0));
+            let speed = body_correction.velocity.len() / r32(5.0);
+            let speed_other = other_correction.velocity.len() / r32(5.0);
+            let speed_range = r32(5.0);
+            particles.extend([
+                ParticlesSpawn::new(info.body.name.to_owned(), hit_self, pos)
+                    .directed(angle, angle_range)
+                    .sped(speed, speed_range),
+                ParticlesSpawn::new(info.other.name.to_owned(), hit_other, pos)
+                    .directed(angle_other, angle_range)
+                    .sped(speed_other, speed_range),
+            ]);
+
             corrections.extend([
                 (info.body_id, body_correction),
                 (info.other_id, other_correction),
             ]);
-
-            // Particles
-            particles.extend([(info.collision.point, hit_strength)]);
         }
 
         // Particles
-        for (position, intensity) in particles {
-            self.spawn_particles_hit(position, intensity);
+        for spawn in particles {
+            self.spawn_particles_hit(spawn);
         }
 
         // Apply corrections

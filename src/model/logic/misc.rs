@@ -52,19 +52,20 @@ impl Logic<'_> {
         process!(self.model.particles);
     }
 
-    pub fn spawn_particles_hit(&mut self, position: vec2<Coord>, intensity: R32) {
+    pub fn spawn_particles_hit(&mut self, config: ParticlesSpawn) {
         let mut rng = thread_rng();
         let particles_count =
-            rng.gen_range(3..(intensity.as_f32() / 10.0).clamp(4.0, 50.0) as usize);
+            rng.gen_range(3..(config.intensity.as_f32() / 10.0).clamp(4.0, 50.0) as usize);
         for _ in 0..particles_count {
-            let direction = Angle::from_radians(rng.gen_range(0.0..=f32::PI * 2.0))
-                .unit_vec()
-                .as_r32();
-            let velocity = rng.gen_range(5.0..15.0).as_r32();
-            let velocity = direction * velocity;
+            let angle =
+                rng.gen_range(config.angle.start().as_radians()..=config.angle.end().as_radians());
+            let direction = Angle::from_radians(angle).unit_vec().as_r32();
+            let speed = rng.gen_range(*config.speed.start()..*config.speed.end());
+            let velocity = direction * speed;
             self.model.particles.insert(Particle {
+                name: config.name.clone(),
                 collider: Collider::new(
-                    position,
+                    config.position,
                     Shape::Circle {
                         radius: 0.3.as_r32(),
                     },

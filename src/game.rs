@@ -24,11 +24,17 @@ enum HeadControlMode {
 }
 
 impl Game {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config, entities: EntitiesAssets) -> Self {
+    pub fn new(
+        geng: &Geng,
+        assets: &Rc<Assets>,
+        config: Config,
+        theme: ColorTheme,
+        entities: EntitiesAssets,
+    ) -> Self {
         Self {
             geng: geng.clone(),
             // assets: assets.clone(),
-            render: GameRender::new(geng, assets),
+            render: GameRender::new(geng, assets, theme),
             framebuffer_size: vec2(1, 1),
             model: Model::new(config, entities),
             head_control_mode: HeadControlMode::Delta,
@@ -92,6 +98,7 @@ impl Game {
     fn handle_key(&mut self, key: geng::Key) {
         if let geng::Key::Space = key {
             self.model.bodies.insert(BonkleBody::new(
+                "crawler",
                 self.model.entities.configs["crawler"],
                 vec2(20.0, 0.0).as_r32(),
             ));
@@ -102,7 +109,6 @@ impl Game {
 impl geng::State for Game {
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         self.framebuffer_size = framebuffer.size();
-        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
         self.render.draw(&self.model, framebuffer);
     }
 

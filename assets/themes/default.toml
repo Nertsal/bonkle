@@ -1,0 +1,23 @@
+background = "#16181a"
+border = "#636c6e"
+player = "#46a6b2"
+
+[entities]
+crawler = "#d05c65"
+
+# onedarker
+# yellow = "#d5b06b";
+# blue = "#519fdf";
+# red = "#d05c65";
+# purple = "#b668cd";
+# green = "#7da869";
+# gold = "#d19a66";
+# cyan = "#46a6b2";
+# white = "#abb2bf";
+# black = "#16181a";
+# light-black = "#2c323c";
+# gray = "#252d30";
+# faint-gray = "#abb2bf";
+# light-gray = "#636c6e";
+# linenr = "#282c34";
+
